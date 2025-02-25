@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary: #151515;
+    --color-secondary: #FA175C;
+    --color-dark-gray: #242423;
+    --color-text-gray: #C5C5C5;
+    --color-ubuntu-red: #B80C09;
+    --color-indigo: #7386E7;
+}
