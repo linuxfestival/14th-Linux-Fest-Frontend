@@ -2,14 +2,18 @@ import React from "react";
 
 interface Props {
   className?: string;
+  size: number;
 }
 
-const Arch = ({ className }: Props) => {
+const Arch = ({ className, size }: Props) => {
+  const aspectRatio = 190 / 172;
+  const height = size * aspectRatio;
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="172"
-      height="190"
+      width={size}
+      height={height}
       fill="none"
       viewBox="0 0 172 190"
       className={className}
