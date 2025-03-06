@@ -1,10 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
     --color-primary: #151515;
     --color-secondary: #FA175C;
     --color-dark-gray: #242423;
+    --color-light-gray: #212120;
     --color-text-gray: #C5C5C5;
     --color-ubuntu-red: #B80C09;
     --color-indigo: #7386E7;
+}   
+
+body {
+    color: white;
+    background-color: #151515;
+    margin: 0;
+}
+
+* {
+    font-family: "Vazirmatn", sans-serif;
 }
