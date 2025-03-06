@@ -19,6 +19,9 @@ interface Props {
   variant?: ButtonVariants;
   disabled?: boolean;
   className?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 const Button = ({
@@ -27,6 +30,9 @@ const Button = ({
   variant = ButtonVariants.FILL,
   disabled = false,
   className,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
 }: Props) => {
   return (
     <div
@@ -41,6 +47,9 @@ const Button = ({
         },
         className
       )}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {children}
     </div>
