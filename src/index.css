@@ -27,3 +27,20 @@ body {
 * {
     font-family: "Vazirmatn", sans-serif;
 }
+
+.bg-pattern {
+    background-image: url("/patterns.png");
+    background-color: rgba(21, 21, 21, 0.98);
+    background-blend-mode: darken;
+    background-size: 120px;
+    animation: bg-move 60s linear infinite;
+}
+
+@keyframes bg-move {
+    from {
+        background-position: bottom right;
+    }
+    to {
+        background-position: top left;
+    }
+}

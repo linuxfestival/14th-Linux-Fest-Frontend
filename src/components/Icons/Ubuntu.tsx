@@ -2,14 +2,16 @@ import React from "react";
 
 interface Props {
   className?: string;
+  size?: number;
 }
 
-const Ubuntu = ({ className }: Props) => {
+const Ubuntu = ({ className, size = 123 }: Props) => {
+  const height = size; // Assuming the SVG is square
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="123"
-      height="123"
+      width={size}
+      height={height}
       fill="none"
       viewBox="0 0 123 123"
       className={className}
