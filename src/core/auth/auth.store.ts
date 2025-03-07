@@ -25,5 +25,8 @@ const authSlice = createSlice({
   },
 });
 
+// we can use extraReducers to store user information after logged in here
+// ( extra reducers will be called after a thunk call returning a value)
+
 export const { login, logout } = authSlice.actions;
 export default authSlice.reducer;
