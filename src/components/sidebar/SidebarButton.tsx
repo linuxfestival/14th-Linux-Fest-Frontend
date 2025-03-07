@@ -13,7 +13,7 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
 }) => (
   <button
     onClick={onClick}
-    className={`flex items-center justify-start w-full py-3 px-4 text-white text-sm font-medium rounded-lg ${className}`}
+    className={`flex h-14 w-full px-2 rounded-[14px] gap-[10px] items-center justify-start py-2 text-white text-[16px] font-light ${className}`}
   >
     <span className="mr-3">{icon}</span>
     <span>{label}</span>

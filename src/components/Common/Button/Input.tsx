@@ -46,13 +46,13 @@ export default function InputField({ ...props }: InputFieldProps) {
         <input
           type={props.type}
           id="floating_outlined"
-          className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-text-white bg-transparent rounded-[14px] border-1 border-secondary-gray appearance-none focus:outline-none focus:ring-0 placeholder:text-text-white peer"
           placeholder={props.placeholder}
           onChange={props.inputChangeHandler}
           dir={props.textDirection}
           required={props.required}
         />
-        <label className="absolute top-0 right-4 peer-focus:block text-sm text-gray-500 dark:text-gray-400 duration-300 scale-75 z-10 origin-[0] bg-white dark:bg-gray-900 peer-focus:px-1 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 start-0.5">
+        <label className="absolute top-0 right-4 text-sm text-secondary-gray bg-bg-secondary duration-300 z-10 origin-[0] peer-focus:px-1 peer-placeholder-shown:scale-100 -translate-y-1/2">
           {props.label}
         </label>
       </div>

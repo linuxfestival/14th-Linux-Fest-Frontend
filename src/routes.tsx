@@ -1,14 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
-import Sidebar from "./components/sidebar/Sidebar";
+import MainLayout from "./layout/MainLayout";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Sidebar />,
+    element: "/",
   },
   {
-    path: "home",
-    element: <Sidebar />,
+    path: "settings",
+    element: <MainLayout />,
   },
 ]);
 

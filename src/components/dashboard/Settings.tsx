@@ -16,8 +16,6 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="bg-black text-white min-h-screen flex items-center">
-      <Sidebar />
       <div className="flex justify-center items-center w-full">
         <div className="flex flex-col justify-center items-center bg-bg-secondary p-6 rounded-lg w-[80%] py-20 max-w-4xl">
           <div className="relative flex items-center justify-center mb-4 w-full max-w-xl">
@@ -26,7 +24,6 @@ const Settings: React.FC = () => {
               alt="User Avatar"
               className="size-32 rounded-full"
             />
-            {/* Hidden file input for image upload */}
             <input
               type="file"
               accept="image/*"
@@ -34,7 +31,6 @@ const Settings: React.FC = () => {
               className="hidden"
               id="avatarInput"
             />
-            {/* Camera button to trigger file input */}
             <label
               htmlFor="avatarInput"
               className="absolute flex justify-center items-center right-[calc(50%-64px)] bottom-0 size-10 rounded-full bg-gray-800 cursor-pointer"
@@ -103,7 +99,6 @@ const Settings: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
