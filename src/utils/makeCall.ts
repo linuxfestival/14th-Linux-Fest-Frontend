@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 import strings from "./locales/locales";
@@ -6,17 +6,16 @@ import { logger } from "./logger";
 import { from, Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 
-//here we will do the main makeCall
+// here we will do the main makeCall
 // the point is to handle all request failure errors and detect any axios error to provide error for all possible errors in easiest way
 
 type methods = "GET" | "POST" | "DELETE" | "UPDATE" | "PUT";
 
 export const makeCall = <T, K>(
   path: string,
-  method: methods = "GET",
-  body?: T
-): Observable<K> => {
-  const request = () => {
+  method: methods = "GET"
+): ((body: T) => Promise<AxiosResponse<K, any>>) => {
+  const request = (body: T) => {
     switch (method) {
       case "GET":
         return api.get<K>(path);
@@ -33,22 +32,7 @@ export const makeCall = <T, K>(
     }
   };
 
-  return from(request().then((response) => response.data)).pipe(
-    catchError((error) => {
-      if (axios.isAxiosError(error)) {
-        if (!error.response) {
-          toast.error(strings.errors.connectionError);
-        }
-        // Handle Axios error
-        logger.error(`Axios error: ${error.message}`);
-        throw error;
-      } else {
-        // Handle non-Axios error
-        logger.error(`Unexpected error: ${error}`);
-        throw error;
-      }
-    })
-  );
+  return request;
 };
 
 const api = axios.create({ baseURL: import.meta.env.BASE_URL });
