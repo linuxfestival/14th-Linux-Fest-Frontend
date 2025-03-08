@@ -62,7 +62,7 @@ const Home = () => {
 
       {/* What's Linux Fest */}
       <div className="flex items-center gap-10 px-20">
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full hidden md:block max-w-[500px]">
           <img className="w-full h-auto" src={ProgrammingVec} />
         </div>
         <div className="w-full flex-1 flex flex-col gap-5 text-right justify-center items-end">
@@ -84,9 +84,9 @@ const Home = () => {
 
       {/* Statics */}
       <div className="flex justify-between lg:justify-around gap-10 px-5 md:px-20 my-10 bg-light-gray py-10">
-        <StaticsCard title="پروژه‌های اوپن سورس" number={1000000} moreThan />
+        <StaticsCard title="پروژه‌های اوپن سورس" number={1000000} moreThan increment />
         <StaticsCard title="توزیع‌های لینوکس" number={600} moreThan />
-        <StaticsCard title="کاربران لینوکس" number={30000000} moreThan />
+        <StaticsCard title="کاربران لینوکس" number={30000000} moreThan increment />
       </div>
 
       {/* Gofte Haye Dadasham Linux */}

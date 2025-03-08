@@ -4,22 +4,23 @@ interface Props {
   title: string;
   number: number;
   moreThan?: boolean;
+  increment?: boolean;
 }
 
-const StaticsCard = ({ title, number, moreThan = false }: Props) => {
+const StaticsCard = ({ title, number, moreThan = false, increment = false }: Props) => {
   const [displayNumber, setDisplayNumber] = useState(0);
 
   useEffect(() => {
-    let start = 0;
-    const end = number;
-    if (start === end) return;
+    if (!increment)
+      return;
 
-    let incrementTime = (2 / end) * 1000;
+    let start = number;
+
+    let incrementTime = Math.floor(Math.random() * 10) * 100;
 
     let timer = setInterval(() => {
       start += 1;
       setDisplayNumber(start);
-      if (start >= end) clearInterval(timer);
     }, incrementTime);
 
     return () => clearInterval(timer);
@@ -50,7 +51,7 @@ const StaticsCard = ({ title, number, moreThan = false }: Props) => {
         {moreThan && "+"}
         {convertToPersianText(displayNumber)}
       </h2>
-      <p className="text-sm md:text-xl lg:text-2xl text-text-gray mt-auto text-center">
+      <p className="text-xs md:text-xl lg:text-2xl text-text-gray mt-auto text-center">
         {title}
       </p>
     </div>
