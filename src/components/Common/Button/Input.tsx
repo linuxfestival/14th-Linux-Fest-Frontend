@@ -46,7 +46,7 @@ export default function InputField({ ...props }: InputFieldProps) {
         <input
           type={props.type}
           id="floating_outlined"
-          className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-text-white bg-transparent rounded-[14px] border-1 border-secondary-gray appearance-none focus:outline-none focus:ring-0 placeholder:text-text-white peer"
+          className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-text-white bg-transparent rounded-[14px] border-1 border-secondary-gray appearance-none focus:outline-none focus:ring-0 peer"
           placeholder={props.placeholder}
           onChange={props.inputChangeHandler}
           dir={props.textDirection}

@@ -16,7 +16,7 @@ const Settings: React.FC = () => {
   };
 
   return (
-      <div className="flex justify-center items-center w-full">
+      <div className="flex justify-center items-center w-full min-h-[100vh]">
         <div className="flex flex-col justify-center items-center bg-bg-secondary p-6 rounded-lg w-[80%] py-20 max-w-4xl">
           <div className="relative flex items-center justify-center mb-4 w-full max-w-xl">
             <img
@@ -38,63 +38,37 @@ const Settings: React.FC = () => {
               <Camera />
             </label>
           </div>
-          <div className="flex flex-col space-y-4 max-w-xl">
+          <div className="flex flex-col space-y-4 max-w-xl min-w-1/2">
             <div className="flex items-center space-x-4">
               <InputField
                 type="text"
                 value=""
-                label="عنوان"
+                label="نام"
                 inputChangeHandler={() => console.log("")}
-                placeholder="تست"
+                placeholder="مارک"
               />
             </div>
             <div className="flex items-center space-x-4">
               <InputField
                 type="text"
                 value=""
-                label="عنوان"
+                label="نام خانوادگی"
                 inputChangeHandler={() => console.log("")}
-                placeholder="عنوان"
+                placeholder="فیشباک"
               />
+            </div>
+            <div className="flex items-center space-x-4">
               <InputField
-                type="text"
-                value=""
+                type="email"
+                value="ایمیل"
                 label="عنوان"
                 inputChangeHandler={() => console.log("")}
-                placeholder="عنوان"
+                placeholder="email@example.com"
+                textDirection="ltr"
               />
             </div>
             <div className="mb-6">
-              <Button size={ButtonSizes.SMALL}>متن دکمه</Button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <InputField
-                type="text"
-                value=""
-                label="عنوان"
-                inputChangeHandler={() => console.log("")}
-                placeholder="عنوان"
-              />
-            </div>
-            <div className="flex items-center space-x-4">
-              <InputField
-                type="text"
-                value=""
-                label="عنوان"
-                inputChangeHandler={() => console.log("")}
-                placeholder="عنوان"
-              />
-              <InputField
-                type="text"
-                value=""
-                label="عنوان"
-                inputChangeHandler={() => console.log("")}
-                placeholder="عنوان"
-              />
-            </div>
-
-            <div className="mt-6">
-              <Button size={ButtonSizes.SMALL}>متن دکمه</Button>
+              <Button size={ButtonSizes.SMALL}>ثبت</Button>
             </div>
           </div>
         </div>

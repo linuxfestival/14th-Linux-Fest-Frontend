@@ -1,5 +1,6 @@
 import React from "react";
 import Logout from "../components/Common/icons/Logout";
+import Camera from "../components/Common/icons/Camera.tsx";
 
 
 type SidebarButtonType = {
@@ -11,23 +12,18 @@ type SidebarButtonType = {
 
 export const sidebarData: SidebarButtonType[] = [
   {
-    label: "متن پیشفرض",
-    icon: <Logout />,
+    label: "اطلاعات شخصی",
+    icon: <Camera />,
     path: "test1",
   },
   {
-    label: "متن پیشفرض",
+    label: "سبد خرید",
     icon: <Logout />,
     path: "test2",
   },
   {
-    label: "متن پیشفرض",
+    label: "کارگاه ها",
     icon: <Logout />,
     path: "test3",
-  },
-  {
-    label: "متن پیشفرض",
-    icon: <Logout />,
-    path: "test4",
   },
 ];
