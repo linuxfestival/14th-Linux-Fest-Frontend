@@ -20,16 +20,12 @@ const Header = () => {
   }, [menuOpen]);
 
   return (
-    <div className="fixed top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex justify-between items-center bg-light-gray lg:rounded-[26px]">
+    <div className="fixed top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex justify-between items-center bg-light-gray rounded-[26px]">
       <div className="hidden lg:flex justify-start items-center gap-[10px] w-1/4 max-w-[250px]">
-        <Button size={ButtonSizes.LARGE} className="!text-xl">
+        <Button size={ButtonSizes.MEDIUM} className="!w-full">
           ثبت نام
         </Button>
-        <Button
-          size={ButtonSizes.SMALL}
-          variant={ButtonVariants.OUTLINE}
-          className="font-medium text-xl"
-        >
+        <Button size={ButtonSizes.MEDIUM} variant={ButtonVariants.OUTLINE}>
           ورود
         </Button>
       </div>

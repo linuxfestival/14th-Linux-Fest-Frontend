@@ -3,9 +3,10 @@ import React from "react";
 interface Props {
   className?: string;
   size?: number;
+  style: React.CSSProperties;
 }
 
-const Ubuntu = ({ className, size = 123 }: Props) => {
+const Ubuntu = ({ className, size = 123, style, ...props }: Props) => {
   const height = size; // Assuming the SVG is square
   return (
     <svg
@@ -15,6 +16,8 @@ const Ubuntu = ({ className, size = 123 }: Props) => {
       fill="none"
       viewBox="0 0 123 123"
       className={className}
+      style={style}
+      {...props}
     >
       <path
         fill="#E95420"

@@ -3,9 +3,10 @@ import React from "react";
 interface Props {
   className?: string;
   size: number;
+  style: React.CSSProperties;
 }
 
-const Arch = ({ className, size }: Props) => {
+const Arch = ({ className, size, style, ...props }: Props) => {
   const aspectRatio = 190 / 172;
   const height = size * aspectRatio;
 
@@ -17,6 +18,8 @@ const Arch = ({ className, size }: Props) => {
       fill="none"
       viewBox="0 0 172 190"
       className={className}
+      style={style}
+      {...props}
     >
       <path
         fill="#446085"
