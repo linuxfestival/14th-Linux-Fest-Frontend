@@ -3,9 +3,10 @@ import React from "react";
 interface Props {
   className?: string;
   size?: number;
+  style: React.CSSProperties;
 }
 
-const Fedora = ({ className, size = 176 }: Props) => {
+const Fedora = ({ className, size = 176, style, ...props }: Props) => {
   const height = size * (192 / 176); // Calculate height based on original aspect ratio
   return (
     <svg
@@ -15,6 +16,8 @@ const Fedora = ({ className, size = 176 }: Props) => {
       fill="none"
       viewBox="0 0 176 192"
       className={className}
+      style={style}
+      {...props}
     >
       <path
         fill="#1BF98E"

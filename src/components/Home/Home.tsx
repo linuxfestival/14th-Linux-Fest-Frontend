@@ -42,19 +42,23 @@ const Home = () => {
 
           <Arch
             size={window.innerWidth * 0.08}
-            className="absolute top-15 -left-10"
+            className="absolute"
+            style={{ top: "calc(15% - 0.5rem)", left: "calc(-10% + 3rem)" }}
           />
           <Ubuntu
             size={window.innerWidth * 0.08}
-            className="absolute top-8 -right-15"
+            className="absolute"
+            style={{ top: "calc(8% + 1rem)", right: "calc(-15% + 5rem)" }}
           />
           <Fedora
             size={window.innerWidth * 0.08}
-            className="absolute -bottom-2  -right-5"
+            className="absolute"
+            style={{ bottom: "calc(2% + 1rem)", right: "calc(-5% - 1rem)" }}
           />
           <OpenSource
             size={window.innerWidth * 0.08}
-            className="absolute -bottom-15 -left-10"
+            className="absolute"
+            style={{ bottom: "calc(15% - 5rem)", left: "calc(-8% + 2rem)" }}
           />
         </Terminal>
         <div className="absolute bottom-0 h-10 w-full bg-gradient-to-b from-transparent to-primary"></div>
