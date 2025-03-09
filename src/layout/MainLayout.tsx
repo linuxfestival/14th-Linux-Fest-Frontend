@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import { useLocation } from "react-router-dom";
 import Settings from "../components/dashboard/Settings";
-import Header from "../components/Header/Header";
+import PanelHeader from "../components/Header/PanelHeader.tsx";
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
@@ -21,7 +21,7 @@ const MainLayout: React.FC = () => {
         toggleSidebar={() => setSidebarOpen(false)}
       />
       <div className="w-full flex flex-col">
-        <Header toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
+        <PanelHeader toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
         {renderMainSection()}
       </div>
     </div>

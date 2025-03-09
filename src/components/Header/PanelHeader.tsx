@@ -2,7 +2,7 @@ import Menu from "../Common/icons/Menu";
 import SidebarLogo from "../Common/icons/SidebarLogo";
 // import { Menu } from "lucide-react";
 
-const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
+const PanelHeader = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   return (
     <header className="w-full flex justify-between items-center h-16 bg-bg-sidebar text-white px-4 md:hidden">
       <button onClick={toggleSidebar} className="p-2">
@@ -16,4 +16,4 @@ const Header = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   );
 };
 
-export default Header;
+export default PanelHeader;
