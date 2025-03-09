@@ -6,25 +6,16 @@ This project is organized into several sections, each containing specific types 
   |
   --- auth
   |
-  --- auth.epic.ts
+  --- auth.thunk.ts
   --- auth.store.ts
-  --- auth.types.ts
   --- auth.errors.ts
   --- auth.api.ts
 
 ## Sections
 
-### Epics
-
-Epics are used to handle side effects in the application. They are responsible for managing asynchronous actions and other complex logic.
-
 ### Stores
 
 Stores contain the state management logic for the application. They define how the state is updated in response to actions.
-
-### Types
-
-Types define the TypeScript types used throughout the application. They ensure type safety and help with code completion and refactoring.
 
 ### Errors
 
@@ -36,7 +27,6 @@ Example:
 
 ```typescript
 // auth.errors.ts
-
 export enum AuthErrorCodes {
   INVALID_CREDENTIALS = "INVALID_CREDENTIALS",
   USER_NOT_FOUND = "USER_NOT_FOUND",
