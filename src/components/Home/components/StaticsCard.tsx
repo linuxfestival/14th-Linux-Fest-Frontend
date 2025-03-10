@@ -7,12 +7,16 @@ interface Props {
   increment?: boolean;
 }
 
-const StaticsCard = ({ title, number, moreThan = false, increment = false }: Props) => {
+const StaticsCard = ({
+  title,
+  number,
+  moreThan = false,
+  increment = false,
+}: Props) => {
   const [displayNumber, setDisplayNumber] = useState(0);
 
   useEffect(() => {
-    if (!increment)
-      return;
+    if (!increment) return;
 
     let start = number;
 
@@ -28,20 +32,21 @@ const StaticsCard = ({ title, number, moreThan = false, increment = false }: Pro
 
   const convertToPersianText = (num: number) => {
     const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-    const persianNumbers = num
-      .toString()
-      .split("")
-      .map((digit) => persianDigits[parseInt(digit)])
-      .join("");
+    const persianNumbers = (num: number) =>
+      num
+        .toString()
+        .split("")
+        .map((digit) => persianDigits[parseInt(digit)])
+        .join("");
 
     if (num >= 1_000_000_000_000) {
-      return `${persianNumbers} تریلیون`;
+      return `${persianNumbers(Math.floor(num / 1_000_000_000_000))} تریلیون`;
     } else if (num >= 1_000_000) {
-      return `${persianNumbers} میلیون`;
+      return `${persianNumbers(Math.floor(num / 1_000_000))} میلیون`;
     } else if (num >= 1_000) {
-      return `${persianNumbers} هزار`;
+      return `${persianNumbers(Math.floor(num / 1_000))} هزار`;
     } else {
-      return persianNumbers;
+      return persianNumbers(num);
     }
   };
 
