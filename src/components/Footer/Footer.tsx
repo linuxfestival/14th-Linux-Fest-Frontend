@@ -11,16 +11,25 @@ const Footer = () => {
       <div className="w-full flex flex-col gap-10 md:gap-0 md:flex-row justify-around py-10 px-20 bg-light-gray">
         <div className="flex flex-col justify-center items-center gap-2">
           <div className="flex gap-8">
-            <img src={aut} alt="aut logo"/>
-            <img src={anjoman} alt="anjoman logo"/>
-            <img src={sponsor} alt="sponsor logo"/>
+            <Link to="https://aut.ac.ir/" target={"_blank"}>
+              <img src={aut} alt="aut logo"/>
+            </Link>
+
+              <img src={anjoman} alt="anjoman logo"/>
+            <Link to="https://divar.ir/" target={"_blank"}>
+              <img src={sponsor} alt="sponsor logo"/>
+            </Link>
           </div>
-          <p className="mt-4 w-full text-center">
+          <p className="mt-4 w-full text-center" >
             دیوار و انجمن علمی دانشگاه صنعتی امیرکبیر (پلی تکنیک تهران)
           </p>
           <div className="flex gap-4 mt-12">
-            <Telegram/>
-            <Instagram/>
+            <Link to="https://t.me/linuxfest" target={"_blank"}>
+              <Telegram/>
+            </Link>
+            <Link to="https://www.instagram.com/linuxfest.aut/" target={"_blank"}>
+              <Instagram/>
+            </Link>
           </div>
         </div>
 
