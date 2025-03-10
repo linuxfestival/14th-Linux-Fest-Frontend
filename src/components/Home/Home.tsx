@@ -74,13 +74,13 @@ const Home = () => {
         </div>
         <div className="w-full flex-1 flex flex-col gap-5 text-right justify-center items-end">
           <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl 2xl:text-6xl w-full">
-            قدرت متن‌باز در دستان شما
+            اینجا چه خبره ؟{" "}
           </h1>
-          <p className="w-full text-sm sm:text-md lg::text-xl">
-            چهاردهمین جشنواره لینوکس و جامعه متن‌باز، جایی برای یادگیری، اشتراک‌گذاری و
-            نوآوری. از تازه‌واردها تا حرفه‌ای‌ها، همه در کنار هم تجربه‌ای متفاوت خواهند داشت—با کارگاه‌های تخصصی،
-            سخنرانی‌های جذاب و فضایی برای شبکه‌سازی. اگر به آزادی نرم‌افزار، امنیت، و آینده فناوری اهمیت می‌دهید، این
-            رویداد را از دست ندهید!
+          <p className="w-full text-md sm:text-lg lg::text-2xl">
+            لینوکس فست یک ایونت قدیمی دانشگاه صنعتی امیرکبیر (پلی‌تکنیک تهران)
+            است که سال‌هاست برگزار می‌شود. بعد از ۳ سال وقفه، امسال چهاردهمین
+            دوره این جشنواره با حمایت دیوار برگزار می‌شود. در این جشنواره درباره
+            لینوکس، DevOps، برنامه‌ها و جامعه متن‌باز صحبت می‌کنیم.
           </p>
           <Button
             size={ButtonSizes.MEDIUM}
@@ -92,14 +92,24 @@ const Home = () => {
       </div>
 
       {/* Statics */}
-      <div className="flex justify-between lg:justify-around gap-10 px-5 md:px-20 my-10 bg-light-gray py-10">
-        <StaticsCard title="پروژه‌های اوپن سورس" number={1000000} moreThan increment />
+      <div className="flex justify-between flex-col md:flex-row lg:justify-around gap-10 px-5 md:px-20 my-10 bg-light-gray py-10">
+        <StaticsCard
+          title="پروژه‌های اوپن سورس"
+          number={1000000}
+          moreThan
+          increment
+        />
         <StaticsCard title="توزیع‌های لینوکس" number={600} moreThan />
-        <StaticsCard title="کاربران لینوکس" number={30000000} moreThan increment />
+        <StaticsCard
+          title="کاربران لینوکس"
+          number={30000000}
+          moreThan
+          increment
+        />
       </div>
 
       {/* Gofte Haye Dadasham Linux */}
-      <div className="flex items-center gap-5 text-right">
+      <div className="flex items-center gap-5 text-right" dir="ltr">
         <div className="flex flex-col justify-center items-end py-20 w-full flex-1">
           <div className="flex flex-col items-end w-full">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl 2xl:text-6xl font-bold">
