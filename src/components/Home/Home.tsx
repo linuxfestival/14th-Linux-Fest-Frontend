@@ -10,6 +10,7 @@ import ProgrammingVec from "../../assets/programming-vec.png";
 import StaticsCard from "./components/StaticsCard";
 import DadashamLinux from "../../assets/dadasham-linus.png";
 import Footer from "../Footer/Footer";
+import {Link} from "react-router-dom";
 
 const Home = () => {
   return (
@@ -34,9 +35,11 @@ const Home = () => {
           </div>
 
           <div className="w-full mt-12 flex flex-col justify-center items-center">
-            <Button size={ButtonSizes.LARGE} className="!w-2/3 md:!w-1/3">
-              ثبت نام
-            </Button>
+            <Link to="/signup" className="!w-2/3 md:!w-1/3">
+              <Button size={ButtonSizes.LARGE}>
+                ثبت نام
+              </Button>
+            </Link>
             <p className="mt-2 w-full text-sm lg:text-lg">از ۲۵ تا ۲۸ اسفند</p>
           </div>
 
@@ -71,11 +74,13 @@ const Home = () => {
         </div>
         <div className="w-full flex-1 flex flex-col gap-5 text-right justify-center items-end">
           <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl 2xl:text-6xl w-full">
-            لورم ایپسوم
+            قدرت متن‌باز در دستان شما
           </h1>
           <p className="w-full text-sm sm:text-md lg::text-xl">
-            لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با
-            استفاده از طراحان{" "}
+            چهاردهمین جشنواره لینوکس و جامعه متن‌باز، جایی برای یادگیری، اشتراک‌گذاری و
+            نوآوری. از تازه‌واردها تا حرفه‌ای‌ها، همه در کنار هم تجربه‌ای متفاوت خواهند داشت—با کارگاه‌های تخصصی،
+            سخنرانی‌های جذاب و فضایی برای شبکه‌سازی. اگر به آزادی نرم‌افزار، امنیت، و آینده فناوری اهمیت می‌دهید، این
+            رویداد را از دست ندهید!
           </p>
           <Button
             size={ButtonSizes.MEDIUM}
