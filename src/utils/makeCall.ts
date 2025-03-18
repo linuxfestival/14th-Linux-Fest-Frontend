@@ -1,10 +1,8 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import axiosRetry from "axios-retry";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 import strings from "./locales/locales";
-import { logger } from "./logger";
-import { from, Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
+import {logger} from "./logger";
 
 // here we will do the main makeCall
 // the point is to handle all request failure errors and detect any axios error to provide error for all possible errors in easiest way
@@ -15,7 +13,7 @@ export const makeCall = <T, K>(
   path: string,
   method: methods = "GET"
 ): ((body: T) => Promise<AxiosResponse<K, any>>) => {
-  const request = (body: T) => {
+  return (body: T) => {
     switch (method) {
       case "GET":
         return api.get<K>(path);
@@ -31,11 +29,9 @@ export const makeCall = <T, K>(
         throw new Error("Invalid HTTP method");
     }
   };
-
-  return request;
 };
 
-const api = axios.create({ baseURL: import.meta.env.BASE_URL });
+const api = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
 axiosRetry(api, {
   retries: 10,
   shouldResetTimeout: true,
