@@ -39,7 +39,8 @@ const Button = ({
       className={clsx(
         "px-[16px] py-[8px] sm:py-[12px] text-center rounded-2xl text-white cursor-pointer",
         {
-          ["bg-secondary"]: !disabled && variant === ButtonVariants.FILL,
+          ["bg-secondary hover:bg-[#ee346c]"]:
+            !disabled && variant === ButtonVariants.FILL,
           ["bg-[#B4B4B4]"]: disabled && variant === ButtonVariants.FILL,
           [""]: size === ButtonSizes.SMALL,
           ["min-w-max w-1/2 font-medium text-sm md:text-md lg:text-lg"]:

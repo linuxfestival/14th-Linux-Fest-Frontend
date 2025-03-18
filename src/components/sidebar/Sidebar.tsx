@@ -1,10 +1,11 @@
 import { useCallback } from "react";
-import { sidebarData } from "../../assets/constants";
+import { sidebarData } from "../../constants";
 import SidebarButton from "./SidebarButton";
 import Logout from "../Common/icons/Logout";
 import SidebarLogo from "../Common/icons/SidebarLogo";
 import ArrowRight from "../Common/icons/ArrowRight";
-import {useNavigate} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
 const Sidebar = ({
   isOpen,
@@ -13,11 +14,12 @@ const Sidebar = ({
   isOpen: boolean;
   toggleSidebar: () => void;
 }) => {
-  const handleButtonClick = useCallback((action: string) => {
-    console.log(`${action} clicked`);
-  }, []);
-
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const handleButtonClick = useCallback((path: string) => {
+    navigate(path);
+  }, []);
 
   return (
     <div
@@ -32,15 +34,23 @@ const Sidebar = ({
               <ArrowRight />
             </button>
             <SidebarLogo />
-            <p onClick={() => navigate("/")} className="font-bold hover:opacity-60 transition-all cursor-pointer text-secondary">لینوکس فست</p>
+            <p
+              onClick={() => navigate("/")}
+              className="font-bold hover:opacity-60 transition-all cursor-pointer text-secondary"
+            >
+              لینوکس فست
+            </p>
           </div>
           {sidebarData.map((button, index) => (
             <SidebarButton
               key={index}
               label={button.label}
+              active={button.path === location.pathname}
               icon={button.icon}
               onClick={() => handleButtonClick(button.path)}
-              className="hover:bg-secondary"
+              className={clsx({
+                ["hover:bg-[#7a1e2b]"]: button.path !== location.pathname,
+              })}
             />
           ))}
         </div>
@@ -48,7 +58,7 @@ const Sidebar = ({
           label="خروج"
           onClick={() => handleButtonClick("test")}
           icon={<Logout />}
-          className="bg-secondary mt-auto hover:bg-[#7a1e2b]"
+          className="bg-red-800 mt-auto hover:bg-[#7a1e2b]"
         />
       </div>
     </div>

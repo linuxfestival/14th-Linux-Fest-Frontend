@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import { useLocation } from "react-router-dom";
-import Settings from "../components/dashboard/Settings";
+import Edit from "../components/Dashboard/Edit/Edit.tsx";
 import PanelHeader from "../components/Header/PanelHeader.tsx";
+import ProfileWorkshops from "../components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx";
+import Billings from "../components/Dashboard/Billings/Billings.tsx";
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
@@ -10,8 +12,12 @@ const MainLayout: React.FC = () => {
 
   const renderMainSection = () => {
     switch (location.pathname) {
-      case "/settings":
-        return <Settings />;
+      case "/profile/edit":
+        return <Edit />;
+      case "/profile/workshops":
+        return <ProfileWorkshops />;
+      case "/profile/billing":
+        return <Billings />;
     }
   };
   return (
@@ -20,9 +26,11 @@ const MainLayout: React.FC = () => {
         isOpen={isSidebarOpen}
         toggleSidebar={() => setSidebarOpen(false)}
       />
-      <div className="w-full flex flex-col">
+      <div className="w-full flex flex-col h-[100dvh] justify-center items-center p-[80px]">
         <PanelHeader toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
-        {renderMainSection()}
+        <div className="flex flex-col justify-center items-center bg-bg-secondary h-full p-6 md:rounded-lg py-10 w-full">
+          {renderMainSection()}
+        </div>
       </div>
     </div>
   );

@@ -8,32 +8,32 @@ import Staff from "./components/Staff/Staff.tsx";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home/>,
+    element: <Home />,
   },
   {
-    path: "settings",
+    path: "profile/*",
     element: <MainLayout />,
   },
   {
     path: "workshops",
-    element: <Workshops />
+    element: <Workshops />,
   },
   {
     path: "login",
-    element: <ComingSoon />
+    element: <ComingSoon />,
   },
   {
     path: "signup",
-    element: <ComingSoon />
+    element: <ComingSoon />,
   },
   {
     path: "faq",
-    element: <ComingSoon />
+    element: <ComingSoon />,
   },
   {
     path: "staff",
-    element: <Staff />
-  }
+    element: <Staff />,
+  },
 ]);
 
 export default router;
