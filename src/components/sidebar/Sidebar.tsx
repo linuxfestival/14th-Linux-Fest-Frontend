@@ -18,8 +18,8 @@ const Sidebar = ({
   const navigate = useNavigate();
 
   const handleButtonClick = useCallback((path: string) => {
-    navigate("/login");
-  }, [navigate]);
+    navigate(path);
+  }, []);
 
   return (
     <div
@@ -56,7 +56,7 @@ const Sidebar = ({
         </div>
         <SidebarButton
           label="خروج"
-          onClick={() => handleButtonClick("test")}
+          onClick={() => handleButtonClick("/login")}
           icon={<Logout />}
           className="bg-red-800 mt-auto hover:bg-[#7a1e2b]"
         />
