@@ -18,8 +18,8 @@ const Sidebar = ({
   const navigate = useNavigate();
 
   const handleButtonClick = useCallback((path: string) => {
-    navigate(path);
-  }, []);
+    navigate("/login");
+  }, [navigate]);
 
   return (
     <div

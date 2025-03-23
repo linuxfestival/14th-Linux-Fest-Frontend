@@ -1,10 +1,30 @@
 import { makeCall } from "../../utils/makeCall";
 
-export type LoginRequest = { username: string; password: string };
+export type LoginRequest = { phone_number: string; password: string };
 
-export type LoginResponse = { successful: boolean };
+export type LoginResponse = { access: string; refresh: string };
+
+export interface SignupRequest {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    password: string;
+}
+
+export interface SignupResponse {
+    "first_name": string;
+    "last_name": string;
+    "email": string;
+    "phone_number": string;
+}
 
 export const loginWithUsernamePassword = makeCall<LoginRequest, LoginResponse>(
-  "/login",
+  "api/token/",
   "POST"
 );
+
+export const signup = makeCall<SignupRequest, SignupResponse>(
+    "api/users/signup/",
+    "POST",
+)

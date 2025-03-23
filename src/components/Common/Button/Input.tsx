@@ -12,6 +12,8 @@ interface InputFieldProps {
   regexValid?: boolean | null;
   successText?: string;
   errorText?: string;
+  autocomplete?: string;
+  className?: string;
 }
 
 export default function InputField({ ...props }: InputFieldProps) {
@@ -41,7 +43,7 @@ export default function InputField({ ...props }: InputFieldProps) {
   };
 
   return (
-    <div className="flex flex-col w-full relative">
+    <div className={"flex flex-col w-full relative " + props.className}>
       <div className="relative">
         <input
           type={props.type}
@@ -51,6 +53,8 @@ export default function InputField({ ...props }: InputFieldProps) {
           onChange={props.inputChangeHandler}
           dir={props.textDirection}
           required={props.required}
+          autoComplete={props?.autocomplete ?? ""}
+          value={props.value}
         />
         <label className="absolute top-0 right-4 text-sm text-secondary-gray bg-bg-secondary duration-300 z-10 origin-[0] peer-focus:px-1 peer-placeholder-shown:scale-100 -translate-y-1/2">
           {props.label}
