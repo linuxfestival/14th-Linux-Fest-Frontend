@@ -8,6 +8,7 @@ import router from "../../routes.tsx";
 import {useSelector} from "react-redux";
 import {Simulate} from "react-dom/test-utils";
 import load = Simulate.load;
+import Cookies from "js-cookie";
 
 const Login = () => {
   const phoneRegex = /^09[0-9]{9}$/;
@@ -19,24 +20,24 @@ const Login = () => {
 
   const login = async () => {
     if (!phoneNumber || !password) {
-      // TODO: Toast
-      return
+      // TODO: Show a toast message for empty fields
+      return;
     }
 
-    const result = await dispatch(loginThunk({
-      password,
-      phone_number: phoneNumber
-    }))
+    const result = await dispatch(loginThunk({ phone_number: phoneNumber, password }));
 
     if (loginThunk.fulfilled.match(result)) {
-      // TODO: Log user in
-      localStorage.setItem("usah", JSON.stringify(result.payload));
+      const userData = result.payload; // This contains access and refresh tokens
+
+      Cookies.set("access_token", userData.access, { secure: true, sameSite: "Strict" });
+      Cookies.set("refresh_token", userData.refresh, { secure: true, sameSite: "Strict" });
+
       await router.navigate("/profile/edit");
     } else {
-      // TODO: Display toast🍞
-      console.error("Signup failed:", result.payload);
+      // ❌ Show error toast
+      console.error("Login failed:", result.payload);
     }
-  }
+  };
 
   return (
     <div className="relative h-[100dvh] overflow-auto w-full p-4 lg:p-13 flex justify-center items-center bg-pattern">

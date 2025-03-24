@@ -3,12 +3,14 @@ import {AddParticipationResponse, CartItemDto, PresentationDto, RemoveParticipat
 
 export const addParticipation = makeCall<null, AddParticipationResponse>(
     (params) => `/api/presentations/${params.id}/add_participation/`,
-    "POST"
+    "POST",
+    true
 );
 
 export const removeParticipation = makeCall<null, RemoveParticipationResponse>(
     (params) => `/api/presentations/${params.id}/remove_participation/`,
-    "DELETE"
+    "DELETE",
+    true
 );
 export const getAllPresentations = makeCall<void, PresentationDto[]>(
     "/api/presentations/all/",
@@ -17,5 +19,6 @@ export const getAllPresentations = makeCall<void, PresentationDto[]>(
 
 export const getCartPresentations = makeCall<void, CartItemDto[]>(
     "/api/presentations/cart/",
-    "GET"
+    "GET",
+    true
 );

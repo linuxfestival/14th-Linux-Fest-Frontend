@@ -1,8 +1,14 @@
-import axios, {AxiosError, AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios";
 import axiosRetry from "axios-retry";
 import {toast} from "react-toastify";
 import strings from "./locales/locales";
 import {logger} from "./logger";
+import {logout} from "../core/auth/auth.store.ts";
+import router from "../routes.tsx";
+import Cookies from "js-cookie";
+import {refreshThunk} from "../core/auth/auth.thunk.ts";
+import store from "../store.ts";
+import {RefreshTokenResponse} from "../core/auth/auth.dto.ts";
 
 // here we will do the main makeCall
 // the point is to handle all request failure errors and detect any axios error to provide error for all possible errors in easiest way
@@ -11,72 +17,107 @@ type methods = "GET" | "POST" | "DELETE" | "UPDATE" | "PUT";
 
 export const makeCall = <T, K>(
     path: string | ((params: Record<string, string | number>) => string),
-    method: methods = "GET"
+    method: methods = "GET",
+    useAuth = false,
 ): ((body?: T, params?: Record<string, string | number>) => Promise<AxiosResponse<K, any>>) => {
-  return (body?: T, params?: Record<string, string | number>) => {
-    const resolvedPath = typeof path === "function" ? path(params || {}) : path;
+    return (body?: T, params?: Record<string, string | number>) => {
+        const resolvedPath = typeof path === "function" ? path(params || {}) : path;
 
-    switch (method) {
-      case "GET":
-        return api.get<K>(resolvedPath);
-      case "POST":
-        return api.post<K>(resolvedPath, body);
-      case "PUT":
-        return api.put<K>(resolvedPath, body);
-      case "DELETE":
-        return api.delete<K>(resolvedPath);
-      case "UPDATE":
-        return api.patch<K>(resolvedPath, body);
-      default:
-        throw new Error("Invalid HTTP method");
-    }
-  };
+        const config: AxiosRequestConfig = {};
+
+        if (useAuth) {
+            const token = Cookies.get("access_token");
+            if (token) {
+                config.headers = {
+                    ...config.headers,
+                    Authorization: `Bearer ${token}`,
+                };
+            }
+        }
+
+
+        switch (method) {
+            case "GET":
+                return api.get<K>(resolvedPath, config);
+            case "POST":
+                return api.post<K>(resolvedPath, body, config);
+            case "PUT":
+                return api.put<K>(resolvedPath, body, config);
+            case "DELETE":
+                return api.delete<K>(resolvedPath, config);
+            case "UPDATE":
+                return api.patch<K>(resolvedPath, body, config);
+            default:
+                throw new Error("Invalid HTTP method");
+        }
+    };
 };
 
 
-const api = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
+const api = axios.create({baseURL: import.meta.env.VITE_BASE_URL});
 axiosRetry(api, {
-  retries: 10,
-  shouldResetTimeout: true,
+    retries: 10,
+    shouldResetTimeout: true,
 });
 
-axios.interceptors.response.use(
-  (response) => {
-    logger.debug(
-      `response for ${response.config.url} ${JSON.stringify(response)}`
-    );
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = "/login";
-      return Promise.resolve();
+api.interceptors.response.use(
+    (response) => {
+        logger.debug(`response for ${response.config.url} ${JSON.stringify(response)}`);
+        return response;
+    },
+    async (error) => {
+        const originalRequest = error.config;
+
+        // If token expired (401) and it's not already retried
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            try {
+                // Use store.dispatch instead of useAppDispatch()
+                const result = await store.dispatch(refreshThunk({
+                    refresh: Cookies.get("refresh_token") ?? "",
+                }));
+
+                const {access} = result.payload as RefreshTokenResponse;
+
+                if (access) {
+                    Cookies.set("access_token", access, {secure: true, sameSite: "Strict"}); // Store new token
+                    originalRequest.headers.Authorization = `Bearer ${access}`;
+
+                    // Retry the original request with the new token
+                    return api(originalRequest);
+                }
+            } catch (refreshError) {
+                logout();
+                router.navigate("/login");
+                return Promise.reject(refreshError);
+            }
+        }
+
+        logger.error(error.response);
+        return Promise.reject(error);
     }
-    logger.error(error.response);
-    return Promise.reject(error);
-  }
 );
 axios.interceptors.request.use(
-  (config) => {
-    logger.debug(`request for ${config.url}`);
-    return config;
-  },
-  (error) => Promise.reject(error)
+    (config) => {
+        logger.debug(`request for ${config.url}`);
+        return config;
+    },
+    (error) => Promise.reject(error)
 );
-
-export default axios;
+export default api;
 
 export const getErrorCode = <Errors extends number>(
-  error: any
+    error: any
 ): Errors | undefined => {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError;
-    const errorCode = (axiosError.response?.data as { error_code: number })
-      .error_code;
-    if (errorCode) {
-      return errorCode as Errors;
+    if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        const errorCode = (axiosError.response?.data as { error_code: number })
+            .error_code;
+        if (errorCode) {
+            return errorCode as Errors;
+        }
     }
-  }
-  toast.info(strings.errors.connectionError, { toastId: "connection-id" });
-  return -1 as Errors;
+    toast.info(strings.errors.connectionError, {toastId: "connection-id"});
+    return -1 as Errors;
 };

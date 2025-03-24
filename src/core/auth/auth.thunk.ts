@@ -1,8 +1,8 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {loginWithUsernamePassword, signup} from "./auth.api";
+import {loginWithUsernamePassword, refreshToken, signup} from "./auth.api";
 import {AuthErrorCodes, AuthErrorMessages} from "./auth.errors";
 import {AxiosResponse} from "axios";
-import {LoginRequest, SignupRequest, SignupResponse} from "./auth.dto.ts";
+import {LoginRequest, RefreshTokenRequest, RefreshTokenResponse, SignupRequest, SignupResponse} from "./auth.dto.ts";
 
 
 export const loginThunk = createAsyncThunk(
@@ -34,6 +34,28 @@ export const signupThunk = createAsyncThunk(
 
             // Call the API to register the user
             const response: AxiosResponse<SignupResponse> = await signup(request);
+
+            return response.data;
+        } catch (error: any) {
+            const errorMessage = error.message as AuthErrorCodes;
+
+            if (errorMessage && AuthErrorMessages[errorMessage]) {
+                return rejectWithValue(AuthErrorMessages[errorMessage]);
+            } else {
+                return rejectWithValue("An unexpected error occurred. Please try again.");
+            }
+        }
+    }
+);
+export const refreshThunk = createAsyncThunk<RefreshTokenResponse, RefreshTokenRequest>(
+    "auth/signup",
+    async (request: RefreshTokenRequest, {rejectWithValue}) => {
+        try {
+            // Ensure passwords match before making an API call
+
+
+            // Call the API to register the user
+            const response: AxiosResponse<RefreshTokenResponse> = await refreshToken(request);
 
             return response.data;
         } catch (error: any) {

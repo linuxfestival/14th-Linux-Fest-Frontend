@@ -11,14 +11,17 @@ import {
 export const getPaymentList = makeCall<undefined, PaymentDto[]>(
     "api/payments/get_list/",
     "GET",
+    true
 )
 
 export const finalizePayment = makeCall<FinalizePaymentRequest, FinalizePaymentResponse>(
     "api/payments/pay_all/",
     "POST",
+    true
 );
 
 export const verifyPayment = makeCall<VerifyPaymentRequest, VerifyPaymentResponse>(
     "api/payments/verify/",
     "POST",
+    true
 )

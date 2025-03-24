@@ -16,3 +16,11 @@ export interface SignupResponse {
     "email": string;
     "phone_number": string;
 }
+
+export interface RefreshTokenRequest {
+    refresh: string;
+}
+
+export interface RefreshTokenResponse {
+    access: string;
+}

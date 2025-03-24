@@ -3,15 +3,18 @@ import {ChangePasswordRequest, ChangePasswordResponse, UserDto} from "./users.dt
 
 export const getUserByPhone = makeCall<void, UserDto>(
     (params) => `/api/users/${params.phone_number}/`,
-    "GET"
+    "GET",
+    true
 );
 
 export const updateUser = makeCall<UserDto, UserDto>(
     (params) => `/api/users/${params.phone_number}/`,
-    "PUT"
+    "PUT",
+    true
 );
 
 export const changePassword = makeCall<ChangePasswordRequest, ChangePasswordResponse>(
     "/api/users/change_password/",
-    "POST"
+    "POST",
+    true
 );
