@@ -67,13 +67,15 @@ api.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
+        if (error.response?.status === 401 || error.response?.status === 403) {
 
-        // If token expired (401) and it's not already retried
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
 
             try {
                 // Use store.dispatch instead of useAppDispatch()
+                if (originalRequest.url?.includes("api/token/refresh/")) {
+                    throw error;
+                }
+
                 const result = await store.dispatch(refreshThunk({
                     refresh: Cookies.get("refresh_token") ?? "",
                 }));
