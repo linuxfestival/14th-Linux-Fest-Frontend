@@ -1,50 +1,50 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import {loginWithUsernamePassword, LoginRequest, SignupRequest, signup, SignupResponse} from "./auth.api";
-import { AuthErrorCodes, AuthErrorMessages } from "./auth.errors";
+import {createAsyncThunk} from "@reduxjs/toolkit";
+import {loginWithUsernamePassword, signup} from "./auth.api";
+import {AuthErrorCodes, AuthErrorMessages} from "./auth.errors";
 import {AxiosResponse} from "axios";
-
+import {LoginRequest, SignupRequest, SignupResponse} from "./auth.dto.ts";
 
 
 export const loginThunk = createAsyncThunk(
-  "auth/login",
-  async (request: LoginRequest, { rejectWithValue }) => {
-    try {
-      const apiCallResponse = await loginWithUsernamePassword(request);
-      return apiCallResponse.data;
-    } catch (error: any) {
-      const errorMessage = error?.message as AuthErrorCodes;
+    "auth/login",
+    async (request: LoginRequest, {rejectWithValue}) => {
+        try {
+            const apiCallResponse = await loginWithUsernamePassword(request);
+            return apiCallResponse.data;
+        } catch (error: any) {
+            const errorMessage = error?.message as AuthErrorCodes;
 
-      if (errorMessage && AuthErrorMessages[errorMessage]) {
-        return rejectWithValue(AuthErrorMessages[errorMessage]);
-      } else {
-        return rejectWithValue(
-          "An unexpected error occurred. Please try again."
-        );
-      }
+            if (errorMessage && AuthErrorMessages[errorMessage]) {
+                return rejectWithValue(AuthErrorMessages[errorMessage]);
+            } else {
+                return rejectWithValue(
+                    "An unexpected error occurred. Please try again."
+                );
+            }
+        }
     }
-  }
 );
 
 export const signupThunk = createAsyncThunk(
     "auth/signup",
-    async (request: SignupRequest, { rejectWithValue }) => {
-      try {
-        // Ensure passwords match before making an API call
+    async (request: SignupRequest, {rejectWithValue}) => {
+        try {
+            // Ensure passwords match before making an API call
 
 
-        // Call the API to register the user
-        const response: AxiosResponse<SignupResponse> = await signup(request);
+            // Call the API to register the user
+            const response: AxiosResponse<SignupResponse> = await signup(request);
 
-        return response.data;
-      } catch (error: any) {
-        const errorMessage = error.message as AuthErrorCodes;
+            return response.data;
+        } catch (error: any) {
+            const errorMessage = error.message as AuthErrorCodes;
 
-        if (errorMessage && AuthErrorMessages[errorMessage]) {
-          return rejectWithValue(AuthErrorMessages[errorMessage]);
-        } else {
-          return rejectWithValue("An unexpected error occurred. Please try again.");
+            if (errorMessage && AuthErrorMessages[errorMessage]) {
+                return rejectWithValue(AuthErrorMessages[errorMessage]);
+            } else {
+                return rejectWithValue("An unexpected error occurred. Please try again.");
+            }
         }
-      }
     }
 );
 

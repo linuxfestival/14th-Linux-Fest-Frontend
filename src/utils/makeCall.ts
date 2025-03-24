@@ -10,26 +10,29 @@ import {logger} from "./logger";
 type methods = "GET" | "POST" | "DELETE" | "UPDATE" | "PUT";
 
 export const makeCall = <T, K>(
-  path: string,
-  method: methods = "GET"
-): ((body: T) => Promise<AxiosResponse<K, any>>) => {
-  return (body: T) => {
+    path: string | ((params: Record<string, string | number>) => string),
+    method: methods = "GET"
+): ((body?: T, params?: Record<string, string | number>) => Promise<AxiosResponse<K, any>>) => {
+  return (body?: T, params?: Record<string, string | number>) => {
+    const resolvedPath = typeof path === "function" ? path(params || {}) : path;
+
     switch (method) {
       case "GET":
-        return api.get<K>(path);
+        return api.get<K>(resolvedPath);
       case "POST":
-        return api.post<K>(path, body);
+        return api.post<K>(resolvedPath, body);
       case "PUT":
-        return api.put<K>(path, body);
+        return api.put<K>(resolvedPath, body);
       case "DELETE":
-        return api.delete<K>(path);
+        return api.delete<K>(resolvedPath);
       case "UPDATE":
-        return api.patch<K>(path, body);
+        return api.patch<K>(resolvedPath, body);
       default:
         throw new Error("Invalid HTTP method");
     }
   };
 };
+
 
 const api = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
 axiosRetry(api, {
