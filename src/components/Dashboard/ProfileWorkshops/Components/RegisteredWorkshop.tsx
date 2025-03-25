@@ -41,7 +41,7 @@ const RegisteredWorkshop = ({ title, time }: Props) => {
             />
             <div>
               <h1 className="text-lg font-bold">{title}</h1>
-              <p className="text-xs text-text-gray">{startTime.toLocaleString()}</p>
+              <p className="text-xs text-text-gray">{startTime.toLocaleString("fa")}</p>
             </div>
           </div>
           {status === WorkshopStatus.NOT_STARTED && (
