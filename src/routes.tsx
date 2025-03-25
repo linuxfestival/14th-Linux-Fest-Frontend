@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import {createBrowserRouter} from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import Home from "./components/Home/Home";
 import Workshops from "./components/Workshops/Workshops.tsx";
@@ -15,90 +15,84 @@ import Billings from "./components/Dashboard/Billings/Billings.tsx";
 import CartLayout from "./components/Dashboard/Cart/CartLayout.tsx";
 import CartsList from "./components/Dashboard/Cart/pages/CartsList.tsx";
 import CartPayment from "./components/Dashboard/Cart/pages/CartPayment.tsx";
-import AuthLayout from "./layout/AuthProtectedLayout.tsx";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <Signup />,
-  },
-  {
-    element: <AuthLayout />,
-    children: [
-      {
+    {
+        path: "/",
+        element: <Home/>,
+    },
+    {
+        path: "/login",
+        element: <Login/>,
+    },
+    {
+        path: "/signup",
+        element: <Signup/>,
+    },
+    {
         path: "profile/*",
-        element: <MainLayout />,
+        element: <MainLayout/>,
         children: [
-          {
-            path: "edit",
-            element: <Edit />,
-          },
-          {
-            path: "workshops",
-            element: <ProfileWorkshops />,
-          },
-          {
-            path: "billing",
-            element: <Billings />,
-          },
-          {
-            path: "cart",
-            element: <CartLayout />,
-            children: [
-              {
-                path: "list",
-                element: <CartsList />,
-              },
-              {
-                path: "checkout",
-                element: <CartPayment />,
-              },
-            ],
-          },
+            {
+                path: "edit",
+                element: <Edit/>,
+            },
+            {
+                path: "workshops",
+                element: <ProfileWorkshops/>,
+            },
+            {
+                path: "billing",
+                element: <Billings/>,
+            },
+            {
+                path: "cart",
+                element: <CartLayout/>,
+                children: [
+                    {
+                        path: "list",
+                        element: <CartsList/>,
+                    },
+                    {
+                        path: "checkout",
+                        element: <CartPayment/>,
+                    },
+                ],
+            },
         ],
-      },
-    ],
-  },
-  {
-    path: "payment/success/:transactionID",
-    element: <PaymentStatus successful />,
-  },
-  {
-    path: "payment/fail/:transactionID",
-    element: <PaymentStatus />,
-  },
-  {
-    path: "workshops",
-    element: <Workshops />,
-  },
-  {
-    path: "login",
-    element: <ComingSoon />,
-  },
-  {
-    path: "signup",
-    element: <ComingSoon />,
-  },
-  {
-    path: "faq",
-    element: <FAQ />,
-  },
-  {
-    path: "staff",
-    element: <Staff />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
+    },
+    {
+        path: "payment/success/:transactionID",
+        element: <PaymentStatus successful/>,
+    },
+    {
+        path: "payment/fail/:transactionID",
+        element: <PaymentStatus/>,
+    },
+    {
+        path: "workshops",
+        element: <Workshops/>,
+    },
+    {
+        path: "login",
+        element: <ComingSoon/>,
+    },
+    {
+        path: "signup",
+        element: <ComingSoon/>,
+    },
+    {
+        path: "faq",
+        element: <FAQ/>,
+    },
+    {
+        path: "staff",
+        element: <Staff/>,
+    },
+    {
+        path: "*",
+        element: <NotFound/>,
+    },
 ]);
 
 export default router;
