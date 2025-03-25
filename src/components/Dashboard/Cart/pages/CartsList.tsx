@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { selectCartItems } from "../../../../core/cart/cart.selector";
 import Lottie from "lottie-react";
 import shoppingCartLottie from "../../../../assets/lottie/shoppingCart.json";
+import digitsToPersian from "../../../../utils/digitsToPersian";
 
 const CartsList = () => {
   const dispatch = useDispatch();
