@@ -2,8 +2,12 @@ import React, {useCallback, useState} from "react";
 import Button, {ButtonSizes} from "../../Common/Button/Button";
 import InputField from "../../Common/Button/Input";
 import AvatarInput from "./Components/AvatarInput";
-import {useAppDispatch} from "../../../store.ts";
+import {RootState, useAppDispatch} from "../../../store.ts";
 import {changePasswordThunk} from "../../../core/users/users.thunk.ts";
+import {useSelector} from "react-redux";
+import {toast} from "react-toastify";
+import {loginThunk} from "../../../core/auth/auth.thunk.ts";
+import {ChangePasswordResponse} from "../../../core/users/users.dto.ts";
 
 const Edit: React.FC = () => {
     const [firstName, setFirstName] = useState("");
@@ -14,24 +18,37 @@ const Edit: React.FC = () => {
     const [repeatNewPassword, setRepeatNewPassword] = useState("");
 
     const dispatch = useAppDispatch();
+    const {changePasswordLoading} = useSelector((state: RootState) => state.users)
 
-    const changePasswordOnClick = useCallback(() => {
+    const changePasswordOnClick = useCallback(async () => {
         if (!oldPassword || !newPassword || !repeatNewPassword) {
-            //TODO: Toast
+            toast.error("Passwords don't match");
             return;
         }
 
         if (newPassword !== repeatNewPassword) {
-            // TODO: Toast
             return;
         }
 
-        dispatch(changePasswordThunk({
+
+        const result = await dispatch(changePasswordThunk({
             new_password: newPassword,
             old_password: oldPassword,
         }))
-        // TODO: Handle loading and errors
-        // TODO: Handle successful toast
+
+        if (changePasswordThunk.fulfilled.match(result)) {
+            toast.success("پسورد با موفقیت تغییر یافت.");
+        } else {
+            const payload = result.payload as ChangePasswordResponse;
+            if (payload.detail)
+                toast.error(payload.detail);
+            else {
+                const errorKey = Object.keys(payload)[0];
+                const errorMessages = (payload[errorKey]?.slice(0, 1) as string[]).join(" ");
+                toast.error(errorMessages || "An unexpected error occurred.");
+            }
+        }
+
     }, [dispatch, newPassword, oldPassword, repeatNewPassword])
 
     const editProfileOnClick = useCallback(() => {
@@ -98,10 +115,15 @@ const Edit: React.FC = () => {
                         label="تکرار پسورد جدید"
                         inputChangeHandler={(e) => setRepeatNewPassword(e.target.value)}
                         placeholder="WowSoSuperSecret"
+                        regexValid={newPassword ? newPassword === repeatNewPassword : null}
+                        errorText={"پسورد سازگار نیست!"}
                     />
                 </div>
                 <div className="mb-6">
-                    <Button onClick={changePasswordOnClick} size={ButtonSizes.SMALL}>تغییر رمز</Button>
+                    <Button disabled={changePasswordLoading || !newPassword || !oldPassword || !repeatNewPassword}
+                            onClick={changePasswordOnClick} size={ButtonSizes.SMALL}>
+                        تغییر رمز
+                    </Button>
                 </div>
             </div>
         </>

@@ -50,7 +50,7 @@ const Button = ({
         },
         className
       )}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

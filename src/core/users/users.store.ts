@@ -13,6 +13,7 @@ interface UsersState {
     loading: boolean;
     error: string | null;
     passwordChangeSuccess: boolean;
+    changePasswordLoading: boolean;
 }
 
 const initialState: UsersState = {
@@ -21,6 +22,7 @@ const initialState: UsersState = {
     loading: false,
     error: null,
     passwordChangeSuccess: false,
+    changePasswordLoading: false
 };
 
 const usersSlice = createSlice({
@@ -66,16 +68,16 @@ const usersSlice = createSlice({
                 state.error = action.payload as string;
             })
             .addCase(changePasswordThunk.pending, (state) => {
-                state.loading = true;
+                state.changePasswordLoading = true;
                 state.error = null;
                 state.passwordChangeSuccess = false;
             })
             .addCase(changePasswordThunk.fulfilled, (state, action: PayloadAction<ChangePasswordResponse>) => {
-                state.loading = false;
+                state.changePasswordLoading = false;
                 state.passwordChangeSuccess = true;
             })
             .addCase(changePasswordThunk.rejected, (state, action) => {
-                state.loading = false;
+                state.changePasswordLoading = false;
                 state.error = action.payload as string;
                 state.passwordChangeSuccess = false;
             });

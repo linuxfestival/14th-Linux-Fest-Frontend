@@ -42,8 +42,8 @@ export const changePasswordThunk = createAsyncThunk(
             const response: AxiosResponse<ChangePasswordResponse> = await changePassword(passwordData);
             return response.data;
         } catch (error: any) {
-            const errorMessage = error.message as AuthErrorCodes;
-            return rejectWithValue(AuthErrorMessages[errorMessage] || "An unexpected error occurred. Please try again.");
+            const errorMessage = error?.response?.data;
+            return rejectWithValue(errorMessage || "An unexpected error occurred. Please try again.");
         }
     }
 );

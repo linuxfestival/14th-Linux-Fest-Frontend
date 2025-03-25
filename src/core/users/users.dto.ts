@@ -11,7 +11,7 @@ export interface ChangePasswordRequest {
 }
 
 export interface ChangePasswordResponse {
-    detail: string;
+    [key: string]: string[] | string;
 }
 
 export interface FAQDto {

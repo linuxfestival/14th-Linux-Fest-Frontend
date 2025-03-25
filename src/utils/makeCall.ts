@@ -72,7 +72,6 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     if (error.response?.status === 401 || error.response?.status === 403) {
       try {
-        // Use store.dispatch instead of useAppDispatch()
         if (originalRequest.url?.includes("api/token/refresh/")) {
           throw error;
         }
@@ -96,6 +95,7 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
+        toast.error("نیاز دارید تا وارد شوید!")
         store.dispatch(logout());
         router.navigate("/login");
         return Promise.reject(refreshError);
