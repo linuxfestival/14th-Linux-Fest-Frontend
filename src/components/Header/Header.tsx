@@ -3,8 +3,14 @@ import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 import Button, { ButtonSizes, ButtonVariants } from "../Common/Button/Button";
 import { IoClose, IoMenu } from "react-icons/io5";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../../core/auth/auth.selector";
+import { MdShoppingCart } from "react-icons/md";
+import ShoppingCart from "./components/ShoppingCart";
 
 const Header = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  console.log("!@!", isAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -22,16 +28,25 @@ const Header = () => {
   return (
     <div className="fixed top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray rounded-[26px]">
       <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-1/4 max-w-[250px]">
-        <Link to="/signup" className="!w-full">
-          <Button size={ButtonSizes.MEDIUM} className="!w-full">
-            ثبت نام
-          </Button>
-        </Link>
-        <Link to="/login">
-          <Button size={ButtonSizes.MEDIUM} variant={ButtonVariants.OUTLINE}>
-            ورود
-          </Button>
-        </Link>
+        {isAuthenticated ? (
+          <ShoppingCart className="mx-2" />
+        ) : (
+          <>
+            <Link to="/signup" className="!w-full">
+              <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                ثبت نام
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button
+                size={ButtonSizes.MEDIUM}
+                variant={ButtonVariants.OUTLINE}
+              >
+                ورود
+              </Button>
+            </Link>
+          </>
+        )}
       </div>
       <nav className="hidden lg:flex gap-4 text-lg font-medium">
         <Link to={"/"}>خانه</Link>
