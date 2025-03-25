@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginThunk, signupThunk } from "./auth.thunk";
-import {LoginResponse} from "./auth.dto.ts";
+import { LoginResponse } from "./auth.dto.ts";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -13,7 +13,7 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-  isAuthenticated: true,
+  isAuthenticated: false,
   user: null,
   loading: false,
   error: null,
@@ -25,43 +25,46 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       state.isAuthenticated = false;
-      console.log("logout user")
+      console.log("logout user");
       state.user = null;
     },
     initializeUser(state, action: PayloadAction<LoginResponse>) {
       state.isAuthenticated = true;
-      console.log("init user")
+      console.log("init user");
       state.user = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-        // Handle login
-        .addCase(loginThunk.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-        })
-        .addCase(loginThunk.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
+      // Handle login
+      .addCase(loginThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        loginThunk.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
           state.loading = false;
           state.isAuthenticated = true;
           state.user = action.payload;
-        })
-        .addCase(loginThunk.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload as string;
-        })
-        .addCase(signupThunk.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-        })
-        .addCase(signupThunk.fulfilled, (state) => {
-          state.loading = false;
-          state.isAuthenticated = true;
-        })
-        .addCase(signupThunk.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload as string;
-        });
+        }
+      )
+      .addCase(loginThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(signupThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signupThunk.fulfilled, (state) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+      })
+      .addCase(signupThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

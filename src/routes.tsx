@@ -15,6 +15,7 @@ import Billings from "./components/Dashboard/Billings/Billings.tsx";
 import CartLayout from "./components/Dashboard/Cart/CartLayout.tsx";
 import CartsList from "./components/Dashboard/Cart/pages/CartsList.tsx";
 import CartPayment from "./components/Dashboard/Cart/pages/CartPayment.tsx";
+import AuthLayout from "./layout/AuthProtectedLayout.tsx";
 
 const router = createBrowserRouter([
   {
@@ -30,32 +31,37 @@ const router = createBrowserRouter([
     element: <Signup />,
   },
   {
-    path: "profile/*",
-    element: <MainLayout />,
+    element: <AuthLayout />,
     children: [
       {
-        path: "edit",
-        element: <Edit />,
-      },
-      {
-        path: "workshops",
-        element: <ProfileWorkshops />,
-      },
-      {
-        path: "billing",
-        element: <Billings />,
-      },
-      {
-        path: "cart",
-        element: <CartLayout />,
+        path: "profile/*",
+        element: <MainLayout />,
         children: [
           {
-            path: "list",
-            element: <CartsList />,
+            path: "edit",
+            element: <Edit />,
           },
           {
-            path: "checkout",
-            element: <CartPayment />,
+            path: "workshops",
+            element: <ProfileWorkshops />,
+          },
+          {
+            path: "billing",
+            element: <Billings />,
+          },
+          {
+            path: "cart",
+            element: <CartLayout />,
+            children: [
+              {
+                path: "list",
+                element: <CartsList />,
+              },
+              {
+                path: "checkout",
+                element: <CartPayment />,
+              },
+            ],
           },
         ],
       },

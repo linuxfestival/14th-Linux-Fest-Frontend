@@ -10,7 +10,6 @@ import ShoppingCart from "./components/ShoppingCart";
 
 const Header = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  console.log("!@!", isAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {

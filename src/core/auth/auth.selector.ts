@@ -8,3 +8,8 @@ export const selectIsAuthenticated = createSelector(
   selectAuthState,
   (authState: AuthState) => authState.isAuthenticated
 );
+
+export const selectIsAuthLoading = createSelector(
+  selectAuthState,
+  (authState: AuthState) => authState.loading
+);
