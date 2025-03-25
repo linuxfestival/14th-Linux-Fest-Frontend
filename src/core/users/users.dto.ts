@@ -13,3 +13,8 @@ export interface ChangePasswordRequest {
 export interface ChangePasswordResponse {
     detail: string;
 }
+
+export interface FAQDto {
+    question: string;
+    answer: string;
+}

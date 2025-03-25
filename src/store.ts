@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import auth from "./core/auth/auth.store";
+import users from "./core/users/users.store";
 import presentations from "./core/presentations/presentations.store";
 import {useDispatch} from "react-redux";
 
 const rootReducer = combineReducers({
   auth: auth,
-  presentation: presentations
+  presentation: presentations,
+  users: users
 });
 
 const store = configureStore({

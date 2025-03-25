@@ -1,5 +1,5 @@
 import {makeCall} from "../../utils/makeCall.ts";
-import {ChangePasswordRequest, ChangePasswordResponse, UserDto} from "./users.dto.ts";
+import {ChangePasswordRequest, ChangePasswordResponse, FAQDto, UserDto} from "./users.dto.ts";
 
 export const getUserByPhone = makeCall<void, UserDto>(
     (params) => `/api/users/${params.phone_number}/`,
@@ -18,3 +18,8 @@ export const changePassword = makeCall<ChangePasswordRequest, ChangePasswordResp
     "POST",
     true
 );
+
+export const getFAQ = makeCall<void, FAQDto[]>(
+    "/api/faq/",
+    "GET"
+)

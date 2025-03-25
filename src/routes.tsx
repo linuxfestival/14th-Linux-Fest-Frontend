@@ -6,6 +6,7 @@ import ComingSoon from "./components/ComingSoon/ComingSoon.tsx";
 import Staff from "./components/Staff/Staff.tsx";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
+import FAQ from "./components/FAQ/FAQ.tsx";
 
 const router = createBrowserRouter([
   {
@@ -38,7 +39,7 @@ const router = createBrowserRouter([
   },
   {
     path: "faq",
-    element: <ComingSoon />,
+    element: <FAQ />,
   },
   {
     path: "staff",
