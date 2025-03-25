@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginThunk, signupThunk } from "./auth.thunk";
 import { LoginResponse } from "./auth.dto.ts";
+import {UserDto} from "../users/users.dto.ts";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -8,6 +9,8 @@ export interface AuthState {
     access: string;
     refresh: string;
   } | null;
+  userData?: UserDto,
+  userPhoneNumber?: string;
   loading: boolean;
   error: string | null;
 }
@@ -28,10 +31,14 @@ const authSlice = createSlice({
       console.log("logout user");
       state.user = null;
     },
-    initializeUser(state, action: PayloadAction<LoginResponse>) {
+    initializeUser(state, action: PayloadAction<LoginResponse & {phone_number: string}>) {
       state.isAuthenticated = true;
       console.log("init user");
-      state.user = action.payload;
+      state.user = {
+        access: action.payload.access,
+        refresh: action.payload.refresh,
+      };
+      state.userPhoneNumber = action.payload.phone_number;
     },
   },
   extraReducers: (builder) => {

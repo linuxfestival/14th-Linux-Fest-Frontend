@@ -31,6 +31,7 @@ const Login = () => {
 
       Cookies.set("access_token", userData.access, { secure: true, sameSite: "Strict" });
       Cookies.set("refresh_token", userData.refresh, { secure: true, sameSite: "Strict" });
+      Cookies.set("phone_number", phoneNumber, { secure: true, sameSite: "Strict" });
 
       await router.navigate("/profile/edit");
     } else {

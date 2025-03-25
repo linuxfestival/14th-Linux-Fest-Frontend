@@ -10,11 +10,13 @@ const AuthContainer = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const accessToken = Cookies.get("access_token");
         const refreshToken = Cookies.get("refresh_token");
-        if (accessToken && refreshToken) {
+        const phoneNumber = Cookies.get("phone_number");
+        if (accessToken && refreshToken && phoneNumber) {
             try {
                 dispatch(initializeUser({
                     access: accessToken,
-                    refresh: refreshToken
+                    refresh: refreshToken,
+                    phone_number: phoneNumber,
                 }));
             } catch (error) {
                 console.error("Failed to parse user data from localStorage");

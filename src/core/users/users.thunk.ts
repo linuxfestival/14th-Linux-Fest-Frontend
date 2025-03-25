@@ -24,9 +24,9 @@ export const getUserByPhoneThunk = createAsyncThunk(
 
 export const updateUserThunk = createAsyncThunk(
     "user/update",
-    async (userData: UserDto, { rejectWithValue }) => {
+    async (userData: UserDto & {phone_number: string}, { rejectWithValue }) => {
         try {
-            const response: AxiosResponse<UserDto> = await updateUser(userData);
+            const response: AxiosResponse<UserDto> = await updateUser(userData, {phone_number: userData.phone_number});
             return response.data;
         } catch (error: any) {
             const errorMessage = error.message as AuthErrorCodes;

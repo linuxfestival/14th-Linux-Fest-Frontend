@@ -11,7 +11,7 @@ import {
 
 
 export const loginWithUsernamePassword = makeCall<LoginRequest, LoginResponse>(
-  "api/token/",
+  "api/token/access/",
   "POST"
 );
 

@@ -1,9 +1,9 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import Button, {ButtonSizes} from "../../Common/Button/Button";
 import InputField from "../../Common/Button/Input";
 import AvatarInput from "./Components/AvatarInput";
 import {RootState, useAppDispatch} from "../../../store.ts";
-import {changePasswordThunk} from "../../../core/users/users.thunk.ts";
+import {changePasswordThunk, getUserByPhoneThunk, updateUserThunk} from "../../../core/users/users.thunk.ts";
 import {useSelector} from "react-redux";
 import {toast} from "react-toastify";
 import {loginThunk} from "../../../core/auth/auth.thunk.ts";
@@ -16,9 +16,11 @@ const Edit: React.FC = () => {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [repeatNewPassword, setRepeatNewPassword] = useState("");
+    const [avatar, setAvatar] = useState("");
 
     const dispatch = useAppDispatch();
-    const {changePasswordLoading} = useSelector((state: RootState) => state.users)
+    const {changePasswordLoading, user} = useSelector((state: RootState) => state.users)
+    const {userPhoneNumber} = useSelector((state: RootState) => state.auth)
 
     const changePasswordOnClick = useCallback(async () => {
         if (!oldPassword || !newPassword || !repeatNewPassword) {
@@ -52,42 +54,68 @@ const Edit: React.FC = () => {
     }, [dispatch, newPassword, oldPassword, repeatNewPassword])
 
     const editProfileOnClick = useCallback(() => {
+        if (!userPhoneNumber)
+            return;
+        dispatch(updateUserThunk({
+            phone_number: userPhoneNumber,
+            avatar,
+            email,
+            first_name: firstName,
+            last_name: lastName,
+        }))
+    }, [avatar, dispatch, email, firstName, lastName, userPhoneNumber])
 
-    }, [])
+    useEffect(() => {
+        if (userPhoneNumber)
+            dispatch(getUserByPhoneThunk(userPhoneNumber))
+    }, [dispatch, userPhoneNumber]);
+
+    useEffect(() => {
+        if (user) {
+            setEmail(user.email);
+            setFirstName(user.first_name);
+            setLastName(user.last_name);
+        }
+    }, [user]);
 
     return (
         <>
-            <AvatarInput/>
+            <AvatarInput
+                onChange={image => setAvatar(image)}
+                value={avatar}
+            />
             <h2 className="text-3xl mt-6">تغییر اطلاعات</h2>
             <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">
                 <div className="flex items-center space-x-4">
                     <InputField
                         type="text"
-                        value=""
+                        value={firstName}
                         label="نام"
-                        inputChangeHandler={() => console.log("")}
+                        inputChangeHandler={(e) => setFirstName(e.target.value)}
                         placeholder="مارک"
                     />
                     <InputField
                         type="text"
-                        value=""
+                        value={lastName}
                         label="نام خانوادگی"
-                        inputChangeHandler={() => console.log("")}
+                        inputChangeHandler={(e) => setLastName(e.target.value)}
                         placeholder="فیشباک"
                     />
                 </div>
                 <div className="flex items-center space-x-4">
                     <InputField
                         type="email"
-                        value="ایمیل"
+                        value={email}
                         label="عنوان"
-                        inputChangeHandler={() => console.log("")}
+                        inputChangeHandler={(e) => setEmail(e.target.value)}
                         placeholder="email@example.com"
                         textDirection="ltr"
                     />
                 </div>
                 <div className="mb-6">
-                    <Button size={ButtonSizes.SMALL}>ثبت</Button>
+                    <Button
+                        onClick={editProfileOnClick}
+                        size={ButtonSizes.SMALL}>ثبت</Button>
                 </div>
             </div>
             <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">

@@ -70,15 +70,15 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       try {
-        if (originalRequest.url?.includes("api/token/refresh/")) {
+        if (originalRequest.url?.includes("api/token/")) {
           throw error;
         }
 
         const result = await store.dispatch(
           refreshThunk({
-            refresh: Cookies.get("refresh_token") ?? "",
+            refresh: Cookies.get("refresh_token") ?? "asdf",
           })
         );
 
@@ -95,7 +95,8 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        toast.error("نیاز دارید تا وارد شوید!")
+        if (!originalRequest.url?.includes("api/token/access/"))
+          toast.error("نیاز دارید تا وارد شوید!")
         store.dispatch(logout());
         router.navigate("/login");
         return Promise.reject(refreshError);

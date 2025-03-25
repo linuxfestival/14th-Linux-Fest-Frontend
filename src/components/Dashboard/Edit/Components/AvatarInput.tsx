@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import defaultAvatar from "../../../../assets/images/pinguin.png";
 import Camera from "../../../Common/icons/Camera";
 import clsx from "clsx";
+import {toast} from "react-toastify";
 
 interface Props {
   className?: string;
+  value: string;
+  onChange: (url: string) => void;
 }
 
-const AvatarInput = ({ className }: Props) => {
+const AvatarInput = ({ className, value, onChange }: Props) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +35,7 @@ const AvatarInput = ({ className }: Props) => {
       <input
         type="file"
         accept="image/*"
+        value={value}
         onChange={handleImageChange}
         className="hidden"
         id="avatarInput"
