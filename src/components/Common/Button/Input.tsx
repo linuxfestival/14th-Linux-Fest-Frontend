@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import AlertIcon from "../icons/AlertIcon";
 import SuccessIcon from "../icons/SuccessIcon";
 
@@ -14,6 +15,7 @@ interface InputFieldProps {
   errorText?: string;
   autocomplete?: string;
   className?: string;
+  labelClassName?: string;
 }
 
 export default function InputField({ ...props }: InputFieldProps) {
@@ -44,11 +46,11 @@ export default function InputField({ ...props }: InputFieldProps) {
 
   return (
     <div className={"flex flex-col w-full relative " + props.className}>
-      <div className="relative">
+      <fieldset className="rounded-[14px] border-1 border-secondary-gray">
         <input
           type={props.type}
           id="floating_outlined"
-          className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-text-white bg-transparent rounded-[14px] border-1 border-secondary-gray appearance-none focus:outline-none focus:ring-0 peer"
+          className="block px-2.5 pb-3 pt-1.5 w-full text-sm text-text-white bg-transparent appearance-none focus:outline-none focus:ring-0 peer"
           placeholder={props.placeholder}
           onChange={props.inputChangeHandler}
           dir={props.textDirection}
@@ -56,10 +58,14 @@ export default function InputField({ ...props }: InputFieldProps) {
           autoComplete={props?.autocomplete ?? ""}
           value={props.value}
         />
-        <label className="absolute top-0 right-4 text-sm text-secondary-gray bg-bg-secondary duration-300 z-10 origin-[0] peer-focus:px-1 peer-placeholder-shown:scale-100 -translate-y-1/2">
+        <legend
+          className={clsx(
+            "text-sm text-secondary-gray duration-300 px-1 mr-4 peer-focus:px-2 peer-placeholder-shown:scale-100"
+          )}
+        >
           {props.label}
-        </label>
-      </div>
+        </legend>
+      </fieldset>
       {renderInputSubtitle()}
     </div>
   );
