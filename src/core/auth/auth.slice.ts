@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginThunk, signupThunk } from "./auth.thunk";
 import {LoginResponse} from "./auth.dto.ts";
 
-interface AuthState {
+export interface AuthState {
   isAuthenticated: boolean;
   user?: {
     access: string;
@@ -13,7 +13,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  isAuthenticated: false,
+  isAuthenticated: true,
   user: null,
   loading: false,
   error: null,

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
-import { useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Edit from "../components/Dashboard/Edit/Edit.tsx";
-import PanelHeader from "../components/Header/PanelHeader.tsx";
+import PanelHeader from "../components/PanelHeader/PanelHeader.tsx";
 import ProfileWorkshops from "../components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx";
 import Billings from "../components/Dashboard/Billings/Billings.tsx";
+import CartLayout from "../components/Dashboard/Cart/CartLayout.tsx";
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
@@ -18,18 +19,21 @@ const MainLayout: React.FC = () => {
         return <ProfileWorkshops />;
       case "/profile/billing":
         return <Billings />;
+      case "/profile/cart":
+        return <CartLayout />;
     }
   };
+
   return (
     <div className="flex">
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setSidebarOpen(false)}
       />
-      <div className="w-full flex flex-col h-[100dvh] justify-center items-center p-[80px]">
+      <div className="w-full flex flex-col h-[100dvh] justify-center items-center md:p-[80px]">
         <PanelHeader toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
         <div className="flex flex-col justify-center items-center bg-bg-secondary h-full p-6 md:rounded-lg py-10 w-full">
-          {renderMainSection()}
+          <Outlet />
         </div>
       </div>
     </div>

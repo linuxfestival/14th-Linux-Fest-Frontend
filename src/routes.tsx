@@ -7,6 +7,14 @@ import Staff from "./components/Staff/Staff.tsx";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
 import FAQ from "./components/FAQ/FAQ.tsx";
+import PaymentStatus from "./components/PaymentStatus/PaymentStatus.tsx";
+import NotFound from "./components/notFound/NotFound.tsx";
+import Edit from "./components/Dashboard/Edit/Edit.tsx";
+import ProfileWorkshops from "./components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx";
+import Billings from "./components/Dashboard/Billings/Billings.tsx";
+import CartLayout from "./components/Dashboard/Cart/CartLayout.tsx";
+import CartsList from "./components/Dashboard/Cart/pages/CartsList.tsx";
+import CartPayment from "./components/Dashboard/Cart/pages/CartPayment.tsx";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +32,42 @@ const router = createBrowserRouter([
   {
     path: "profile/*",
     element: <MainLayout />,
+    children: [
+      {
+        path: "edit",
+        element: <Edit />,
+      },
+      {
+        path: "workshops",
+        element: <ProfileWorkshops />,
+      },
+      {
+        path: "billing",
+        element: <Billings />,
+      },
+      {
+        path: "cart",
+        element: <CartLayout />,
+        children: [
+          {
+            path: "list",
+            element: <CartsList />,
+          },
+          {
+            path: "checkout",
+            element: <CartPayment />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "payment/success/:transactionID",
+    element: <PaymentStatus successful />,
+  },
+  {
+    path: "payment/fail/:transactionID",
+    element: <PaymentStatus />,
   },
   {
     path: "workshops",
@@ -44,6 +88,10 @@ const router = createBrowserRouter([
   {
     path: "staff",
     element: <Staff />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 

@@ -2,6 +2,7 @@ import React from "react";
 import Camera from "./components/Common/icons/Camera.tsx";
 import { GrCreditCard, GrWorkshop } from "react-icons/gr";
 import { MdOutlineSupportAgent } from "react-icons/md";
+import ShoppingCart from "./components/Header/components/ShoppingCart.tsx";
 
 type SidebarButtonType = {
   label: string;
@@ -15,6 +16,11 @@ export const sidebarData: SidebarButtonType[] = [
     label: "اطلاعات شخصی",
     icon: <Camera />,
     path: "/profile/edit",
+  },
+  {
+    label: "سبد خرید",
+    icon: <ShoppingCart />,
+    path: "/profile/cart/list",
   },
   {
     label: "کارگاه های من",
