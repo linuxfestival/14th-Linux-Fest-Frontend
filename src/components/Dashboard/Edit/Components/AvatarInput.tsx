@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import defaultAvatar from "../../../../assets/images/pinguin.png";
 import Camera from "../../../Common/icons/Camera";
 import clsx from "clsx";
@@ -6,19 +6,24 @@ import {toast} from "react-toastify";
 
 interface Props {
   className?: string;
-  value: string;
-  onChange: (url: string) => void;
+  onChange: (file: File) => void;
+  url: string
 }
 
-const AvatarInput = ({ className, value, onChange }: Props) => {
+const AvatarInput = ({ className, url, onChange }: Props) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const imageUrl = URL.createObjectURL(event.target.files[0]);
       setSelectedImage(imageUrl);
+      onChange(event.target.files[0]);
     }
   };
+
+  useEffect(() => {
+    setSelectedImage(url);
+  }, [url]);
 
   return (
     <div
@@ -35,7 +40,6 @@ const AvatarInput = ({ className, value, onChange }: Props) => {
       <input
         type="file"
         accept="image/*"
-        value={value}
         onChange={handleImageChange}
         className="hidden"
         id="avatarInput"

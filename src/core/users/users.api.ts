@@ -1,5 +1,5 @@
 import {makeCall} from "../../utils/makeCall.ts";
-import {ChangePasswordRequest, ChangePasswordResponse, FAQDto, UserDto} from "./users.dto.ts";
+import {ChangePasswordRequest, ChangePasswordResponse, FAQDto, UpdateUserRequest, UserDto} from "./users.dto.ts";
 
 export const getUserByPhone = makeCall<null, UserDto>(
     (params) => `/api/users/${params.phone_number}/`,
@@ -7,7 +7,7 @@ export const getUserByPhone = makeCall<null, UserDto>(
     true
 );
 
-export const updateUser = makeCall<UserDto, UserDto>(
+export const updateUser = makeCall<FormData, UserDto>(
     (params) => `/api/users/${params.phone_number}/`,
     "PUT",
     true

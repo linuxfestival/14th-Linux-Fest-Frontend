@@ -5,6 +5,13 @@ export interface UserDto {
     avatar?: string;
 }
 
+export interface UpdateUserRequest {
+    email: string;
+    first_name: string;
+    last_name: string;
+    avatar?: File;
+}
+
 export interface ChangePasswordRequest {
     old_password: string;
     new_password: string;

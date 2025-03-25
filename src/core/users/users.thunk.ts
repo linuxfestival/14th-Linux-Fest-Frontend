@@ -1,17 +1,12 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
-import {
-    getUserByPhone,
-    updateUser,
-    changePassword,
-    getFAQ,
-} from "./users.api" // Adjust the import path as needed
-import { AuthErrorCodes, AuthErrorMessages } from "../auth/auth.errors.ts";
-import {ChangePasswordRequest, ChangePasswordResponse, FAQDto, UserDto} from "./users.dto.ts"; // Adjust the import path as needed
+import {createAsyncThunk} from "@reduxjs/toolkit";
+import {AxiosResponse} from "axios";
+import {changePassword, getFAQ, getUserByPhone, updateUser,} from "./users.api" // Adjust the import path as needed
+import {AuthErrorCodes, AuthErrorMessages} from "../auth/auth.errors.ts";
+import {ChangePasswordRequest, ChangePasswordResponse, FAQDto, UpdateUserRequest, UserDto} from "./users.dto.ts"; // Adjust the import path as needed
 
 export const getUserByPhoneThunk = createAsyncThunk(
     "user/getByPhone",
-    async (phone_number: string, { rejectWithValue }) => {
+    async (phone_number: string, {rejectWithValue}) => {
         try {
             const response: AxiosResponse<UserDto> = await getUserByPhone(null, {phone_number});
             return response.data;
@@ -24,9 +19,15 @@ export const getUserByPhoneThunk = createAsyncThunk(
 
 export const updateUserThunk = createAsyncThunk(
     "user/update",
-    async (userData: UserDto & {phone_number: string}, { rejectWithValue }) => {
+    async (userData: UpdateUserRequest & { phone_number: string }, {rejectWithValue}) => {
         try {
-            const response: AxiosResponse<UserDto> = await updateUser(userData, {phone_number: userData.phone_number});
+            const payload = new FormData()
+            Object.entries(userData).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && key !== "phone_number") {
+                    payload.append(key, value);
+                }
+            });
+            const response: AxiosResponse<UserDto> = await updateUser(payload, {phone_number: userData.phone_number});
             return response.data;
         } catch (error: any) {
             const errorMessage = error.message as AuthErrorCodes;
@@ -37,7 +38,7 @@ export const updateUserThunk = createAsyncThunk(
 
 export const changePasswordThunk = createAsyncThunk(
     "user/changePassword",
-    async (passwordData: ChangePasswordRequest, { rejectWithValue }) => {
+    async (passwordData: ChangePasswordRequest, {rejectWithValue}) => {
         try {
             const response: AxiosResponse<ChangePasswordResponse> = await changePassword(passwordData);
             return response.data;
@@ -50,7 +51,7 @@ export const changePasswordThunk = createAsyncThunk(
 
 export const getFAQThunk = createAsyncThunk(
     "faq/get",
-    async (_, { rejectWithValue }) => {
+    async (_, {rejectWithValue}) => {
         try {
             const response: AxiosResponse<FAQDto[]> = await getFAQ();
             return response.data;

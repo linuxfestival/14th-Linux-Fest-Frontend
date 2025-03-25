@@ -6,7 +6,6 @@ import {RootState, useAppDispatch} from "../../../store.ts";
 import {changePasswordThunk, getUserByPhoneThunk, updateUserThunk} from "../../../core/users/users.thunk.ts";
 import {useSelector} from "react-redux";
 import {toast} from "react-toastify";
-import {loginThunk} from "../../../core/auth/auth.thunk.ts";
 import {ChangePasswordResponse} from "../../../core/users/users.dto.ts";
 
 const Edit: React.FC = () => {
@@ -16,7 +15,8 @@ const Edit: React.FC = () => {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [repeatNewPassword, setRepeatNewPassword] = useState("");
-    const [avatar, setAvatar] = useState("");
+    const [avatar, setAvatar] = useState<File>();
+    const [avatarUrl, setAvatarUrl] = useState("");
 
     const dispatch = useAppDispatch();
     const {changePasswordLoading, user} = useSelector((state: RootState) => state.users)
@@ -56,9 +56,10 @@ const Edit: React.FC = () => {
     const editProfileOnClick = useCallback(() => {
         if (!userPhoneNumber)
             return;
+
         dispatch(updateUserThunk({
             phone_number: userPhoneNumber,
-            avatar,
+            avatar: avatar ? avatar : undefined,
             email,
             first_name: firstName,
             last_name: lastName,
@@ -75,15 +76,15 @@ const Edit: React.FC = () => {
             setEmail(user.email);
             setFirstName(user.first_name);
             setLastName(user.last_name);
+            setAvatarUrl(user.avatar ?? "");
         }
     }, [user]);
 
     return (
         <>
-            <AvatarInput
-                onChange={image => setAvatar(image)}
-                value={avatar}
-            />
+            <AvatarInput url={avatarUrl} onChange={(file: File) => {
+                setAvatar(file)
+            }}/>
             <h2 className="text-3xl mt-6">تغییر اطلاعات</h2>
             <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">
                 <div className="flex items-center space-x-4">
