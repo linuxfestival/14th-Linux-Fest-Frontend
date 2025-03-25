@@ -1,37 +1,39 @@
-import React from "react";
-import RegisteredWorkshop, {
-  WorkshopStatus,
-} from "./Components/RegisteredWorkshop";
+import React, {useEffect} from "react";
+import RegisteredWorkshop from "./Components/RegisteredWorkshop";
+import {RootState, useAppDispatch} from "../../../store.ts";
+import {getCartPresentationsThunk} from "../../../core/presentations/presentations.think.ts";
+import {useSelector} from "react-redux";
+import Lottie from "lottie-react";
+import notFound from "../../../assets/lottie/notFound.json"
 
 const ProfileWorkshops = () => {
-  return (
-    <div className="flex flex-col justify-center items-center gap-4 h-full w-full">
-      <h1 className="text-4xl font-bold mb-6">کارگاه های من</h1>
-      <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
-        <RegisteredWorkshop
-          title="تست"
-          time="۱۴۰۴/۰۱/۲۵ - ۱۶:۰۰ ۱۸:۰۰"
-          status={WorkshopStatus.NOT_STARTED}
-        />
-        <RegisteredWorkshop
-          title="تست"
-          time="۱۴۰۴/۰۱/۲۵ - ۱۶:۰۰ ۱۸:۰۰"
-          status={WorkshopStatus.FINISHED}
-        />
-        <RegisteredWorkshop
-          title="تست"
-          time="۱۴۰۴/۰۱/۲۵ - ۱۶:۰۰ ۱۸:۰۰"
-          status={WorkshopStatus.IN_PROGRESS}
-        />
-        <RegisteredWorkshop
-          title="تست"
-          time="۱۴۰۴/۰۱/۲۵ - ۱۶:۰۰ ۱۸:۰۰"
-          status={WorkshopStatus.IN_PROGRESS}
-          live
-        />
-      </div>
-    </div>
-  );
+    const dispatch = useAppDispatch()
+
+    const {cart} = useSelector((root: RootState) => root.presentation)
+
+    useEffect(() => {
+        dispatch(getCartPresentationsThunk())
+    }, [dispatch]);
+
+    return (
+        <div className="flex flex-col justify-center items-center gap-4 h-full w-full">
+            <h1 className="text-4xl font-bold mb-6">کارگاه های من</h1>
+            <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
+                {cart.filter(el => el.payment_state === "COMPLETED").map(el => (
+                    <RegisteredWorkshop
+                        title={el.presentation.title}
+                        time={new Date(el.presentation.start)}
+                    />
+                ))}
+                {cart.filter(el => el.payment_state === "COMPLETED").length === 0 &&
+                    <>
+                        <Lottie animationData={notFound}/>
+                        <p className="text-2xl font-bold">کارگاهی یافت نشد!</p>
+                    </>
+                }
+            </div>
+        </div>
+    );
 };
 
 export default ProfileWorkshops;
