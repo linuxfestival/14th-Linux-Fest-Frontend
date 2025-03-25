@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../Header/Header";
 import Terminal from "./components/Terminal";
 import Button, { ButtonSizes } from "../Common/Button/Button";
@@ -10,7 +10,8 @@ import ProgrammingVec from "../../assets/programming-vec.png";
 import StaticsCard from "./components/StaticsCard";
 import DadashamLinux from "../../assets/dadasham-linus.png";
 import Footer from "../Footer/Footer";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Home = () => {
   return (
@@ -36,9 +37,7 @@ const Home = () => {
 
           <div className="w-full mt-12 flex flex-col justify-center items-center">
             <Link to="/signup" className="!w-2/3 md:!w-1/3">
-              <Button size={ButtonSizes.LARGE}>
-                ثبت نام
-              </Button>
+              <Button size={ButtonSizes.LARGE}>ثبت نام</Button>
             </Link>
             <p className="mt-2 w-full text-sm lg:text-lg">از ۲۵ تا ۲۸ اسفند</p>
           </div>
