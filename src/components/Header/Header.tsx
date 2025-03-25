@@ -99,10 +99,10 @@ const Header = () => {
         />
       </div>
 
-      <div className="flex justify-center items-center gap-[10px]">
+      <Link to={"/"} className="flex justify-center items-center gap-[10px]">
         <p className="text-2xl font-medium">لینوکس فست</p>
         <img src={logo} width={50} height={50} />
-      </div>
+      </Link>
     </div>
   );
 };

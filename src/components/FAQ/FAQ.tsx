@@ -33,7 +33,7 @@ const FAQItem: React.FC<FAQItemProps> = ({question, answer}) => {
                 transition={{duration: 0.3, ease: "easeInOut"}}
                 className="overflow-hidden"
             >
-                <div ref={contentRef} className="p-4 bg-bg-sidebar">{answer}</div>
+                <div ref={contentRef} className="p-4 bg-bg-sidebar" dangerouslySetInnerHTML={{__html: answer}} />
             </motion.div>
         </div>
     );
