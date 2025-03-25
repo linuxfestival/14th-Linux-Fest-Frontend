@@ -4,6 +4,8 @@ export interface CartItem {
   id: string;
   name: string;
   price: number;
+  date: number;
+  instructor: string;
 }
 
 export enum CartPage {
