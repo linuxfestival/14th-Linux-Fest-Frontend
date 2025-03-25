@@ -22,7 +22,7 @@ const FAQItem: React.FC<FAQItemProps> = ({question, answer}) => {
                 className="w-full flex justify-between items-center cursor-pointer bg-dark-gray p-4 text-left text-lg font-medium "
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span>{question}</span>
+                <span className="text-right">{question}</span>
                 <FaChevronDown
                     className={`transform transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
                 />
