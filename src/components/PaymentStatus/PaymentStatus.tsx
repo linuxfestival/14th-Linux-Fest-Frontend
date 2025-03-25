@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Lottie, { useLottie } from "lottie-react";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 import { Link, useParams, useSearchParams } from "react-router-dom";
@@ -9,9 +9,10 @@ interface Props {
   successful?: boolean;
 }
 
-const PaymentStatus = ({ successful = false }: Props) => {
+const PaymentStatus = () => {
   const urlParams = useParams();
   const transactionID = urlParams.transactionID;
+  const [successful, setSuccessful] = useState(false);
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-[#151515] text-white px-6">

@@ -62,11 +62,7 @@ const router = createBrowserRouter([
         ],
     },
     {
-        path: "payment/success/:transactionID",
-        element: <PaymentStatus successful/>,
-    },
-    {
-        path: "payment/fail/:transactionID",
+        path: "payment/perhaps",
         element: <PaymentStatus/>,
     },
     {
