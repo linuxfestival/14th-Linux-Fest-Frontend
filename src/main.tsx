@@ -6,15 +6,12 @@ import router from "./routes";
 import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
 import store from "./store.ts";
-import AuthContainer from "./components/Container/AuthContainer.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <AuthContainer>
         <ToastContainer />
         <RouterProvider router={router} />
-      </AuthContainer>
     </Provider>
   </StrictMode>
 );
