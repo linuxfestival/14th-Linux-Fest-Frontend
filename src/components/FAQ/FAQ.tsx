@@ -52,7 +52,7 @@ const FAQ: React.FC = () => {
         <>
             <div className="relative pt-24 w-full min-h-[80vh] flex justify-center items-center bg-pattern">
                 <Header/>
-                <div className=" mx-auto shadow-md rounded-lg overflow-hidden">
+                <div className=" mx-auto shadow-md rounded-lg overflow-hidden mb-24">
                     <h2 className="text-3xl font-bold mb-11">سوالات متداول</h2>
                     {faqs.map((faq, index) => (
                         <FAQItem key={index} question={faq.question} answer={faq.answer}/>
