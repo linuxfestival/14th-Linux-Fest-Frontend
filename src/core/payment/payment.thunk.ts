@@ -48,13 +48,8 @@ export const finalizePaymentThunk = createAsyncThunk(
             return response.data;
         } catch (error: any) {
             // TODO: Error handling
-            const errorMessage = error.message as AuthErrorCodes;
-
-            if (errorMessage && AuthErrorMessages[errorMessage]) {
-                return rejectWithValue(AuthErrorMessages[errorMessage]);
-            } else {
-                return rejectWithValue("An unexpected error occurred. Please try again.");
-            }
+            const errorMessage = error?.response?.data;
+            return rejectWithValue(errorMessage || "An unexpected error occurred. Please try again.");
         }
     }
 );

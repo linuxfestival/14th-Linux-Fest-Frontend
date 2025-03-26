@@ -11,7 +11,7 @@ import shoppingCartLottie from "../../../../assets/lottie/shoppingCart.json";
 const CartsList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const itemsList = useSelector(selectCartItems);
+  const itemsList = useSelector(selectCartItems).filter((item) => item.payment_state !== "COMPLETED");
 
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Cart));

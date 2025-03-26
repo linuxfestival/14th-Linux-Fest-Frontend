@@ -1,58 +1,116 @@
-import React, { useEffect } from "react";
-import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
-import { useDispatch } from "react-redux";
-import CartItem from "../components/CartItem";
+import React, {useCallback, useEffect, useState} from "react";
+import {cartActions, CartPage} from "../../../../core/cart/cart.slice";
 import SelectableCard from "../components/SelectableCard";
-import Button from "../../../Common/Button/Button";
+import Button, {ButtonVariants} from "../../../Common/Button/Button";
+import {useNavigate} from "react-router-dom";
+import {finalizePaymentThunk} from "../../../../core/payment/payment.thunk.ts";
+import InputField from "../../../Common/Button/Input.tsx";
+import {RootState, useAppDispatch} from "../../../../store.ts";
+import {toast} from "react-toastify";
+import {FinalizePaymentResponse} from "../../../../core/payment/payment.dto.ts";
+import {useSelector} from "react-redux";
 
 const CartPayment = () => {
-  const dispatch = useDispatch();
+    const [coupon, setCoupon] = useState("");
 
-  useEffect(() => {
-    dispatch(cartActions.setPage(CartPage.Checkout));
-  }, []);
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-  return (
-    <>
-      <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
-        <h1 className="text-4xl font-bold mb-6 mt-4">محصول اضافه</h1>
-        <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
-          <SelectableCard
-            title="عنوان"
-            description="120 هزار تومان"
-            active={false}
-            image="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
-            onClick={() => {}}
-          />
-          <SelectableCard
-            title="عنوان"
-            description="120 هزار تومان"
-            active={false}
-            image="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
-            onClick={() => {}}
-          />
-          <SelectableCard
-            title="عنوان"
-            description="120 هزار تومان"
-            active={false}
-            image="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
-            onClick={() => {}}
-          />
-        </div>
+    const {totalAmount} = useSelector((root: RootState) => root.cart)
 
-        <h1 className="text-4xl font-bold mb-6 mt-12">روش های پرداخت</h1>
-        <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
-          <SelectableCard
-            title="پرداخت با زرین پال"
-            active={false}
-            image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2Uj1aeKDQmxRlusgFJjEdbtg0ZwnN5XP0IA&s"
-            onClick={() => {}}
-          />
-        </div>
-      </div>
-      <Button>پرداخت</Button>
-    </>
-  );
+    useEffect(() => {
+        dispatch(cartActions.setPage(CartPage.Checkout));
+    }, [dispatch]);
+
+    const takeAStepBackMortalAndThouShallBeForgiven = useCallback(() => {
+        navigate("/profile/cart/list")
+    }, [navigate])
+
+    const dieInHonorOfMoney = useCallback(() => {
+        dispatch(finalizePaymentThunk({
+            coupon: coupon
+        }))
+            .then(result => {
+                if (finalizePaymentThunk.fulfilled.match(result)) {
+                    if (result.payload.payment_url)
+                        location.href = result.payload.payment_url
+                    else
+                        toast.error(result.payload?.detail ?? "ارور نامشخص! لطفا با پیشتیبانی ارتباط بگیرید.");
+                } else {
+                    const payload = result.payload as FinalizePaymentResponse
+                    toast.error(payload.detail ?? "ارور نامشخص! لطفا با پیشتیبانی ارتباط بگیرید.");
+                }
+            })
+    }, [coupon, dispatch])
+
+    return (
+        <>
+            <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
+                <h1 className="text-4xl font-bold mb-6 mt-4">محصول اضافه</h1>
+                <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
+                    <SelectableCard
+                        title="عنوان"
+                        description="120 هزار تومان"
+                        active={false}
+                        image="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+                        onClick={() => {
+                        }}
+                    />
+                    <SelectableCard
+                        title="عنوان"
+                        description="120 هزار تومان"
+                        active={false}
+                        image="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+                        onClick={() => {
+                        }}
+                    />
+                    <SelectableCard
+                        title="عنوان"
+                        description="120 هزار تومان"
+                        active={false}
+                        image="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+                        onClick={() => {
+                        }}
+                    />
+                </div>
+
+                <h1 className="text-4xl font-bold mb-6 mt-12">روش های پرداخت</h1>
+                <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
+                    <SelectableCard
+                        title="پرداخت با زرین پال"
+                        active={true}
+                        image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2Uj1aeKDQmxRlusgFJjEdbtg0ZwnN5XP0IA&s"
+                        onClick={() => {
+                        }}
+                    />
+                </div>
+            </div>
+            <div className="flex flex-col gap-4 items-center justify-start w-full px-4 max-w-[600px]">
+                <div>
+                    <InputField
+                        type={"text"}
+                        value={coupon}
+                        placeholder={"MinosPrime"}
+                        label={"کد تخفیف؟"}
+                        inputChangeHandler={e => setCoupon(e.target.value)}
+                    />
+                    <Button>
+                        اعمال کد
+                    </Button>
+                </div>
+                {totalAmount > 0 && <div className="flex gap-1">
+                    <p>مجموع قابل پرداخت:</p>
+                    <p>{totalAmount}</p>
+                    <p> تومان</p>
+                </div>}
+                <div className="flex gap-2 w-full">
+                    <Button onClick={takeAStepBackMortalAndThouShallBeForgiven} className="border-2"
+                            variant={ButtonVariants.OUTLINE}>قبلی</Button>
+                    <Button onClick={dieInHonorOfMoney}>پرداخت</Button>
+                </div>
+            </div>
+        </>
+    );
 };
 
 export default CartPayment;

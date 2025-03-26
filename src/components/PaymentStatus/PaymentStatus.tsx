@@ -61,10 +61,7 @@ const PaymentStatus = () => {
                                 loop={false}
                                 autoplay={true}
                             />
-                            <h1 className="text-3xl font-bold text-green-500">پرداخت موفق</h1>
-                            <p className="text-lg text-text-gray">
-                                تراکنش شما با موفقیت انجام شد.
-                            </p>
+                            <h1 className="text-3xl font-bold text-gray-500">صبر کنید</h1>
                         </>
                     )
                     : successful ? (

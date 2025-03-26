@@ -42,6 +42,9 @@ const cartSlice = createSlice({
       state.items = [];
       state.totalAmount = 0;
     },
+    updateTotalAmount(state) {
+      state.totalAmount = state.items.reduce((acc, cur) => acc + cur.presentation.cost, 0);
+    },
     setPage(state, action: PayloadAction<CartPage>) {
       state.step = action.payload;
     },
@@ -54,8 +57,9 @@ const cartSlice = createSlice({
       .addCase(addItemToCartThunk.fulfilled, (state) => {
         state.count++;
         state.loading = false;
+        cartSlice.caseReducers.updateTotalAmount(state);
       })
-      .addCase(addItemToCartThunk.rejected, (state, action) => {
+      .addCase(addItemToCartThunk.rejected, (state) => {
         state.loading = false;
       })
       .addCase(removeItemFromCartThunk.pending, (state) => {
@@ -64,8 +68,9 @@ const cartSlice = createSlice({
       .addCase(removeItemFromCartThunk.fulfilled, (state) => {
         state.count--;
         state.loading = false;
+        cartSlice.caseReducers.updateTotalAmount(state);
       })
-      .addCase(removeItemFromCartThunk.rejected, (state, action) => {
+      .addCase(removeItemFromCartThunk.rejected, (state) => {
         state.loading = false;
       })
       .addCase(getCartThunk.pending, (state) => {
@@ -73,10 +78,11 @@ const cartSlice = createSlice({
       })
       .addCase(getCartThunk.fulfilled, (state, action) => {
         state.items = action.payload;
-        state.count = action.payload.length;
+        state.count = action.payload.filter(el => el.payment_state !== "COMPLETED").length;
         state.loading = false;
+        cartSlice.caseReducers.updateTotalAmount(state);
       })
-      .addCase(getCartThunk.rejected, (state, action) => {
+      .addCase(getCartThunk.rejected, (state) => {
         state.loading = false;
       });
   },

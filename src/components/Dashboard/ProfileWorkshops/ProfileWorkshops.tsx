@@ -9,7 +9,7 @@ import notFound from "../../../assets/lottie/notFound.json";
 const ProfileWorkshops = () => {
   const dispatch = useAppDispatch();
 
-  const { cart } = useSelector((root: RootState) => root.presentation);
+  const { items: cart } = useSelector((root: RootState) => root.cart);
 
   useEffect(() => {
     dispatch(getCartThunk());

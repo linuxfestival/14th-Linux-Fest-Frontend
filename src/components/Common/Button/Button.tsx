@@ -43,7 +43,7 @@ const Button = ({
             !disabled && variant === ButtonVariants.FILL,
           ["bg-[#B4B4B4]"]: disabled && variant === ButtonVariants.FILL,
           [""]: size === ButtonSizes.SMALL,
-          ["min-w-max w-1/2 font-medium text-sm md:text-md lg:text-lg"]:
+          ["min-w-max w-1/2 font-medium text-lg"]:
             size === ButtonSizes.MEDIUM,
           ["w-full font-bold text-sm md:text-md lg:text-xl"]:
             size === ButtonSizes.LARGE,
