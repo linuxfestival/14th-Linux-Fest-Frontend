@@ -6,18 +6,21 @@ import { getAllPresentationsThunk } from "../../core/presentations/presentations
 import { useSelector } from "react-redux";
 import { getCartThunk } from "../../core/cart/cart.thunk.ts";
 import { selectIsPresentationLoading } from "../../core/presentations/presentations.selector.ts";
+import { selectIsAuthenticated } from "../../core/auth/auth.selector.ts";
 
 const Workshops = () => {
   const dispatch = useAppDispatch();
   const presentationLoading = useSelector(selectIsPresentationLoading);
-  console.log("!@! 2", presentationLoading);
   const { list: presentations } = useSelector(
     (state: RootState) => state.presentation
   );
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   useEffect(() => {
     dispatch(getAllPresentationsThunk());
-    dispatch(getCartThunk());
+    if (isAuthenticated) {
+      dispatch(getCartThunk());
+    }
   }, []);
 
   return (

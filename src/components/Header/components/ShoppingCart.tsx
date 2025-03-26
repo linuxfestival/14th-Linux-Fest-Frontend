@@ -1,11 +1,8 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { MdShoppingCart } from "react-icons/md";
 import digitsToPersian from "../../../utils/digitsToPersian";
 import { useSelector } from "react-redux";
-import {
-  selectCartItems,
-  selectCartItemsCount,
-} from "../../../core/cart/cart.selector";
+import { selectCartItemsCount } from "../../../core/cart/cart.selector";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { useAppDispatch } from "../../../store";

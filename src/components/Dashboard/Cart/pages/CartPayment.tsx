@@ -19,7 +19,6 @@ import {
 import { selectCartState } from "../../../../core/cart/cart.selector.ts";
 import Skeleton from "../../../Skeleton/Skeleton.tsx";
 import { Accessory } from "../../../../core/cart/cart.api.ts";
-import { createPortal } from "react-dom";
 import digitsToPersian from "../../../../utils/digitsToPersian.ts";
 
 const CartPayment = () => {

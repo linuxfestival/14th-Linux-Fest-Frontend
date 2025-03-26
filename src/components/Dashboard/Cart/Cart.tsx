@@ -1,16 +1,16 @@
-import React, { useEffect } from "react";
-import CartItem from "./components/CartItem";
-import Button from "../../Common/Button/Button";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { cartActions, CartPage } from "../../../core/cart/cart.slice";
 import { Outlet } from "react-router-dom";
-import Breadcrumb from "../../Breadcrumb/Breadcrumb";
+import { getCartThunk } from "../../../core/cart/cart.thunk";
+import { useAppDispatch } from "../../../store";
 
 const CartLayout = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Cart));
+    dispatch(getCartThunk());
   }, []);
 
   return (

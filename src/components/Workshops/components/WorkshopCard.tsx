@@ -19,6 +19,7 @@ import {
 } from "../../../core/cart/cart.selector.ts";
 import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton";
 import { selectIsPresentationLoading } from "../../../core/presentations/presentations.selector.ts";
+import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
 
 interface WorkshopCardProps {
   id: number;
@@ -46,8 +47,13 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
   const dispatch = useAppDispatch();
   const existInCart = useSelector(selectIsItemExistInCart(id));
   const selectItemInCart = useSelector(selectItemInCartById(id));
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const addToCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      toast.info("برای افزودن به سبد خرید باید وارد شوید");
+      return;
+    }
     await dispatch(addItemToCartThunk(presentation?.id ?? 0));
     await dispatch(getCartThunk());
   }, [dispatch, presentation?.id]);
