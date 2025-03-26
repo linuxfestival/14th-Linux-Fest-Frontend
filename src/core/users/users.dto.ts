@@ -1,8 +1,11 @@
+import {AccessoryDto} from "../cart/cart.api.ts";
+
 export interface UserDto {
     email: string;
     first_name: string;
     last_name: string;
     avatar?: string;
+    accessories: AccessoryDto[];
 }
 
 export interface UpdateUserRequest {

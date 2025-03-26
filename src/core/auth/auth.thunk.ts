@@ -12,15 +12,8 @@ export const loginThunk = createAsyncThunk(
             const apiCallResponse = await loginWithUsernamePassword(request);
             return apiCallResponse.data;
         } catch (error: any) {
-            const errorMessage = error?.message as AuthErrorCodes;
-
-            if (errorMessage && AuthErrorMessages[errorMessage]) {
-                return rejectWithValue(AuthErrorMessages[errorMessage]);
-            } else {
-                return rejectWithValue(
-                    "An unexpected error occurred. Please try again."
-                );
-            }
+            const errorMessage = error?.response?.data;
+            return rejectWithValue(errorMessage || "An unexpected error occurred. Please try again.");
         }
     }
 );
@@ -29,21 +22,11 @@ export const signupThunk = createAsyncThunk(
     "auth/signup",
     async (request: SignupRequest, {rejectWithValue}) => {
         try {
-            // Ensure passwords match before making an API call
-
-
-            // Call the API to register the user
             const response: AxiosResponse<SignupResponse> = await signup(request);
-
             return response.data;
         } catch (error: any) {
-            const errorMessage = error.message as AuthErrorCodes;
-
-            if (errorMessage && AuthErrorMessages[errorMessage]) {
-                return rejectWithValue(AuthErrorMessages[errorMessage]);
-            } else {
-                return rejectWithValue("An unexpected error occurred. Please try again.");
-            }
+            const errorMessage = error?.response?.data;
+            return rejectWithValue(errorMessage || "An unexpected error occurred. Please try again.");
         }
     }
 );

@@ -105,7 +105,9 @@ const Header = () => {
       </div>
 
       <Link to={"/"} className="flex justify-center items-center gap-[10px]">
-        <p className="text-2xl font-medium">لینوکس فست</p>
+        <p className="text-2xl font-medium">
+            لینوکس‌فست
+        </p>
         <img src={logo} width={50} height={50} />
       </Link>
     </div>

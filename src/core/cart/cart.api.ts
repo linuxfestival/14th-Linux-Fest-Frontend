@@ -15,7 +15,7 @@ export interface CouponStatus {
   is_valid: boolean;
 }
 
-export interface Accessory {
+export interface AccessoryDto {
   id: number;
   name: string;
   description: string;
@@ -23,7 +23,7 @@ export interface Accessory {
   img: string;
 }
 export type GetAccessoriesListRequest = void;
-export type GetAccessoriesListResponse = Accessory[];
+export type GetAccessoriesListResponse = AccessoryDto[];
 
 export const addItemToCart = makeCall<null, AddItemToCartResponse>(
   (params) => `/api/presentations/${params.id}/add_participation/`,
@@ -50,4 +50,4 @@ export const getCouponStatus = makeCall<null, CouponStatus>(
 export const getAccessoriesList = makeCall<
   GetAccessoriesListRequest,
   GetAccessoriesListResponse
->("/api/accessory", "GET");
+>("/api/accessory/", "GET");

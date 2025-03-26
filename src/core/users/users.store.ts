@@ -11,6 +11,7 @@ interface UsersState {
     faqs: FAQDto[];
     user: UserDto | null;
     loading: boolean;
+    updateUserLoading: boolean;
     error: string | null;
     passwordChangeSuccess: boolean;
     changePasswordLoading: boolean;
@@ -22,7 +23,8 @@ const initialState: UsersState = {
     loading: false,
     error: null,
     passwordChangeSuccess: false,
-    changePasswordLoading: false
+    changePasswordLoading: false,
+    updateUserLoading: false
 };
 
 const usersSlice = createSlice({
@@ -56,15 +58,15 @@ const usersSlice = createSlice({
                 state.error = action.payload as string;
             })
             .addCase(updateUserThunk.pending, (state) => {
-                state.loading = true;
+                state.updateUserLoading = true;
                 state.error = null;
             })
             .addCase(updateUserThunk.fulfilled, (state, action: PayloadAction<UserDto>) => {
-                state.loading = false;
+                state.updateUserLoading = false;
                 state.user = action.payload;
             })
             .addCase(updateUserThunk.rejected, (state, action) => {
-                state.loading = false;
+                state.updateUserLoading = false;
                 state.error = action.payload as string;
             })
             .addCase(changePasswordThunk.pending, (state) => {

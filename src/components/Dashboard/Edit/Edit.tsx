@@ -3,10 +3,12 @@ import Button, {ButtonSizes} from "../../Common/Button/Button";
 import InputField from "../../Common/Button/Input";
 import AvatarInput from "./Components/AvatarInput";
 import {RootState, useAppDispatch} from "../../../store.ts";
-import {changePasswordThunk, getUserByPhoneThunk, updateUserThunk} from "../../../core/users/users.thunk.ts";
+import {changePasswordThunk, updateUserThunk} from "../../../core/users/users.thunk.ts";
 import {useSelector} from "react-redux";
 import {toast} from "react-toastify";
 import {ChangePasswordResponse} from "../../../core/users/users.dto.ts";
+import {displayCommonErrorToast} from "../../../utils/toastUtils.ts";
+import digitsToPersian from "../../../utils/digitsToPersian.ts";
 
 const Edit: React.FC = () => {
     const [firstName, setFirstName] = useState("");
@@ -64,12 +66,15 @@ const Edit: React.FC = () => {
             first_name: firstName,
             last_name: lastName,
         }))
+            .then(result => {
+                if (updateUserThunk.fulfilled.match(result)) {
+                    toast.success("اطلاعات با موفقیت آپدیت شد!")
+                } else {
+                    displayCommonErrorToast(result);
+                }
+            })
     }, [avatar, dispatch, email, firstName, lastName, userPhoneNumber])
 
-    useEffect(() => {
-        if (userPhoneNumber)
-            dispatch(getUserByPhoneThunk(userPhoneNumber))
-    }, [dispatch, userPhoneNumber]);
 
     useEffect(() => {
         if (user) {
@@ -85,7 +90,12 @@ const Edit: React.FC = () => {
             <AvatarInput url={avatarUrl} onChange={(file: File) => {
                 setAvatar(file)
             }}/>
-            <h2 className="text-3xl mt-6">تغییر اطلاعات</h2>
+            <h2 className="text-3xl gap-2 flex mt-6">
+                <span>
+                    تغییر اطلاعات
+                </span>
+                <span>{digitsToPersian(userPhoneNumber + "")}</span>
+            </h2>
             <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">
                 <div className="flex items-center space-x-4">
                     <InputField
@@ -107,7 +117,7 @@ const Edit: React.FC = () => {
                     <InputField
                         type="email"
                         value={email}
-                        label="عنوان"
+                        label="ایمیل"
                         inputChangeHandler={(e) => setEmail(e.target.value)}
                         placeholder="email@example.com"
                         textDirection="ltr"
@@ -116,7 +126,11 @@ const Edit: React.FC = () => {
                 <div className="mb-6">
                     <Button
                         onClick={editProfileOnClick}
-                        size={ButtonSizes.SMALL}>ثبت</Button>
+                        size={ButtonSizes.SMALL}
+                        disabled={!firstName || !lastName || !email}
+                    >
+                        ثبت
+                    </Button>
                 </div>
             </div>
             <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">

@@ -1,4 +1,4 @@
-import { Accessory } from "../cart/cart.api";
+import { AccessoryDto } from "../cart/cart.api";
 
 export type PaymentState = "COMPLETED" | "PENDING" | "FAILED";
 export type PaymentStatus = "success" | "unexpected" | "failed";
@@ -20,7 +20,7 @@ export interface PaymentDto {
 
 export interface FinalizePaymentRequest {
   coupon: string;
-  accessories: Accessory["id"][];
+  accessories: AccessoryDto["id"][];
 }
 
 export interface FinalizePaymentResponse {

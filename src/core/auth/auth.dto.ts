@@ -15,6 +15,10 @@ export interface SignupResponse {
     "last_name": string;
     "email": string;
     "phone_number": string;
+    "tokens": {
+        "refresh": string,
+        "access": string
+    }
 }
 
 export interface RefreshTokenRequest {

@@ -16,7 +16,9 @@ export const selectCartItemsCount = createSelector(
 
 export const selectIsItemExistInCart = (itemId: number) =>
   createSelector(selectCartItems, (items) =>
-    items.some((item) => {
+    items
+        .filter(el => el.payment_state !== "COMPLETED")
+        .some((item) => {
       return item.presentation.id === itemId;
     })
   );

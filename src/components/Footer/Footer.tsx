@@ -5,6 +5,7 @@ import sponsor from "../../assets/sponsor.png";
 import Telegram from "../Icons/Telegram";
 import Instagram from "../Icons/Instagram";
 import { Link } from "react-router-dom";
+import Twitter from "../Icons/Twitter.tsx";
 
 const Footer = () => {
   return (
@@ -26,6 +27,9 @@ const Footer = () => {
           <div className="flex gap-4 mt-12">
             <Link to="https://t.me/linuxfest" target={"_blank"}>
               <Telegram/>
+            </Link>
+            <Link to="https://x.com/LinuxFestival" target={"_blank"}>
+              <Twitter/>
             </Link>
             <Link to="https://www.instagram.com/linuxfest.aut/" target={"_blank"}>
               <Instagram/>

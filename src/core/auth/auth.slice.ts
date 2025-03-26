@@ -2,6 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginThunk, signupThunk } from "./auth.thunk";
 import { LoginResponse } from "./auth.dto.ts";
 import {UserDto} from "../users/users.dto.ts";
+import Cookies from "js-cookie";
+import {RootState, useAppDispatch} from "../../store.ts";
+import {useSelector} from "react-redux";
+import {cartActions} from "../cart/cart.slice.ts";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -22,6 +26,7 @@ const initialState: AuthState = {
   error: null,
 };
 
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -30,6 +35,11 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       console.log("logout user");
       state.user = null;
+      state.userPhoneNumber = undefined;
+      state.userData = undefined;
+      Cookies.remove("access_token");
+      Cookies.remove("refresh_token");
+      Cookies.remove("phone_number");
     },
     initializeUser(state, action: PayloadAction<LoginResponse & {phone_number: string}>) {
       state.isAuthenticated = true;
@@ -64,9 +74,10 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(signupThunk.fulfilled, (state) => {
+      .addCase(signupThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
+        state.user = action.payload.tokens;
       })
       .addCase(signupThunk.rejected, (state, action) => {
         state.loading = false;

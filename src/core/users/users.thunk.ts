@@ -30,8 +30,8 @@ export const updateUserThunk = createAsyncThunk(
             const response: AxiosResponse<UserDto> = await updateUser(payload, {phone_number: userData.phone_number});
             return response.data;
         } catch (error: any) {
-            const errorMessage = error.message as AuthErrorCodes;
-            return rejectWithValue(AuthErrorMessages[errorMessage] || "An unexpected error occurred. Please try again.");
+            const errorMessage = error?.response?.data;
+            return rejectWithValue(errorMessage || "An unexpected error occurred. Please try again.");
         }
     }
 );

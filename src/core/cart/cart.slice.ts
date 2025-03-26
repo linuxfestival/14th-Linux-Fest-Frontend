@@ -8,7 +8,8 @@ import {
 } from "./cart.thunk";
 import { CartItemDto } from "./cart.types";
 import { selectPresentationById } from "../presentations/presentations.selector";
-import { CouponStatus, Accessory } from "./cart.api.ts";
+import { CouponStatus, AccessoryDto } from "./cart.api.ts";
+import {logout} from "../auth/auth.slice.ts";
 
 export enum CartPage {
   Cart = 1,
@@ -30,8 +31,8 @@ export interface CartState {
   couponStatus?: CouponStatus;
   discountedAmount?: number;
   accessoryLoading: boolean;
-  accessoryList: Accessory[];
-  selectedAccessories: Accessory["id"][];
+  accessoryList: AccessoryDto[];
+  selectedAccessories: AccessoryDto["id"][];
 }
 
 const initialState: CartState = {
@@ -52,12 +53,17 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.items = [];
       state.totalAmount = 0;
+      state.selectedAccessories = []
+      state.discountedAmount = 0
     },
     updateTotalAmount(state) {
       state.totalAmount = state.items.reduce(
         (acc, cur) => acc + cur.presentation.cost,
         0
       );
+      state.totalAmount += state.accessoryList
+          .filter(el => state.selectedAccessories.includes(el.id))
+          .reduce((acc, cur) => acc + cur.price, 0);
       if (state.couponStatus != null && state.couponStatus.is_valid)
         state.discountedAmount =
           ((100 - state.couponStatus.percentage) / 100) * state.totalAmount;
@@ -65,7 +71,7 @@ const cartSlice = createSlice({
     setPage(state, action: PayloadAction<CartPage>) {
       state.step = action.payload;
     },
-    addAccessory(state, action: PayloadAction<Accessory["id"]>) {
+    addAccessory(state, action: PayloadAction<AccessoryDto["id"]>) {
       const exist = state.selectedAccessories.some(
         (accessoryID) => accessoryID == action.payload
       );
@@ -73,11 +79,14 @@ const cartSlice = createSlice({
       if (!exist) {
         state.selectedAccessories.push(action.payload);
       }
+
+      cartSlice.caseReducers.updateTotalAmount(state)
     },
-    removeAccessory(state, action: PayloadAction<Accessory["id"]>) {
+    removeAccessory(state, action: PayloadAction<AccessoryDto["id"]>) {
       state.selectedAccessories = state.selectedAccessories.filter(
         (accessoryID) => accessoryID !== action.payload
       );
+      cartSlice.caseReducers.updateTotalAmount(state)
     },
   },
   extraReducers: (builder) => {
@@ -89,6 +98,11 @@ const cartSlice = createSlice({
         state.count++;
         state.loading = false;
         cartSlice.caseReducers.updateTotalAmount(state);
+      })
+      .addCase(logout, (state) => {
+        state.items = [];
+        state.totalAmount = 0;
+        console.log("Cart cleared on logout");
       })
       .addCase(addItemToCartThunk.rejected, (state) => {
         state.loading = false;
@@ -133,7 +147,6 @@ const cartSlice = createSlice({
       })
       .addCase(getAccessoriesListThunk.fulfilled, (state, action) => {
         state.accessoryLoading = false;
-        console.log("!@! wtf");
         state.accessoryList = action.payload;
       })
       .addCase(getAccessoriesListThunk.rejected, (state) => {
