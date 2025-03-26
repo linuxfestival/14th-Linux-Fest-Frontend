@@ -2,7 +2,7 @@ import { RootState } from "../../store";
 import { createSelector } from "@reduxjs/toolkit";
 import { CartState } from "./cart.slice";
 
-const selectCartState = (state: RootState) => state.cart;
+export const selectCartState = (state: RootState) => state.cart;
 
 export const selectCartItems = createSelector(
   selectCartState,
@@ -41,4 +41,14 @@ export const selectCartTotalAmount = createSelector(
 export const selectCartStep = createSelector(
   selectCartState,
   (cartState: CartState) => cartState.step
+);
+
+export const selectAccessoryLoading = createSelector(
+  selectCartState,
+  (cartState: CartState) => cartState.accessoryLoading
+);
+
+export const selectAccessoryList = createSelector(
+  selectCartState,
+  (cartState: CartState) => cartState.accessoryList
 );

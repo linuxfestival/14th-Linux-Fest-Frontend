@@ -1,39 +1,41 @@
-export type PaymentState = "COMPLETED" | "PENDING" | "FAILED"
+import { Accessory } from "../cart/cart.api";
+
+export type PaymentState = "COMPLETED" | "PENDING" | "FAILED";
 export type PaymentStatus = "success" | "unexpected" | "failed";
 
 export interface PaymentDto {
-    "id": number;
-    "total_price": number;
-    "payment_state": PaymentState;
-    "authority": string;
-    "pay_link": string;
-    "ref_id": string;
-    "card_pan": string;
-    "created_date": Date;
-    "verified_date": Date;
-    "user": number;
-    "coupon": string;
-    "participations": number[];
+  id: number;
+  total_price: number;
+  payment_state: PaymentState;
+  authority: string;
+  pay_link: string;
+  ref_id: string;
+  card_pan: string;
+  created_date: Date;
+  verified_date: Date;
+  user: number;
+  coupon: string;
+  participations: number[];
 }
 
 export interface FinalizePaymentRequest {
-    coupon: string;
+  coupon: string;
+  accessories: Accessory["id"][];
 }
 
 export interface FinalizePaymentResponse {
-    payment_url?: string;
-    authority?: string;
-    detail?: string;
+  payment_url?: string;
+  authority?: string;
+  detail?: string;
 }
 
 export interface VerifyPaymentRequest {
-    authority: string;
+  authority: string;
 }
 
 export interface VerifyPaymentResponse {
-    status: PaymentStatus;
-    ref_id?: string;
-    error?: string;
-    card_pan?: string;
+  status: PaymentStatus;
+  ref_id?: string;
+  error?: string;
+  card_pan?: string;
 }
-
