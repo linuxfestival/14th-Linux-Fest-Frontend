@@ -12,7 +12,13 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <AuthContainer>
-        <ToastContainer />
+        <ToastContainer
+          rtl
+          theme="dark"
+          hideProgressBar
+          closeOnClick
+          position="bottom-center"
+        />
         <RouterProvider router={router} />
       </AuthContainer>
     </Provider>

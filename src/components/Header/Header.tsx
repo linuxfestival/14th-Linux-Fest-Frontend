@@ -25,7 +25,7 @@ const Header = () => {
   }, [menuOpen]);
 
   return (
-    <div className="fixed top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray rounded-[26px]">
+    <div className="fixed top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray lg:rounded-[26px]">
       <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-1/4 max-w-[250px]">
         {isAuthenticated ? (
           <ShoppingCart className="mx-2" />

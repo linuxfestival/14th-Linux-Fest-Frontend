@@ -1,6 +1,6 @@
 import React from "react";
 
-enum SkeletonVariants {
+export enum SkeletonVariants {
   CIRCLE = "rounded-full",
   RECTANGLE = "",
   TEXT = "rounded",
@@ -11,6 +11,7 @@ interface Props {
   width: number;
   height: number;
   borderRadius?: number;
+  className?: string;
 }
 
 const Skeleton = ({
@@ -18,8 +19,9 @@ const Skeleton = ({
   width,
   height,
   borderRadius,
+  className,
 }: Props) => {
-  const baseStyles = "bg-gray-300 animate-pulse";
+  const baseStyles = "bg-[#707070] animate-pulse";
 
   const variantStyles = {
     [SkeletonVariants.CIRCLE]: "rounded-full",
@@ -33,7 +35,7 @@ const Skeleton = ({
 
   return (
     <div
-      className={`${baseStyles} ${variantStyles[variant]}`}
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       style={{
         width: width,
         height: height,

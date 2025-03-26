@@ -1,12 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  date: number;
-  instructor: string;
-}
+import {
+  addItemToCartThunk,
+  getCartThunk,
+  removeItemFromCartThunk,
+} from "./cart.thunk";
+import { CartItemDto } from "./cart.types";
+import { selectPresentationById } from "../presentations/presentations.selector";
 
 export enum CartPage {
   Cart = 1,
@@ -20,40 +19,25 @@ export const CartSteps = [
 ];
 
 export interface CartState {
-  items: CartItem[];
+  items: CartItemDto[];
+  count: number;
   totalAmount: number;
   step: CartPage;
+  loading?: boolean;
 }
 
 const initialState: CartState = {
   items: [],
+  count: 0,
   totalAmount: 0,
   step: CartPage.Cart,
+  loading: false,
 };
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    addItem(state, action: PayloadAction<CartItem>) {
-      const existingItem = state.items.find(
-        (item) => item.id === action.payload.id
-      );
-      if (!existingItem) {
-        state.items.push(action.payload);
-      }
-      state.totalAmount += action.payload.price;
-    },
-    removeItem(state, action: PayloadAction<string>) {
-      const itemIndex = state.items.findIndex(
-        (item) => item.id === action.payload
-      );
-      if (itemIndex !== -1) {
-        const item = state.items[itemIndex];
-        state.totalAmount -= item.price;
-        state.items.splice(itemIndex, 1);
-      }
-    },
     clearCart(state) {
       state.items = [];
       state.totalAmount = 0;
@@ -61,6 +45,40 @@ const cartSlice = createSlice({
     setPage(state, action: PayloadAction<CartPage>) {
       state.step = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(addItemToCartThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addItemToCartThunk.fulfilled, (state) => {
+        state.count++;
+        state.loading = false;
+      })
+      .addCase(addItemToCartThunk.rejected, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(removeItemFromCartThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(removeItemFromCartThunk.fulfilled, (state) => {
+        state.count--;
+        state.loading = false;
+      })
+      .addCase(removeItemFromCartThunk.rejected, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(getCartThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getCartThunk.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.count = action.payload.length;
+        state.loading = false;
+      })
+      .addCase(getCartThunk.rejected, (state, action) => {
+        state.loading = false;
+      });
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import CartItem from "../components/CartItem";
 import Button from "../../../Common/Button/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { selectCartItems } from "../../../../core/cart/cart.selector";
 import Lottie from "lottie-react";
 import shoppingCartLottie from "../../../../assets/lottie/shoppingCart.json";
-import digitsToPersian from "../../../../utils/digitsToPersian";
 
 const CartsList = () => {
   const dispatch = useDispatch();
@@ -29,13 +28,16 @@ const CartsList = () => {
       </h1>
       <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
         {itemsList.length > 0 ? (
-          itemsList.map((item, index) => (
+          itemsList.map(({ presentation }, index) => (
             <CartItem
-              title={item.name}
-              price={String(item.price)}
-              dateTime={item.date}
+              id={presentation.id}
+              title={presentation?.title}
+              price={presentation.cost}
+              instructor={presentation.presenters
+                .map((el) => `${el.first_name} ${el.last_name}`)
+                .join(" و ")}
               currency="تومان"
-              instructor={item.instructor}
+              dateTime={new Date(presentation.start).toLocaleString("fa")}
               key={index}
             />
           ))
