@@ -76,20 +76,25 @@ const Header = () => {
           </Link>
         </nav>
         <div className="w-2/3 flex flex-col items-center gap-2 mt-10">
-          <Link to="/signup" className="!text-xl w-max">
-            <Button size={ButtonSizes.LARGE} onClick={toggleMenu}>
-              ثبت نام
-            </Button>
-          </Link>
-          <Link to="/login" className="font-medium text-xl">
-            <Button
-              size={ButtonSizes.SMALL}
-              variant={ButtonVariants.OUTLINE}
-              onClick={toggleMenu}
-            >
-              ورود
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+              <ShoppingCart className="mx-2" />
+          ) : (
+              <>
+                <Link to="/signup" className="!w-full">
+                  <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                    ثبت نام
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button
+                      size={ButtonSizes.MEDIUM}
+                      variant={ButtonVariants.OUTLINE}
+                  >
+                    ورود
+                  </Button>
+                </Link>
+              </>
+          )}
         </div>
 
         <IoClose

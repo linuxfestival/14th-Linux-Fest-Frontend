@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   addItemToCartThunk,
-  getCartThunk,
+  getCartThunk, getCouponStatusThunk,
   removeItemFromCartThunk,
 } from "./cart.thunk";
 import { CartItemDto } from "./cart.types";
 import { selectPresentationById } from "../presentations/presentations.selector";
+import {CouponStatus} from "./cart.api.ts";
 
 export enum CartPage {
   Cart = 1,
@@ -24,6 +25,8 @@ export interface CartState {
   totalAmount: number;
   step: CartPage;
   loading?: boolean;
+  couponStatus?: CouponStatus;
+  discountedAmount?: number;
 }
 
 const initialState: CartState = {
@@ -44,6 +47,8 @@ const cartSlice = createSlice({
     },
     updateTotalAmount(state) {
       state.totalAmount = state.items.reduce((acc, cur) => acc + cur.presentation.cost, 0);
+      if (state.couponStatus != null && state.couponStatus.is_valid)
+        state.discountedAmount = (100 - state.couponStatus.percentage) / 100 * state.totalAmount
     },
     setPage(state, action: PayloadAction<CartPage>) {
       state.step = action.payload;
@@ -68,6 +73,16 @@ const cartSlice = createSlice({
       .addCase(removeItemFromCartThunk.fulfilled, (state) => {
         state.count--;
         state.loading = false;
+        cartSlice.caseReducers.updateTotalAmount(state);
+      })
+      .addCase(getCouponStatusThunk.rejected, (state) => {
+        state.loading = false
+      })
+      .addCase(getCouponStatusThunk.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(getCouponStatusThunk.fulfilled, (state, action) => {
+        state.couponStatus = action.payload;
         cartSlice.caseReducers.updateTotalAmount(state);
       })
       .addCase(removeItemFromCartThunk.rejected, (state) => {
