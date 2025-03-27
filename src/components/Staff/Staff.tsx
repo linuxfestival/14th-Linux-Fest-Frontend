@@ -13,6 +13,17 @@ const ComingSoon = () => {
             .catch(error => console.error("Error fetching staff:", error));
     }, []);
 
+    const teamOrder = [
+        "DIRECTOR",
+        "SCIENTIFIC",
+        "TECHNICAL",
+        "GRAPHICS",
+        "MARKETING",
+        "EXECUTIVE",
+        "MEDIA",
+        "DECORATION",
+    ];
+
     const groupedStaff = staff.reduce<Record<string, StaffModel[]>>((acc, member) => {
         if (!acc[member.team]) {
             acc[member.team] = [];
@@ -20,6 +31,12 @@ const ComingSoon = () => {
         acc[member.team].push(member);
         return acc;
     }, {});
+
+    const sortedGroupedStaff = Object.fromEntries(
+        Object.entries(groupedStaff).sort(
+            ([teamA], [teamB]) => teamOrder.indexOf(teamA) - teamOrder.indexOf(teamB)
+        )
+    );
 
     return (
         <>
@@ -42,7 +59,7 @@ const ComingSoon = () => {
                     </section>
 
                     {/* Teams Section */}
-                    {Object.entries(groupedStaff).map(([team, members]) => {
+                    {Object.entries(sortedGroupedStaff).map(([team, members]) => {
                         const typedTeam = team as StaffTeam; // Ensure correct typing for the team
 
                         // Find the head of the team (assuming role === "HEAD" is the identifier)

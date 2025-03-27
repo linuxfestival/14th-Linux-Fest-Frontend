@@ -27,7 +27,7 @@ export enum StaffTeam {
 export const StaffTeamTranslation: Record<StaffTeam, string> = {
     [StaffTeam.TECHNICAL]: "تکنیکال",
     [StaffTeam.MARKETING]: "تبلیغات",
-    [StaffTeam.SCIENTIFIC]: "علکی",
+    [StaffTeam.SCIENTIFIC]: "علمی",
     [StaffTeam.EXECUTIVE]: "اجرایی",
     [StaffTeam.MEDIA]: "رسانه",
     [StaffTeam.DECORATION]: "تزئینات",
