@@ -1,14 +1,10 @@
 import React from "react";
-import { IoCopy, IoTimeOutline, IoClose } from "react-icons/io5";
+import {IoCopy, IoTimeOutline, IoClose, IoIdCard} from "react-icons/io5";
 import Button from "../../../Common/Button/Button";
+import {PaymentDto} from "../../../../core/payment/payment.dto.ts";
 
 interface BilingModalProps {
-  payment: {
-    id: string;
-    time: string;
-    price: string;
-    items: string[];
-  };
+  payment: PaymentDto;
   onClose: () => void;
   onCopy: (id: string) => void;
 }
@@ -34,27 +30,27 @@ const BilingModal: React.FC<BilingModalProps> = ({
         <h2 className="text-2xl font-bold mb-6 text-center">رسید پرداخت</h2>
         <div className="flex flex-col gap-4">
           <p className="text-lg flex items-center gap-2">
-            <span className="font-bold">مبلغ:</span> {payment.price}
+            <span className="font-bold">مبلغ:</span> {payment.total_price}
           </p>
           <p className="text-lg flex items-center gap-2">
             <IoTimeOutline size={20} />
-            <span className="font-bold">زمان:</span> {payment.time}
+            <span className="font-bold">زمان:</span> {new Date(payment.created_date).toLocaleDateString("fa")}
           </p>
           <p className="text-lg flex items-center gap-2">
-            <IoCopy size={20} />
+            <IoIdCard size={20} />
             <span className="font-bold">شناسه تراکنش:</span>{" "}
             <span
-              className="text-indigo cursor-pointer hover:underline"
-              onClick={() => onCopy(payment.id)}
+              className="text-indigo cursor-pointer hover:underline max-w-1/2 overflow-hidden overflow-ellipsis"
+              onClick={() => onCopy(payment.authority)}
             >
-              {payment.id}
+              {payment.authority}
             </span>
           </p>
         </div>
         <h3 className="text-lg font-bold mt-6">موارد خریداری شده:</h3>
         <ul className="list-disc list-inside text-sm mt-2 space-y-1">
-          {payment.items.map((item, index) => (
-            <li key={index}>{item}</li>
+          {payment.participations.map((item, index) => (
+            <li key={index}>{item.presentation.title}</li>
           ))}
         </ul>
         <div className="mt-8 flex justify-center">

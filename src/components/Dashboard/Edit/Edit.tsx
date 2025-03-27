@@ -8,7 +8,7 @@ import {useSelector} from "react-redux";
 import {toast} from "react-toastify";
 import {ChangePasswordResponse} from "../../../core/users/users.dto.ts";
 import {displayCommonErrorToast} from "../../../utils/toastUtils.ts";
-import digitsToPersian from "../../../utils/digitsToPersian.ts";
+import {digitsToPersian} from "../../../utils/digitsToPersian.ts";
 
 const Edit: React.FC = () => {
     const [firstName, setFirstName] = useState("");

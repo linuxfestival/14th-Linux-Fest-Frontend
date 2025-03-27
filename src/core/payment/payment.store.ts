@@ -30,7 +30,7 @@ const paymentSlice = createSlice({
             })
             .addCase(getPaymentListThunk.fulfilled, (state, action: PayloadAction<PaymentDto[]>) => {
                 state.loading = false;
-                state.payments = action.payload;
+                state.payments = action.payload?.sort((first, second) => second.id - first.id) ?? [];
             })
             .addCase(getPaymentListThunk.rejected, (state, action) => {
                 state.loading = false;

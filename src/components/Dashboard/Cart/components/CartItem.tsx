@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { GrTrash } from "react-icons/gr";
 import { IoPerson, IoTime } from "react-icons/io5";
-import digitsToPersian from "../../../../utils/digitsToPersian";
+import {digitsToPersian} from "../../../../utils/digitsToPersian";
 import { toLocalPrice } from "../../../../utils/toLocalPrice";
 import { useSelector } from "react-redux";
 import { selectItemInCartById } from "../../../../core/cart/cart.selector";

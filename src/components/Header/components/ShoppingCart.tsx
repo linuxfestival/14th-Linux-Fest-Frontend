@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { MdShoppingCart } from "react-icons/md";
-import digitsToPersian from "../../../utils/digitsToPersian";
+import {digitsToPersian} from "../../../utils/digitsToPersian";
 import { useSelector } from "react-redux";
 import { selectCartItemsCount } from "../../../core/cart/cart.selector";
 import { useNavigate } from "react-router-dom";

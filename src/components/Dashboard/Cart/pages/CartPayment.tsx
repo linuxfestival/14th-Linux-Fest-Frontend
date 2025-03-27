@@ -13,7 +13,7 @@ import {getAccessoriesListThunk, getCouponStatusThunk,} from "../../../../core/c
 import {selectCartState} from "../../../../core/cart/cart.selector.ts";
 import Skeleton from "../../../Skeleton/Skeleton.tsx";
 import {AccessoryDto} from "../../../../core/cart/cart.api.ts";
-import digitsToPersian from "../../../../utils/digitsToPersian.ts";
+import {digitsToPersian} from "../../../../utils/digitsToPersian.ts";
 import {IoCloseCircleSharp} from "react-icons/io5";
 
 const CartPayment = () => {
