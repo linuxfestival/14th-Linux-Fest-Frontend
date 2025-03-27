@@ -33,7 +33,7 @@ const ComingSoon = () => {
                             {staff.filter(member => member.role === "DIRECTOR").map(director => (
                                 <div key={director.id} className="p-4 bg-light-gray rounded-lg text-center">
                                     <img src={director.image} alt={director.name}
-                                         className="w-32 h-32 mx-auto rounded-full"/>
+                                         className="w-32 h-32 mx-auto rounded-full object-cover"/>
                                     <h3 className="text-xl font-semibold mt-2">{director.name}</h3>
                                     <p className="italic">"{director.quote}"</p>
                                 </div>
@@ -65,7 +65,7 @@ const ComingSoon = () => {
                                                     className="col-span-1 sm:col-span-2  text-center p-4 bg-light-gray rounded-lg">
                                                     <h4 className="font-semibold my-2 mb-4">Head</h4>
                                                     <img src={head.image} alt={head.name}
-                                                         className="w-32 h-32 mx-auto rounded-full"/>
+                                                         className="w-32 h-32 mx-auto rounded-full object-cover"/>
                                                     <h3 className="text-xl font-bold mt-2">{head.name}</h3>
                                                     <p className="italic">"{head.quote}"</p>
                                                 </div>
@@ -76,7 +76,7 @@ const ComingSoon = () => {
                                                 <div key={member.id}
                                                      className="p-4 bg-light-gray rounded-lg text-center">
                                                     <img src={member.image} alt={member.name}
-                                                         className="w-24 h-24 mx-auto rounded-full"/>
+                                                         className="w-24 h-24 mx-auto rounded-full object-cover"/>
                                                     <h3 className="text-lg font-semibold mt-2">{member.name}</h3>
                                                     <p className="italic">"{member.quote}"</p>
                                                 </div>
