@@ -37,13 +37,14 @@ import {
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import Divider from "../Divider/Divider";
 import { createPortal } from "react-dom";
-import {digitsToPersian} from "../../utils/digitsToPersian";
+import { digitsToPersian } from "../../utils/digitsToPersian";
 import {
   PresentationDto,
   PresentationService,
 } from "../../core/presentations/presentations.dto";
 import { FaLaptop } from "react-icons/fa";
 import { Tag } from "../Common/Button/Tag";
+import Skeleton, { SkeletonVariants } from "../Skeleton/Skeleton";
 
 const Workshop = () => {
   const dispatch = useAppDispatch();
@@ -71,11 +72,12 @@ const Workshop = () => {
   if (!id) return <Navigate to="/workshops" />;
 
   useEffect(() => {
-    if (!presentation || String(presentation.id) !== id)
-      dispatch(getPresentationByIDThunk(id));
+    // if (!presentation || String(presentation.id) !== id)
+    // dispatch(getPresentationByIDThunk(id));
   }, []);
 
-  if (!presentation || String(presentation.id) !== id) return <p>loading</p>;
+  if (!presentation || String(presentation.id) !== id)
+    return <WorkshopSkeleton />;
 
   return (
     <div className="relative min-h-[100dvh] w-full flex flex-col justify-between items-center h-max bg-primary">
@@ -94,12 +96,10 @@ const Workshop = () => {
         <div className="hidden md:block w-1/3 min-w-[350px] lg:min-w-[400px]" />
         <div className="w-full md:w-1/2 flex flex-col">
           <h1 className="text-2xl lg:text-4xl font-bold">توضیحات ارائه:</h1>
-          <p className="text-xl lg:text-2xl text-text-gray mt-2">
-            لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با
-            استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در
-            ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز،
-            و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای
-          </p>
+          <div
+            className="text-xl lg:text-2xl text-text-gray mt-2"
+            dangerouslySetInnerHTML={{ __html: presentation.description }}
+          />
           <Button
             size={ButtonSizes.SMALL}
             disabled={presentation.remained_capacity === 0}
@@ -295,5 +295,44 @@ const PresenterCard = ({ avatar, name, description }: PresenterCardProps) => {
     </div>
   );
 };
+
+const WorkshopSkeleton = () => (
+  <div className="relative min-h-[100dvh] w-full flex flex-col justify-between items-start h-max bg-primary">
+    <Header sticky={false} />
+    <div className="w-full h-[58vh] sm:h-[50vh] flex justify-between items-center gap-4 bg-[#272d35] pt-36 px-16 xl:px-48">
+      <Skeleton
+        variant={SkeletonVariants.TEXT}
+        width={400}
+        height={60}
+        className="w-full text-center md:w-1/2"
+      />
+      <Skeleton
+        variant={SkeletonVariants.RECTANGLE}
+        width={350}
+        height={200}
+        className="relative top-28 w-1/4 md:w-1/3 min-w-[350px] min-h-[400px] lg:min-w-[400px] hidden md:flex flex-col justify-center items-start mt-4 rounded-xl z-1"
+      />
+    </div>
+    <div className="flex flex-col gap-4 px-16 xl:px-48 py-8">
+      <Skeleton variant={SkeletonVariants.TEXT} width={200} height={30} />
+      <Skeleton
+        variant={SkeletonVariants.RECTANGLE}
+        width="100%"
+        height={200}
+      />
+    </div>
+
+    <Divider title="ارائه دهندگان" />
+    <div className="flex flex-row-reverse flex-wrap justify-center items-center gap-10 mt-4 px-4 pt-8 pb-12">
+      {Array(9)
+        .fill(null)
+        .map((_, index) => (
+          <Skeleton width={300} height={400} className="rounded-xl" />
+        ))}
+    </div>
+
+    <Footer />
+  </div>
+);
 
 export default Workshop;

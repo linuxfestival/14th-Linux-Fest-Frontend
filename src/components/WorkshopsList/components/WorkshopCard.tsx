@@ -19,8 +19,8 @@ import {
 import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
 import { useNavigate } from "react-router-dom";
-import {digitsToPersian} from "../../../utils/digitsToPersian.ts";
 import { FaAngleDoubleDown } from "react-icons/fa";
+import { digitsToPersian } from "../../../utils/digitsToPersian.ts";
 
 interface WorkshopCardProps {
   id: number;

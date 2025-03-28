@@ -8,8 +8,8 @@ export enum SkeletonVariants {
 
 interface Props {
   variant?: SkeletonVariants;
-  width: number;
-  height: number;
+  width: number | string;
+  height: number | string;
   borderRadius?: number;
   className?: string;
 }
@@ -21,7 +21,7 @@ const Skeleton = ({
   borderRadius,
   className,
 }: Props) => {
-  const baseStyles = "bg-[#707070] animate-pulse";
+  const baseStyles = "skeleton-shimmer";
 
   const variantStyles = {
     [SkeletonVariants.CIRCLE]: "rounded-full",
