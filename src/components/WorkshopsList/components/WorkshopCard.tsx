@@ -81,9 +81,9 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           />
             <Tag
                 className={`absolute top-0 right-1 ${
-                    !(presentation?.service_type === PresentationService.TALK) ? "border-green-600 text-green-600 bg-white" : "border-red-600 text-red-600 bg-white"
+                    (presentation?.service_type === PresentationService.TALK) ? "border-green-600 text-green-600 bg-white" : "border-red-600 text-red-600 bg-white"
                 }`}
-                text={!(presentation?.service_type === PresentationService.TALK) ? "آنلاین" : "حضوری"}
+                text={(presentation?.service_type === PresentationService.TALK) ? "آنلاین" : "حضوری"}
                 variant={TagVariants.GREEN}
             />
         </div>
