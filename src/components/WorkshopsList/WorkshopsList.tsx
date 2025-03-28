@@ -78,7 +78,7 @@ const WorkshopsList = () => {
                 description={presentation.description}
                 price={presentation.cost}
                 showAddToCart={presentation.remained_capacity > 0}
-                tags={[]}
+                tags={presentation.tags}
                 presentation={presentation}
               />
             ))}

@@ -1,15 +1,15 @@
 import React from "react";
-import {IoCopy, IoTimeOutline, IoClose, IoIdCard} from "react-icons/io5";
-import Button from "../../../Common/Button/Button";
-import {PaymentDto} from "../../../../core/payment/payment.dto.ts";
+import { IoCopy, IoTimeOutline, IoClose, IoIdCard } from "react-icons/io5";
+import Button from "../../../Common/Button/Button.tsx";
+import { PaymentDto } from "../../../../core/payment/payment.dto.ts";
 
-interface BilingModalProps {
+interface BillingModalProps {
   payment: PaymentDto;
   onClose: () => void;
   onCopy: (id: string) => void;
 }
 
-const BilingModal: React.FC<BilingModalProps> = ({
+const BillingModal: React.FC<BillingModalProps> = ({
   payment,
   onClose,
   onCopy,
@@ -22,7 +22,7 @@ const BilingModal: React.FC<BilingModalProps> = ({
       />
       <div className="relative bg-[#1E1E1E] w-[90%] max-w-lg px-8 py-6 rounded-xl shadow-2xl transform transition-transform scale-100">
         <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors cursor-pointer"
           onClick={onClose}
         >
           <IoClose size={24} />
@@ -34,7 +34,8 @@ const BilingModal: React.FC<BilingModalProps> = ({
           </p>
           <p className="text-lg flex items-center gap-2">
             <IoTimeOutline size={20} />
-            <span className="font-bold">زمان:</span> {new Date(payment.created_date).toLocaleDateString("fa")}
+            <span className="font-bold">زمان:</span>{" "}
+            {new Date(payment.created_date).toLocaleDateString("fa")}
           </p>
           <p className="text-lg flex items-center gap-2">
             <IoIdCard size={20} />
@@ -66,4 +67,4 @@ const BilingModal: React.FC<BilingModalProps> = ({
   );
 };
 
-export default BilingModal;
+export default BillingModal;

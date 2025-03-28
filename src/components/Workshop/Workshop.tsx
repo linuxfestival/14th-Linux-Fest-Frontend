@@ -72,8 +72,8 @@ const Workshop = () => {
   if (!id) return <Navigate to="/workshops" />;
 
   useEffect(() => {
-    // if (!presentation || String(presentation.id) !== id)
-    // dispatch(getPresentationByIDThunk(id));
+    if (!presentation || String(presentation.id) !== id)
+      dispatch(getPresentationByIDThunk(id));
   }, []);
 
   if (!presentation || String(presentation.id) !== id)

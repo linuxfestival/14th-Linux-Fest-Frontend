@@ -4,7 +4,10 @@ import { Tag, TagVariants } from "../../Common/Button/Tag.tsx";
 import Button, { ButtonSizes } from "../../Common/Button/Button.tsx";
 import clsx from "clsx";
 import { useAppDispatch } from "../../../store.ts";
-import { PresentationDto } from "../../../core/presentations/presentations.dto.ts";
+import {
+  PresentationDto,
+  Tag as TagType,
+} from "../../../core/presentations/presentations.dto.ts";
 import { toast } from "react-toastify";
 import {
   addItemToCartThunk,
@@ -28,7 +31,7 @@ interface WorkshopCardProps {
   description: string;
   dateTime?: string;
   price: number;
-  tags?: { text: string; variant: TagVariants }[];
+  tags?: TagType[];
   showAddToCart?: boolean;
   presentation?: PresentationDto;
 }
@@ -79,13 +82,13 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
           className="w-full h-[120px] object-cover"
         />
-        {tags && tags.length > 0 && (
+        {/* {tags && tags.length > 0 && (
           <div className="w-full flex flex-wrap gap-2 mt-2 px-4">
             {tags.map((tag, index) => (
-              <Tag key={index} text={tag.text} variant={tag.variant} />
+              <Tag key={index} text={tag.name} variant={TagVariants.INDIGO} />
             ))}
           </div>
-        )}
+        )} */}
         <div className="flex flex-col justify-start items-start mt-4 px-4 h-[120px]">
           <h1 className="text-2xl font-bold text-white line-clamp-2" dir="auto">
             {title}

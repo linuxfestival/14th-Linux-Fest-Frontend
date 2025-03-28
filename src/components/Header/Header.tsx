@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button, { ButtonSizes, ButtonVariants } from "../Common/Button/Button";
-import { IoClose, IoMenu } from "react-icons/io5";
+import { IoClose, IoMenu, IoPerson } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
-import { MdShoppingCart } from "react-icons/md";
 import ShoppingCart from "./components/ShoppingCart";
 import clsx from "clsx";
 
@@ -14,6 +13,7 @@ interface Props {
 }
 
 const Header = ({ sticky = true }: Props) => {
+  const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -38,7 +38,14 @@ const Header = ({ sticky = true }: Props) => {
     >
       <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-1/4 max-w-[250px]">
         {isAuthenticated ? (
-          <ShoppingCart className="mx-2" />
+          <>
+            <ShoppingCart className="mx-2" />
+            <IoPerson
+              size={30}
+              className="cursor-pointer"
+              onClick={() => navigate("/profile/edit")}
+            />
+          </>
         ) : (
           <>
             <Link to="/signup" className="!w-full">
