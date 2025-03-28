@@ -14,9 +14,10 @@ export enum TagVariants {
 interface Props {
   text: string;
   variant?: TagVariants;
+  className?: string;
 }
 
-export const Tag = ({ text, variant = TagVariants.WHITE }: Props) => {
+export const Tag = ({ text, variant = TagVariants.WHITE, className }: Props) => {
   return (
     <div
       className={clsx("w-max bg-none rounded-full px-2 border-1 mt-1", {
@@ -26,7 +27,7 @@ export const Tag = ({ text, variant = TagVariants.WHITE }: Props) => {
         ["border-white text-white"]: variant === TagVariants.WHITE,
         ["border-yellow-600 text-yellow-600"]: variant === TagVariants.YELLOW,
         ["border-green-600 text-green-600"]: variant === TagVariants.GREEN,
-      })}
+      }, className)}
       dir="auto"
     >
       {text}

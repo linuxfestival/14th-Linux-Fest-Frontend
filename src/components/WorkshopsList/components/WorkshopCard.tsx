@@ -1,29 +1,19 @@
-import React, { useCallback, useState } from "react";
-import { IoPerson, IoTime } from "react-icons/io5";
-import { Tag, TagVariants } from "../../Common/Button/Tag.tsx";
-import Button, { ButtonSizes } from "../../Common/Button/Button.tsx";
+import React, {useCallback} from "react";
+import {IoPerson, IoTime} from "react-icons/io5";
+import {Tag, TagVariants} from "../../Common/Button/Tag.tsx";
+import Button, {ButtonSizes} from "../../Common/Button/Button.tsx";
 import clsx from "clsx";
-import { useAppDispatch } from "../../../store.ts";
-import {
-  PresentationDto,
-  Tag as TagType,
-} from "../../../core/presentations/presentations.dto.ts";
-import { toast } from "react-toastify";
-import {
-  addItemToCartThunk,
-  getCartThunk,
-  removeItemFromCartThunk,
-} from "../../../core/cart/cart.thunk.ts";
-import { useSelector } from "react-redux";
-import {
-  selectIsItemExistInCart,
-  selectItemInCartById,
-} from "../../../core/cart/cart.selector.ts";
-import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
-import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
-import { useNavigate } from "react-router-dom";
-import { FaAngleDoubleDown } from "react-icons/fa";
-import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
+import {useAppDispatch} from "../../../store.ts";
+import {PresentationDto, PresentationService, Tag as TagType,} from "../../../core/presentations/presentations.dto.ts";
+import {toast} from "react-toastify";
+import {addItemToCartThunk, getCartThunk, removeItemFromCartThunk,} from "../../../core/cart/cart.thunk.ts";
+import {useSelector} from "react-redux";
+import {selectIsItemExistInCart, selectItemInCartById,} from "../../../core/cart/cart.selector.ts";
+import Skeleton, {SkeletonVariants} from "../../Skeleton/Skeleton.tsx";
+import {selectIsAuthenticated} from "../../../core/auth/auth.selector.ts";
+import {useNavigate} from "react-router-dom";
+import {FaAngleDoubleDown} from "react-icons/fa";
+import {digitsToLatin} from "../../../utils/digitsToPersian.ts";
 
 interface WorkshopCardProps {
   id: number;
@@ -83,10 +73,20 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
         dir="rtl"
         onClick={handleClick}
       >
-        <img
-          src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
-          className="w-full h-[120px] object-cover"
-        />
+        <div className="w-full h-[120px] object-cover relative">
+          <img
+              src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+              className="w-full h-full object-cover"
+              alt={"Presentation image"}
+          />
+            <Tag
+                className={`absolute top-0 right-1 ${
+                    !(presentation?.service_type === PresentationService.TALK) ? "border-green-600 text-green-600 bg-white" : "border-red-600 text-red-600 bg-white"
+                }`}
+                text={!(presentation?.service_type === PresentationService.TALK) ? "آنلاین" : "حضوری"}
+                variant={TagVariants.GREEN}
+            />
+        </div>
         {/* {tags && tags.length > 0 && (
           <div className="w-full flex flex-wrap gap-2 mt-2 px-4">
             {tags.map((tag, index) => (
