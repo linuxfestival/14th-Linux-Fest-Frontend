@@ -35,6 +35,7 @@ export interface PresentationDto {
   accessories_cost: number;
   accessories_capacity: number;
   tags: Tag[];
+  morkopoloyor: string; // image url
 }
 
 export interface PresentationRequest {}

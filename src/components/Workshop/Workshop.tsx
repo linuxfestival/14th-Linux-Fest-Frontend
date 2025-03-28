@@ -37,7 +37,7 @@ import {
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import Divider from "../Divider/Divider";
 import { createPortal } from "react-dom";
-import { digitsToLatin } from "../../utils/digitsToPersian";
+import { digitsToLatin, digitsToPersian } from "../../utils/digitsToPersian";
 import {
   PresentationDto,
   PresentationService,
@@ -170,7 +170,7 @@ const InfoRow = ({ icon: Icon, title, value }: InfoRowProps) => (
       </p>
     </div>
     <p className="text-xl text-white" dir="rtl">
-      {digitsToLatin(value)}
+      {digitsToPersian(value)}
     </p>
   </div>
 );
@@ -189,7 +189,11 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
       )}
     >
       <img
-        src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+        src={
+          presentation?.morkopoloyor !== ""
+            ? presentation?.morkopoloyor
+            : "https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
+        }
         className="w-full rounded-t-xl"
       />
       <div className="w-full flex flex-col p-4">

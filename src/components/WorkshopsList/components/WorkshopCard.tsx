@@ -98,7 +98,11 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
         onClick={handleClick}
       >
         <img
-          src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+          src={
+            presentation?.morkopoloyor !== ""
+              ? presentation?.morkopoloyor
+              : "https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
+          }
           className="w-full h-[120px] object-cover"
         />
         {pinned && (
