@@ -37,42 +37,36 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="hidden lg:flex flex-col justify-center items-center gap-2">
-          <h1 className="text-4xl font-bold text-white">داکر</h1>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه x
+        <div className="flex flex-col justify-center items-center gap-2">
+          <h1 className="text-4xl font-bold text-white">شروع لینوکس!</h1>
+          <Link to="/workshop/17" className="text-xl text-text-gray">
+            کارگاه مقدماتی
           </Link>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه y
+          <Link to="/workshop/15" className="text-xl text-text-gray">
+            Docker & Kubernetes
           </Link>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه z
+        </div>
+
+        <div className="flex flex-col justify-center items-center gap-2">
+          <h1 className="text-4xl font-bold text-white">DevOps</h1>
+          <Link to="/workshop/17" className="text-xl text-text-gray">
+            کارگاه مقدماتی
+          </Link>
+          <Link to="/workshop/4" className="text-xl text-text-gray">
+            The GitOps Journey
+          </Link>
+          <Link to="/workshop/11" className="text-xl text-text-gray">
+            Cloud-Native Monitoring
           </Link>
         </div>
 
         <div className="hidden lg:flex flex-col justify-center items-center gap-2">
-          <h1 className="text-4xl font-bold text-white">مقدماتی</h1>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه x
+          <h1 className="text-4xl font-bold text-white">Containerization</h1>
+          <Link to="/workshop/15" className="text-xl text-text-gray">
+            Docker & Kubernetes
           </Link>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه y
-          </Link>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه z
-          </Link>
-        </div>
-
-        <div className="hidden lg:flex flex-col justify-center items-center gap-2">
-          <h1 className="text-4xl font-bold text-white">پیشرفته</h1>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه x
-          </Link>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه y
-          </Link>
-          <Link to="/" className="text-xl text-text-gray">
-            ارائه z
+          <Link to="/workshop/13" className="text-xl text-text-gray">
+            Kubernetes Controllers
           </Link>
         </div>
 
@@ -89,12 +83,6 @@ const Footer = () => {
                 style={{cursor: "pointer"}}
                 //@ts-ignore
                 code="4nCyEMqgOWcxyAcI9OKFBiBEfbzaL1qc"
-            />
-            <img
-                src="/enamad.png"
-                alt=""
-                width={100}
-                style={{borderRadius: "12px"}}
             />
           </a>
         </div>

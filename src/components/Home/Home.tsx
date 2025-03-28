@@ -39,7 +39,7 @@ const Home = () => {
             <Link to="/signup" className="!w-2/3 md:!w-1/3">
               <Button size={ButtonSizes.LARGE}>ثبت نام</Button>
             </Link>
-            <p className="mt-2 w-full text-sm lg:text-lg">از ۲۵ تا ۲۸ اسفند</p>
+            <p className="mt-2 w-full text-sm lg:text-lg">از ۲۰ تا ۲۲ فروردین</p>
           </div>
 
           <Arch
