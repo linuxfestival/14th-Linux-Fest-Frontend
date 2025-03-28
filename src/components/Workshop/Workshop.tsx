@@ -262,8 +262,11 @@ const PresenterCard = ({ avatar, name, description }: PresenterCardProps) => {
   }, [showModal]);
 
   return (
-    <div className="flex flex-col justify-stretch items-center gap-2 text-center px-4 py-4 bg-bg-secondary rounded-xl w-[300px] h-[300px] shadow-xl">
-      <img src={avatar} className="w-[120px] h-[120px] rounded-full" />
+    <div className="flex flex-col justify-center items-center gap-2 text-center px-4 py-4 bg-bg-secondary rounded-xl w-[300px] h-[300px] shadow-xl">
+      <img
+        src={avatar}
+        className="w-[120px] h-[120px] rounded-full object-cover"
+      />
       <h1 className="text-xl font-bold text-text-gray">{name}</h1>
       <Button className="!bg-indigo mt-auto" onClick={() => setShowModal(true)}>
         اطلاعات بیشتر

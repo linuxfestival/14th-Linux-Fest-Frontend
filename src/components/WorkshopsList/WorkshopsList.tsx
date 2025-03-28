@@ -14,6 +14,10 @@ import {
 import { selectIsAuthenticated } from "../../core/auth/auth.selector.ts";
 import Footer from "../Footer/Footer.tsx";
 import WorkshopsFilter, { Sort } from "./components/WorkshopsFilter.tsx";
+import { PresentationService } from "../../core/presentations/presentations.dto.ts";
+
+// Pined Types
+const PinedTypes = [PresentationService.PACKAGE];
 
 const WorkshopsList = () => {
   const dispatch = useAppDispatch();
@@ -36,10 +40,13 @@ const WorkshopsList = () => {
   }, [dispatch, loadedFirstTime, isAuthenticated]);
 
   const filteredPresentations = presentations
-    .filter((presentation) =>
-      presentation.title.toLowerCase().includes(searchText.toLowerCase())
+    .filter(
+      (presentation) =>
+        presentation.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        PinedTypes.includes(presentation.service_type)
     )
     .sort((a, b) => {
+      if (PinedTypes.includes(a.service_type)) return -1; // handle pinned types
       switch (sortType) {
         case "SORT_BY_PRICE":
           return a.cost - b.cost;
@@ -80,6 +87,7 @@ const WorkshopsList = () => {
                 showAddToCart={presentation.remained_capacity > 0}
                 tags={presentation.tags}
                 presentation={presentation}
+                pinned={PinedTypes.includes(presentation.service_type)}
               />
             ))}
       </div>

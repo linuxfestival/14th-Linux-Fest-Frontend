@@ -1,19 +1,30 @@
-import React, {useCallback, useState} from "react";
-import {IoPerson, IoTime} from "react-icons/io5";
-import {Tag, TagVariants} from "../../Common/Button/Tag.tsx";
-import Button, {ButtonSizes} from "../../Common/Button/Button.tsx";
+import React, { useCallback, useState } from "react";
+import { IoPerson, IoPin, IoTime } from "react-icons/io5";
+import { Tag, TagVariants } from "../../Common/Button/Tag.tsx";
+import Button, { ButtonSizes } from "../../Common/Button/Button.tsx";
 import clsx from "clsx";
-import {useAppDispatch} from "../../../store.ts";
-import {PresentationDto, PresentationService, Tag as TagType,} from "../../../core/presentations/presentations.dto.ts";
-import {toast} from "react-toastify";
-import {addItemToCartThunk, getCartThunk, removeItemFromCartThunk,} from "../../../core/cart/cart.thunk.ts";
-import {useSelector} from "react-redux";
-import {selectIsItemExistInCart, selectItemInCartById,} from "../../../core/cart/cart.selector.ts";
-import Skeleton, {SkeletonVariants} from "../../Skeleton/Skeleton.tsx";
-import {selectIsAuthenticated} from "../../../core/auth/auth.selector.ts";
-import {useNavigate} from "react-router-dom";
-import {FaAngleDoubleDown} from "react-icons/fa";
-import {digitsToLatin} from "../../../utils/digitsToPersian.ts";
+import { useAppDispatch } from "../../../store.ts";
+import {
+  PresentationDto,
+  Tag as TagType,
+} from "../../../core/presentations/presentations.dto.ts";
+import { toast } from "react-toastify";
+import {
+  addItemToCartThunk,
+  getCartThunk,
+  removeItemFromCartThunk,
+} from "../../../core/cart/cart.thunk.ts";
+import { useSelector } from "react-redux";
+import {
+  selectIsItemExistInCart,
+  selectItemInCartById,
+} from "../../../core/cart/cart.selector.ts";
+import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
+import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
+import { useNavigate } from "react-router-dom";
+import { FaAngleDoubleDown } from "react-icons/fa";
+import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
+import { TiPin } from "react-icons/ti";
 
 interface WorkshopCardProps {
   id: number;
@@ -24,6 +35,8 @@ interface WorkshopCardProps {
   tags?: TagType[];
   showAddToCart?: boolean;
   presentation?: PresentationDto;
+  className?: string;
+  pinned?: boolean;
 }
 
 const WorkshopCard: React.FC<WorkshopCardProps> = ({
@@ -35,6 +48,8 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
   tags,
   showAddToCart,
   presentation,
+  className,
+  pinned,
 }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -69,24 +84,34 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
   return (
     <>
       <div
-        className="flex flex-col rounded-xl bg-[#2C2C2C] w-[320px] h-max shadow-lg hover:shadow-xl transition-shadow overflow-hidden cursor-pointer"
+        className={clsx(
+          "relative flex flex-col rounded-xl bg-[#2C2C2C] w-[320px] h-max shadow-lg hover:shadow-xl transition-shadow overflow-hidden cursor-pointer",
+          className,
+          {
+            ["border-2 border-[#483d8b] w-[324px] scale-105 !bg-[#21252b]"]:
+              pinned,
+          }
+        )}
         dir="rtl"
         onClick={handleClick}
       >
-        <div className="w-full h-[120px] object-cover relative">
-          <img
-              src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
-              className="w-full h-full object-cover"
-              alt={"Presentation image"}
-          />
-            <Tag
-                className={`absolute top-0 right-1 ${
-                    (presentation?.service_type === PresentationService.TALK) ? "border-green-600 text-green-600 bg-white" : "border-red-600 text-red-600 bg-white"
-                }`}
-                text={(presentation?.service_type === PresentationService.TALK) ? "آنلاین" : "حضوری"}
-                variant={TagVariants.GREEN}
+        <img
+          src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+          className="w-full h-[120px] object-cover"
+        />
+        {pinned && (
+          <>
+            <TiPin
+              size={24}
+              className="text-bg-secondary absolute top-2 right-2"
             />
-        </div>
+            <div className="absolute left-0 top-0 h-12 w-12">
+              <div className="bg-ubuntu-red absolute transform -rotate-45 text-center text-white font-semibold py-1 left-[-50px] top-[24px] w-[170px]">
+                پکیج ویژه
+              </div>
+            </div>
+          </>
+        )}
         {/* {tags && tags.length > 0 && (
           <div className="w-full flex flex-wrap gap-2 mt-2 px-4">
             {tags.map((tag, index) => (
@@ -95,7 +120,10 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           </div>
         )} */}
         <div className="flex flex-col justify-start items-start mt-4 px-4 h-[120px]">
-          <h1 className="text-2xl font-bold text-white line-clamp-2" dir="auto">
+          <h1
+            className={clsx("text-2xl font-bold text-white line-clamp-2")}
+            dir="auto"
+          >
             {title}
           </h1>
           <div
@@ -104,7 +132,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
             dangerouslySetInnerHTML={{ __html: description }}
           />
         </div>
-        <div className="w-full flex justify-start items-center gap-2 mt-8 px-4">
+        <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
           <IoTime size={18} className="text-indigo" />
           <p className="text-sm text-white" dir="ltr">
             {dateTime}
@@ -120,7 +148,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
         </div>
         {presentation?.presenters && (
           <div
-            className={clsx("relative flex mt-2 px-4 h-[32px]", {
+            className={clsx("relative flex items-center mt-2 px-4 h-[32px]", {
               ["gap-2"]: presentation.presenters.length <= 5,
             })}
           >
@@ -161,9 +189,9 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           </div>
         )}
         <div className="w-full flex justify-center items-center gap-2 text-center text-indigo my-4">
-          <FaAngleDoubleDown className="animate-bounce" />
+          <FaAngleDoubleDown className="animate-bounce rotate-90" />
           <p>اطلاعات بیشتر</p>
-          <FaAngleDoubleDown className="animate-bounce" />
+          <FaAngleDoubleDown className="animate-bounce -rotate-90" />
         </div>
         <div className="w-full flex flex-row-reverse justify-between items-center gap-8 mb-4 px-4">
           <Button
