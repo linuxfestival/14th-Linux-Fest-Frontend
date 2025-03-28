@@ -37,7 +37,7 @@ import {
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import Divider from "../Divider/Divider";
 import { createPortal } from "react-dom";
-import digitsToPersian from "../../utils/digitsToPersian";
+import {digitsToPersian} from "../../utils/digitsToPersian";
 import {
   PresentationDto,
   PresentationService,
