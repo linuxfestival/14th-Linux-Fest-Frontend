@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./routes";
-import {Bounce, ToastContainer} from "react-toastify";
+import { Bounce, ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
 import store from "./store.ts";
 import AuthContainer from "./components/Container/AuthContainer.tsx";
@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")!).render(
           theme="colored"
           hideProgressBar
           closeOnClick
-          position="top-center"
+          position="bottom-center"
         />
         <RouterProvider router={router} />
       </AuthContainer>

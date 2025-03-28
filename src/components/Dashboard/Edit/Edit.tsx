@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Button, { ButtonSizes } from "../../Common/Button/Button";
 import InputField from "../../Common/Button/Input";
 import AvatarInput from "./Components/AvatarInput";
@@ -11,31 +11,118 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { ChangePasswordResponse } from "../../../core/users/users.dto.ts";
 import { displayCommonErrorToast } from "../../../utils/toastUtils.ts";
-import { digitsToPersian } from "../../../utils/digitsToPersian.ts";
+import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
+import useInputHandler, {
+  GeneralErrors,
+  GeneralValidators as GV,
+} from "../../../hooks/useInputHandler.tsx";
+import Loading from "../../Common/icons/Loading.tsx";
 
 const Edit: React.FC = () => {
-  const [firstName, setFirstName] = useState("");
-  const [email, setEmail] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [repeatNewPassword, setRepeatNewPassword] = useState("");
+  const dispatch = useAppDispatch();
   const [avatar, setAvatar] = useState<File>();
   const [avatarUrl, setAvatarUrl] = useState("");
-
-  const dispatch = useAppDispatch();
-  const { changePasswordLoading, user } = useSelector(
+  const { changePasswordLoading, user, loading } = useSelector(
     (state: RootState) => state.users
   );
   const { userPhoneNumber } = useSelector((state: RootState) => state.auth);
 
-  const changePasswordOnClick = useCallback(async () => {
-    if (!oldPassword || !newPassword || !repeatNewPassword) {
-      toast.error("Passwords don't match");
-      return;
-    }
+  // Change Info Fields
 
-    if (newPassword !== repeatNewPassword) {
+  const emailInput = useInputHandler({
+    validators: [
+      GV.required,
+      GV.regexMatch(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+    ],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+      [GeneralErrors.RegexMatch]: "ایمیل وارد شده معتبر نیست!",
+    },
+  });
+
+  const firstNameInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const lastNameInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const { rawValue: email, valid: isEmailValid } = emailInput;
+  const { rawValue: firstName, valid: isFirstNameValid } = firstNameInput;
+  const { rawValue: lastName, valid: isLastNameValid } = lastNameInput;
+
+  const isInfoFormValid = useMemo(() => {
+    return (
+      isEmailValid &&
+      isFirstNameValid &&
+      isLastNameValid &&
+      (email !== user?.email ||
+        firstName !== user?.first_name ||
+        lastName !== user?.last_name)
+    );
+  }, [emailInput, firstNameInput, lastNameInput, user]);
+
+  // Change Password Fields
+
+  const oldPasswordInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const newPasswordInput = useInputHandler({
+    validators: [
+      GV.required,
+      GV.minLength(8),
+      GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/),
+    ],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+      [GeneralErrors.MinimumLength]: "رمز عبور باید حداقل ۸ کاراکتر باشد!",
+      [GeneralErrors.RegexMatch]:
+        "رمز عبور باید شامل حروف انگلیسی و اعداد باشد!",
+    },
+    beforeBlur: (value: string) => {
+      repeatPasswordInput.validate();
+    },
+  });
+
+  const repeatPasswordInput = useInputHandler({
+    validators: [
+      (value: string) => (value !== newPassword ? "NOT-SAME" : undefined),
+      GV.required,
+    ],
+    errorMessages: {
+      ["NOT-SAME"]: "رمز عبور با تکرار آن همخوانی ندارد!",
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const { rawValue: oldPassword, valid: isOldPasswordValid } = oldPasswordInput;
+  const { rawValue: newPassword, valid: isNewPasswordValid } = newPasswordInput;
+  const { valid: isRepeatPassValid } = repeatPasswordInput;
+
+  const isChangePasswordFormValid = useMemo(() => {
+    return (
+      isOldPasswordValid &&
+      isNewPasswordValid &&
+      isRepeatPassValid &&
+      newPassword !== ""
+    );
+  }, [isOldPasswordValid, isNewPasswordValid, isRepeatPassValid, newPassword]);
+
+  // Form Logic
+
+  const changePasswordOnClick = useCallback(async () => {
+    if (!isChangePasswordFormValid) {
       return;
     }
 
@@ -59,7 +146,7 @@ const Edit: React.FC = () => {
         toast.error(errorMessages || "An unexpected error occurred.");
       }
     }
-  }, [dispatch, newPassword, oldPassword, repeatNewPassword]);
+  }, [dispatch, newPassword, oldPassword]);
 
   const editProfileOnClick = useCallback(() => {
     if (!userPhoneNumber) return;
@@ -83,15 +170,15 @@ const Edit: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      setEmail(user.email);
-      setFirstName(user.first_name);
-      setLastName(user.last_name);
+      emailInput.setValue(user.email);
+      firstNameInput.setValue(user.first_name);
+      lastNameInput.setValue(user.last_name);
       setAvatarUrl(user.avatar ?? "");
     }
   }, [user]);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="relative w-full flex flex-col items-center">
       <AvatarInput
         url={avatarUrl}
         onChange={(file: File) => {
@@ -101,40 +188,40 @@ const Edit: React.FC = () => {
       />
       <h2 className="text-3xl gap-2 flex mt-6">
         <span>تغییر اطلاعات</span>
-        <span>{digitsToPersian(userPhoneNumber + "")}</span>
+        <span>{digitsToLatin(userPhoneNumber + "")}</span>
       </h2>
       <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">
         <div className="flex items-center space-x-4">
           <InputField
             type="text"
-            value={firstName}
             label="نام"
-            inputChangeHandler={(e) => setFirstName(e.target.value)}
-            placeholder="مارک"
+            placeholder=""
+            loading={loading}
+            {...firstNameInput}
           />
           <InputField
             type="text"
-            value={lastName}
             label="نام خانوادگی"
-            inputChangeHandler={(e) => setLastName(e.target.value)}
-            placeholder="فیشباک"
+            placeholder=""
+            loading={loading}
+            {...lastNameInput}
           />
         </div>
         <div className="flex items-center space-x-4">
           <InputField
             type="email"
-            value={email}
             label="ایمیل"
-            inputChangeHandler={(e) => setEmail(e.target.value)}
-            placeholder="email@example.com"
+            placeholder=""
             textDirection="ltr"
+            loading={loading}
+            {...emailInput}
           />
         </div>
         <div className="mb-6">
           <Button
             onClick={editProfileOnClick}
             size={ButtonSizes.SMALL}
-            disabled={!firstName || !lastName || !email}
+            disabled={!isInfoFormValid}
           >
             ثبت
           </Button>
@@ -145,38 +232,29 @@ const Edit: React.FC = () => {
         <div className="flex items-center space-x-4">
           <InputField
             type="text"
-            value={oldPassword}
             label="پسورد قبلی"
-            inputChangeHandler={(e) => setOldPassword(e.target.value)}
             placeholder="WowSoSecret"
+            {...oldPasswordInput}
           />
         </div>
         <div className="flex items-center space-x-4">
           <InputField
             type="text"
-            value={newPassword}
             label="پسورد جدید"
-            inputChangeHandler={(e) => setNewPassword(e.target.value)}
             placeholder="WowSoSuperSecret"
+            {...newPasswordInput}
           />
           <InputField
             type="text"
-            value={repeatNewPassword}
             label="تکرار پسورد جدید"
-            inputChangeHandler={(e) => setRepeatNewPassword(e.target.value)}
             placeholder="WowSoSuperSecret"
-            regexValid={newPassword ? newPassword === repeatNewPassword : null}
-            errorText={"پسورد سازگار نیست!"}
+            {...repeatPasswordInput}
           />
         </div>
         <div className="mb-6">
           <Button
-            disabled={
-              changePasswordLoading ||
-              !newPassword ||
-              !oldPassword ||
-              !repeatNewPassword
-            }
+            disabled={!isChangePasswordFormValid}
+            loading={changePasswordLoading}
             onClick={changePasswordOnClick}
             size={ButtonSizes.SMALL}
           >

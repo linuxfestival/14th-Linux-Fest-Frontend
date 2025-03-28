@@ -23,7 +23,7 @@ import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
 import { useNavigate } from "react-router-dom";
 import { FaAngleDoubleDown } from "react-icons/fa";
-import { digitsToPersian } from "../../../utils/digitsToPersian.ts";
+import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
 
 interface WorkshopCardProps {
   id: number;
@@ -51,20 +51,25 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
   const existInCart = useSelector(selectIsItemExistInCart(id));
   const selectItemInCart = useSelector(selectItemInCartById(id));
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const addToCart = useCallback(async () => {
     if (!isAuthenticated) {
       toast.info("برای افزودن به سبد خرید باید وارد شوید");
       return;
     }
+    setButtonLoading(true);
     await dispatch(addItemToCartThunk(presentation?.id ?? 0));
     await dispatch(getCartThunk());
+    setButtonLoading(false);
   }, [dispatch, presentation?.id]);
 
   const removeFromCart = useCallback(async () => {
     if (!selectItemInCart) return;
+    setButtonLoading(true);
     await dispatch(removeItemFromCartThunk(selectItemInCart?.id));
     await dispatch(getCartThunk());
+    setButtonLoading(false);
   }, [dispatch, selectItemInCart]);
 
   const handleClick = () => {
@@ -140,7 +145,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
                     }px`,
                   }}
                 >
-                  {digitsToPersian("بیش از 5 برگزار کننده")}
+                  {digitsToLatin("بیش از 5 برگزار کننده")}
                 </p>
               </>
             ) : (
@@ -160,19 +165,20 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           <p>اطلاعات بیشتر</p>
           <FaAngleDoubleDown className="animate-bounce" />
         </div>
-        <div className="w-full flex flex-row-reverse justify-between items-center gap-2 mb-4 px-4">
+        <div className="w-full flex flex-row-reverse justify-between items-center gap-8 mb-4 px-4">
           <Button
             size={ButtonSizes.SMALL}
             disabled={!showAddToCart}
+            loading={buttonLoading}
             className={clsx(
-              "text-sm !px-4 text-white hover:bg-indigo-dark transition-all rounded-md",
+              "text-sm !px-4 text-white hover:bg-indigo-dark transition-all rounded-md w-full",
               { ["!bg-indigo"]: !existInCart }
             )}
             onClick={existInCart ? removeFromCart : addToCart}
           >
             {existInCart ? "حذف از سبد خرید" : "اضافه به سبد خرید"}
           </Button>
-          <p className="text-lg font-bold text-white">
+          <p className="text-lg font-bold text-white w-full text-center">
             {price === 0 ? "رایگان!" : `${price / 1000} هزار تومان`}
           </p>
         </div>

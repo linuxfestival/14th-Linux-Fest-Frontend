@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import clsx from "clsx";
+import Loading from "../icons/Loading";
 
 export enum ButtonSizes {
   SMALL,
@@ -18,6 +19,7 @@ interface Props {
   size?: ButtonSizes;
   variant?: ButtonVariants;
   disabled?: boolean;
+  loading?: boolean;
   className?: string;
   onClick?: () => void;
   onMouseEnter?: () => void;
@@ -29,6 +31,7 @@ const Button = ({
   size = ButtonSizes.MEDIUM,
   variant = ButtonVariants.FILL,
   disabled = false,
+  loading = false,
   className,
   onClick,
   onMouseEnter,
@@ -37,28 +40,29 @@ const Button = ({
   return (
     <div
       className={clsx(
-        "px-[16px] py-[8px] sm:py-[12px] text-center rounded-2xl text-white cursor-pointer",
+        "px-[16px] py-[8px] sm:py-[12px] text-center rounded-2xl text-white cursor-pointer transition-all",
         {
           ["bg-secondary hover:bg-[#ee346c]"]: variant === ButtonVariants.FILL,
           ["min-w-max w-1/2 font-medium text-lg"]: size === ButtonSizes.MEDIUM,
           ["w-full font-bold text-sm md:text-md lg:text-xl"]:
             size === ButtonSizes.LARGE,
           ["!bg-[#878787] !cursor-not-allowed select-none"]: disabled,
+          ["flex justify-center items-center"]: loading,
         },
         className
       )}
       onClick={
-        disabled && onClick
+        disabled || loading || !onClick
           ? undefined
           : (e) => {
               e.stopPropagation();
-              onClick?.();
+              onClick();
             }
       }
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {children}
+      {loading ? <Loading className="mr-3 size-5 animate-spin" /> : children}
     </div>
   );
 };

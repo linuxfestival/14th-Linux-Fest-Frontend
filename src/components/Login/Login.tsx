@@ -1,6 +1,5 @@
 import BadgeLinux from "../../assets/penwing.png";
 import Button from "../../components/Common/Button/Button.tsx";
-import { useState } from "react";
 import InputField from "../Common/Button/Input.tsx";
 import { RootState, useAppDispatch } from "../../store.ts";
 import { loginThunk } from "../../core/auth/auth.thunk.ts";
@@ -10,20 +9,39 @@ import Cookies from "js-cookie";
 import { displayCommonErrorToast } from "../../utils/toastUtils.ts";
 import { Link } from "react-router-dom";
 import { initializeUser } from "../../core/auth/auth.slice.ts";
-import ArrowRight from "../Common/icons/ArrowRight.tsx";
 import { FaArrowRight } from "react-icons/fa";
+import useInputHandler, {
+  GeneralErrors,
+  GeneralValidators as GV,
+} from "../../hooks/useInputHandler.tsx";
 
+const phoneRegex = /^09[0-9]{9}$/;
 const Login = () => {
-  const phoneRegex = /^09[0-9]{9}$/;
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
+  const phoneNumberInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+    numberOnly: true,
+    persianDigits: true,
+    maxLength: 11,
+  });
+
+  const passwordInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const { rawValue: phoneNumber, valid: isPhoneNumberValid } = phoneNumberInput;
+  const { rawValue: password, valid: isPasswordValid } = passwordInput;
 
   const dispatch = useAppDispatch();
   const { loading } = useSelector((state: RootState) => state.auth);
 
   const login = async () => {
-    if (!phoneNumber || !password) {
-      // TODO: Show a toast message for empty fields
+    if (!isPhoneNumberValid || !isPasswordValid) {
       return;
     }
 
@@ -63,7 +81,7 @@ const Login = () => {
 
   return (
     <div className="relative h-[100dvh] overflow-auto w-full p-4 lg:p-13 flex justify-center items-center bg-pattern">
-      <div className="relative flex rounded-4xl p-4 w-full lg:h-full gap-2 justify-between items-center bg-[#101010cc] shadow-2xl lg:w-auto lg:aspect-4/3">
+      <div className="relative flex rounded-4xl p-4 w-full h-3/4 lg:h-full gap-2 justify-between items-center bg-[#101010cc] shadow-2xl xl:w-auto xl:aspect-4/3">
         <div className="flex w-full md:w-4/7 flex-col md:m-10">
           <h1 className="text-4xl font-bold text-white">ورود</h1>
           <p className="text-lg text-gray-300 mb-9 mt-2">
@@ -82,27 +100,24 @@ const Login = () => {
               placeholder="09xxxxxxxxx"
               autocomplete="tel"
               label="شماره تلفن"
-              errorText="فرمت تلفن همراه اشتباه است!"
-              regexValid={
-                phoneNumber.length > 0
-                  ? phoneRegex.test(phoneNumber)
-                  : undefined
-              }
-              value={phoneNumber}
-              inputChangeHandler={(e) => setPhoneNumber(e.target.value)}
-              labelClassName="!bg-[#101010cc]"
+              name="phone_number"
+              {...phoneNumberInput}
             />
             <InputField
               type="password"
               placeholder="WowSoSecret"
               autocomplete="current-password"
               label="پسورد"
-              value={password}
-              inputChangeHandler={(e) => setPassword(e.target.value)}
-              labelClassName="!bg-[#101010cc]"
+              name="password"
+              {...passwordInput}
             />
           </div>
-          <Button disabled={loading} onClick={login} className="w-full">
+          <Button
+            disabled={!isPhoneNumberValid || !isPasswordValid}
+            loading={loading}
+            onClick={login}
+            className="w-full"
+          >
             ورود
           </Button>
           <div className="md:hidden w-full flex justify-center items-center">
@@ -114,9 +129,9 @@ const Login = () => {
         <div className="relative hidden md:flex w-3/7 h-full rounded-3xl overflow-hidden justify-center items-center shadow-lg">
           <img className="h-full object-cover" src={BadgeLinux} />
           <Link to={"/"}>
-            <div className="absolute top-2 left-2 w-max flex justify-center items-center gap-2 px-4 py-2 bg-white/20 rounded-full cursor-pointer">
-              <FaArrowRight size={16} className="text-text-gray" />
-              <p className="text-text-gray">بازگشت به خانه</p>
+            <div className="absolute top-2 left-2 w-max flex justify-center items-center gap-2 px-4 py-2 bg-white/30 rounded-full cursor-pointer">
+              <FaArrowRight size={16} className="text-white" />
+              <p className="text-white font-bold">بازگشت به خانه</p>
             </div>
           </Link>
         </div>

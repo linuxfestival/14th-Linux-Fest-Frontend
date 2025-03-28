@@ -1,7 +1,7 @@
 import BadgeLinux from "../../assets/penwing.png";
 import Button from "../../components/Common/Button/Button.tsx";
 import InputField from "../Common/Button/Input.tsx";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { signupThunk } from "../../core/auth/auth.thunk.ts";
 import { RootState, useAppDispatch } from "../../store.ts";
@@ -12,34 +12,107 @@ import { displayCommonErrorToast } from "../../utils/toastUtils.ts";
 import { Link } from "react-router-dom";
 import { initializeUser } from "../../core/auth/auth.slice.ts";
 import { FaArrowRight } from "react-icons/fa";
+import useInputHandler, {
+  GeneralErrors,
+  GeneralValidators as GV,
+} from "../../hooks/useInputHandler.tsx";
 
+const phoneRegex = /^09[0-9]{9}$/;
 const Signup = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-
+  const dispatch = useAppDispatch();
   const { loading } = useSelector((state: RootState) => state.auth);
 
-  const dispatch = useAppDispatch();
+  const emailInput = useInputHandler({
+    validators: [
+      GV.required,
+      GV.regexMatch(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+    ],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+      [GeneralErrors.RegexMatch]: "ایمیل وارد شده معتبر نیست!",
+    },
+  });
 
-  const phoneRegex = /^09[0-9]{9}$/;
+  const firstNameInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const lastNameInput = useInputHandler({
+    validators: [GV.required],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const phoneNumberInput = useInputHandler({
+    validators: [GV.required, GV.regexMatch(phoneRegex)],
+    errorMessages: {
+      [GeneralErrors.RegexMatch]: "شماره تلفن وارد شده صحیح نیست!",
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+    numberOnly: true,
+    persianDigits: true,
+    maxLength: 11,
+  });
+
+  const passwordInput = useInputHandler({
+    validators: [
+      GV.required,
+      GV.minLength(8),
+      GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/),
+    ],
+    errorMessages: {
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+      [GeneralErrors.MinimumLength]: "رمز عبور باید حداقل ۸ کاراکتر باشد!",
+      [GeneralErrors.RegexMatch]:
+        "رمز عبور باید شامل حروف انگلیسی و اعداد باشد!",
+    },
+    beforeBlur: (value: string) => {
+      repeatPasswordInput.validate();
+    },
+  });
+
+  const repeatPasswordInput = useInputHandler({
+    validators: [
+      (value: string) => (value !== password ? "NOT-SAME" : undefined),
+      GV.required,
+    ],
+    errorMessages: {
+      ["NOT-SAME"]: "رمز عبور با تکرار آن همخوانی ندارد!",
+      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+    },
+  });
+
+  const { rawValue: email, valid: isEmailValid } = emailInput;
+  const { rawValue: firstName, valid: isFirstNameValid } = firstNameInput;
+  const { rawValue: lastName, valid: isLastNameValid } = lastNameInput;
+  const { rawValue: phoneNumber, valid: isPhoneNumberValid } = phoneNumberInput;
+  const { rawValue: password, valid: isPasswordValid } = passwordInput;
+  const { valid: isRepeatPassValid } = repeatPasswordInput;
+
+  const isFormValid = useMemo(() => {
+    return (
+      isEmailValid &&
+      isFirstNameValid &&
+      isLastNameValid &&
+      isPhoneNumberValid &&
+      isPasswordValid &&
+      isRepeatPassValid
+    );
+  }, [
+    isEmailValid,
+    isFirstNameValid,
+    isLastNameValid,
+    isPhoneNumberValid,
+    isPasswordValid,
+    isRepeatPassValid,
+  ]);
 
   const signup = async () => {
-    if (password !== repeatPassword) {
-      toast.error("رمز عبور و تکرار آن باید یکسان باشند!");
-      return;
-    }
-
-    if (password.length < 8) {
-      toast.error("رمز عبور باید حداقل ۸ کاراکتر باشد!");
-      return;
-    }
-
-    if (!password || !phoneNumber || !email || !firstName || !lastName) {
-      toast.error("لطفا تمامی فیلد ها را پر کنید!");
+    if (!isFormValid) {
       return;
     }
 
@@ -82,13 +155,13 @@ const Signup = () => {
 
   return (
     <div className="relative h-[100dvh] overflow-auto w-full p-4 md:p-13 flex justify-center items-center bg-pattern">
-      <div className="relative flex rounded-4xl p-4 w-full md:h-full gap-2 justify-between items-center bg-[#101010cc] shadow-2xl md:w-auto md:aspect-4/3">
+      <div className="relative flex rounded-4xl p-4 w-full h-full gap-2 justify-between items-center bg-[#101010cc] shadow-2xl xl:w-auto xl:aspect-4/3">
         <div className="relative hidden md:flex w-3/7 h-full rounded-3xl overflow-hidden justify-center items-center shadow-lg">
           <img className="h-full object-cover" src={BadgeLinux} />
           <Link to={"/"}>
-            <div className="absolute top-2 left-2 w-max flex justify-center items-center gap-2 px-4 py-2 bg-white/20 rounded-full cursor-pointer">
-              <FaArrowRight size={16} className="text-text-gray" />
-              <p className="text-text-gray">بازگشت به خانه</p>
+            <div className="absolute top-2 left-2 w-max flex justify-center items-center gap-2 px-4 py-2 bg-white/30 rounded-full cursor-pointer">
+              <FaArrowRight size={16} className="text-white" />
+              <p className="text-white font-bold">بازگشت به خانه</p>
             </div>
           </Link>
         </div>
@@ -109,19 +182,15 @@ const Signup = () => {
               <InputField
                 type="text"
                 placeholder="James"
-                required
                 label="نام"
-                value={firstName}
-                inputChangeHandler={(e) => setFirstName(e.target.value)}
+                {...firstNameInput}
                 className="w-full md:w-1/2"
               />
               <InputField
                 type="text"
                 placeholder="Hetfield"
                 label="نام خانوادگی"
-                value={lastName}
-                inputChangeHandler={(e) => setLastName(e.target.value)}
-                required
+                {...lastNameInput}
                 className="w-full md:w-1/2"
               />
             </div>
@@ -129,47 +198,36 @@ const Signup = () => {
               type="email"
               placeholder="example@linux-fest.ir"
               label="ایمیل"
-              value={email}
-              required
-              inputChangeHandler={(e) => setEmail(e.target.value)}
+              {...emailInput}
             />
             <InputField
               type="text"
               autocomplete="tel"
               label="موبایل"
               placeholder="09xxxxxxxxx"
-              regexValid={
-                phoneNumber ? phoneRegex.test(phoneNumber) : undefined
-              }
-              errorText="فرمت تلفن همراه اشتباه است!"
-              required
-              value={phoneNumber}
-              inputChangeHandler={(e) => setPhoneNumber(e.target.value)}
+              {...phoneNumberInput}
             />
             <InputField
               type="text"
               autocomplete="new-password"
               label="پسورد"
               placeholder="WowSoSecret"
-              value={password}
-              required
-              inputChangeHandler={(e) => setPassword(e.target.value)}
+              {...passwordInput}
             />
             <InputField
               type="text"
               autocomplete="new-password"
               label="تکرار پسورد"
-              regexValid={
-                repeatPassword ? repeatPassword === password : undefined
-              }
-              errorText="پسورد با تکرار پسورد همخوانی ندارد!"
               placeholder="WowSoSecret"
-              value={repeatPassword}
-              required
-              inputChangeHandler={(e) => setRepeatPassword(e.target.value)}
+              {...repeatPasswordInput}
             />
           </div>
-          <Button disabled={loading} onClick={signup} className="w-full">
+          <Button
+            disabled={isFormValid}
+            loading={loading}
+            onClick={signup}
+            className="w-full"
+          >
             ثبت نام
           </Button>
           <div className="md:hidden w-full flex justify-center items-center">

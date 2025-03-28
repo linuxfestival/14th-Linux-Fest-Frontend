@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { GrTrash } from "react-icons/gr";
 import { IoPerson, IoTime } from "react-icons/io5";
-import {digitsToPersian} from "../../../../utils/digitsToPersian";
+import { digitsToLatin } from "../../../../utils/digitsToPersian";
 import { toLocalPrice } from "../../../../utils/toLocalPrice";
 import { useSelector } from "react-redux";
 import { selectItemInCartById } from "../../../../core/cart/cart.selector";
@@ -67,7 +67,7 @@ const CartItem: React.FC<CartItemProps> = ({
           className="text-red-400 cursor-pointer"
         />
         <h1 className="text-3xl md:text-3xl lg:text-2xl font-bold">
-          {digitsToPersian(toLocalPrice(price))}
+          {digitsToLatin(toLocalPrice(price))}
           <span className="text-sm"> {currency}</span>
         </h1>
       </div>

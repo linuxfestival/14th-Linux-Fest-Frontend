@@ -37,7 +37,7 @@ import {
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import Divider from "../Divider/Divider";
 import { createPortal } from "react-dom";
-import { digitsToPersian } from "../../utils/digitsToPersian";
+import { digitsToLatin } from "../../utils/digitsToPersian";
 import {
   PresentationDto,
   PresentationService,
@@ -53,20 +53,25 @@ const Workshop = () => {
   const existInCart = useSelector(selectIsItemExistInCart(Number(id)));
   const selectItemInCart = useSelector(selectItemInCartById(Number(id)));
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const addToCart = useCallback(async () => {
     if (!isAuthenticated) {
       toast.error("برای افزودن به سبد خرید باید وارد شوید");
       return;
     }
+    setButtonLoading(true);
     await dispatch(addItemToCartThunk(presentation?.id ?? 0));
     await dispatch(getCartThunk());
+    setButtonLoading(false);
   }, [dispatch, presentation?.id]);
 
   const removeFromCart = useCallback(async () => {
     if (!selectItemInCart) return;
+    setButtonLoading(true);
     await dispatch(removeItemFromCartThunk(selectItemInCart?.id));
     await dispatch(getCartThunk());
+    setButtonLoading(false);
   }, [dispatch, selectItemInCart]);
 
   if (!id) return <Navigate to="/workshops" />;
@@ -92,7 +97,7 @@ const Workshop = () => {
 
       <InfoCard presentation={presentation} className="flex md:hidden static" />
 
-      <div className="flex flex-row-reverse justify-between gap-8 pt-8 pb-16 px-16 xl:px-48">
+      <div className="w-full flex flex-row-reverse justify-between gap-8 pt-8 pb-16 px-16 xl:px-48">
         <div className="hidden md:block w-1/3 min-w-[350px] lg:min-w-[400px]" />
         <div className="w-full md:w-1/2 flex flex-col">
           <h1 className="text-2xl lg:text-4xl font-bold">توضیحات ارائه:</h1>
@@ -103,6 +108,7 @@ const Workshop = () => {
           <Button
             size={ButtonSizes.SMALL}
             disabled={presentation.remained_capacity === 0}
+            loading={buttonLoading}
             className={clsx(
               "text-lg lg:text-xl !px-4 text-white hover:bg-indigo-dark transition-all rounded-md mt-8",
               { ["!bg-indigo"]: !existInCart }
@@ -131,6 +137,7 @@ const Workshop = () => {
         <Button
           size={ButtonSizes.SMALL}
           disabled={presentation.remained_capacity === 0}
+          loading={buttonLoading}
           className={clsx(
             "text-4xl !px-4 text-white hover:bg-indigo-dark transition-all rounded-md ",
             { ["!bg-indigo"]: !existInCart }
@@ -163,7 +170,7 @@ const InfoRow = ({ icon: Icon, title, value }: InfoRowProps) => (
       </p>
     </div>
     <p className="text-xl text-white" dir="rtl">
-      {digitsToPersian(value)}
+      {digitsToLatin(value)}
     </p>
   </div>
 );

@@ -1,12 +1,12 @@
-
 interface IconProps {
-    color: string;
+  color: string;
+  size: number;
 }
 
 const AlertIcon = ({ ...props }: IconProps) => (
   <svg
-    width="20"
-    height="20"
+    width={props.size}
+    height={props.size}
     viewBox="0 0 20 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

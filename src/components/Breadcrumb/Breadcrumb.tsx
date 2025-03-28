@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {digitsToPersian} from "../../utils/digitsToPersian";
+import { digitsToLatin } from "../../utils/digitsToPersian";
 
 interface Step {
   id: number;
@@ -54,7 +54,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ currentStep, steps }) => {
               }
             )}
           >
-            {digitsToPersian(String(step.id))}
+            {digitsToLatin(String(step.id))}
           </span>
         </div>
       ))}

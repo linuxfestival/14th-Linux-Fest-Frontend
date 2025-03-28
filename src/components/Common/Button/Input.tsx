@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import AlertIcon from "../icons/AlertIcon";
 import SuccessIcon from "../icons/SuccessIcon";
+import Loading from "../icons/Loading";
 
 interface InputFieldProps {
   type: string;
@@ -9,54 +10,45 @@ interface InputFieldProps {
   label: string;
   textDirection?: string;
   required?: boolean;
-  inputChangeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  regexValid?: boolean | null;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   successText?: string;
   errorText?: string;
   autocomplete?: string;
   className?: string;
   labelClassName?: string;
+  name?: string;
+  loading?: boolean;
 }
 
 export default function InputField({ ...props }: InputFieldProps) {
-  const borderClass =
-    props.regexValid === true
-      ? "border-2 border-green-500"
-      : props.regexValid === false
-      ? "border-2 border-red-500"
-      : "border border-gray-300";
-
-  const renderInputSubtitle = () => {
-    if (props.regexValid === true) {
-      return (
-        <div className="flex items-center gap-2 text-sm mt-1">
-          <SuccessIcon color="#09B188" />
-          <div className="text-green-500">{props.successText}</div>
-        </div>
-      );
-    } else if (props.regexValid === false) {
-      return (
-        <div className="flex items-center gap-2 text-sm mt-1">
-          <AlertIcon color="#F74455" />
-          <div className="text-red-500">{props.errorText}</div>
-        </div>
-      );
-    }
-  };
-
   return (
     <div className={"flex flex-col w-full relative " + props.className}>
-      <fieldset className="rounded-[14px] border-1 border-secondary-gray">
+      <fieldset
+        className={clsx("rounded-[14px] border-1", {
+          ["border-[#F74455]"]: props.errorText,
+          ["border-secondary-gray"]: !props.errorText,
+        })}
+      >
+        {props.loading && (
+          <Loading
+            className="absolute left-1/2 -translate-x-1/2 animate-spin"
+            width="25"
+          />
+        )}
         <input
           type={props.type}
-          id="floating_outlined"
           className="block px-2.5 pb-3 pt-1.5 w-full text-sm text-text-white bg-transparent appearance-none focus:outline-none focus:ring-0 peer"
-          placeholder={props.placeholder}
-          onChange={props.inputChangeHandler}
+          placeholder={!props.loading ? props.placeholder : undefined}
+          onChange={props.onChange}
           dir={props.textDirection}
           required={props.required}
           autoComplete={props?.autocomplete ?? ""}
           value={props.value}
+          name={props.name}
+          onBlur={props.onBlur}
+          onFocus={props.onFocus}
         />
         <legend
           className={clsx(
@@ -66,7 +58,12 @@ export default function InputField({ ...props }: InputFieldProps) {
           {props.label}
         </legend>
       </fieldset>
-      {renderInputSubtitle()}
+      {props.errorText && (
+        <div className="flex items-center gap-1 text-sm mt-1">
+          <AlertIcon color="#F74455" size={16} />
+          <div className="text-[#F74455]">{props.errorText}</div>
+        </div>
+      )}
     </div>
   );
 }
