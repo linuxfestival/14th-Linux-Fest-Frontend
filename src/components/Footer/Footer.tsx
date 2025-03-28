@@ -37,8 +37,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center items-center gap-2">
-          <h1 className="text-4xl font-bold text-white text-center">شروع لینوکس!</h1>
+        <div className="flex flex-col justify-center items-center gap-2 text-center">
+          <h1 className="text-4xl font-bold text-white ">شروع لینوکس!</h1>
           <Link to="/workshop/17" className="text-xl text-text-gray">
             کارگاه مقدماتی
           </Link>
@@ -47,8 +47,8 @@ const Footer = () => {
           </Link>
         </div>
 
-        <div className="flex flex-col justify-center items-center gap-2">
-          <h1 className="text-4xl font-bold text-white text-center">DevOps</h1>
+        <div className="flex flex-col justify-center items-center gap-2 text-center">
+          <h1 className="text-4xl font-bold text-white">DevOps</h1>
           <Link to="/workshop/17" className="text-xl text-text-gray">
             کارگاه مقدماتی
           </Link>
@@ -60,7 +60,7 @@ const Footer = () => {
           </Link>
         </div>
 
-        <div className="hidden lg:flex flex-col justify-center items-center gap-2">
+        <div className="flex flex-col justify-center items-center gap-2 text-center">
           <h1 className="text-4xl font-bold text-white text-center">Containerization</h1>
           <Link to="/workshop/15" className="text-xl text-text-gray">
             Docker & Kubernetes
