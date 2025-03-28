@@ -1,7 +1,8 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 
-const selectPresentationsState = (state: RootState) => state.presentation;
+export const selectPresentationsState = (state: RootState) =>
+  state.presentation;
 
 export const selectPresentationById = (id: number) =>
   createSelector([selectPresentationsState], (presentations) =>
@@ -11,4 +12,9 @@ export const selectPresentationById = (id: number) =>
 export const selectIsPresentationLoading = createSelector(
   [selectPresentationsState],
   (presentations) => presentations.loading
+);
+
+export const selectCurrentPresentation = createSelector(
+  [selectPresentationsState],
+  (presentations) => presentations.currentPresentation
 );

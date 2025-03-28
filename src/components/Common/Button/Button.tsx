@@ -47,7 +47,14 @@ const Button = ({
         },
         className
       )}
-      onClick={disabled ? undefined : onClick}
+      onClick={
+        disabled && onClick
+          ? undefined
+          : (e) => {
+              e.stopPropagation();
+              onClick?.();
+            }
+      }
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

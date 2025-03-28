@@ -25,8 +25,8 @@ body {
 }
 
 * {
-    font-family: "Vazirmatn", sans-serif;
-    font-feature-settings: "tnum";
+    font-family: "Vazirmatn", sans-serif !important;
+    /* font-feature-settings: "tnum" !important; */
 }
 
 .bg-pattern {
@@ -54,7 +54,40 @@ body {
     }
 }
 
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 10s linear infinite;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
 :root {
     --toastify-color-dark: #202020;
     --toastify-color-info: #7386E7;
+    --toastify-color-error: var(--color-ubuntu-red);
+    --toastify-color-success: #00B74A;
+    --toastify-color-warning: #FFA900;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-sidebar);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-secondary-gray);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-gray);
 }

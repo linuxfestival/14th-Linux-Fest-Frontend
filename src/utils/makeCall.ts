@@ -96,7 +96,7 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         if (!originalRequest.url?.includes("api/token/access/"))
-          toast.error("نیاز دارید تا وارد شوید!")
+          toast.error("نیاز دارید تا وارد شوید!");
         store.dispatch(logout());
         router.navigate("/login");
         return Promise.reject(refreshError);

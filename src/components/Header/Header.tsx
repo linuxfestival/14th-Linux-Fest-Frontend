@@ -7,8 +7,13 @@ import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import { MdShoppingCart } from "react-icons/md";
 import ShoppingCart from "./components/ShoppingCart";
+import clsx from "clsx";
 
-const Header = () => {
+interface Props {
+  sticky?: boolean;
+}
+
+const Header = ({ sticky = true }: Props) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -25,7 +30,12 @@ const Header = () => {
   }, [menuOpen]);
 
   return (
-    <div className="fixed top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray lg:rounded-[26px]">
+    <div
+      className={clsx(
+        "top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray lg:rounded-[26px] shadow-md z-5",
+        { ["fixed"]: sticky, ["absolute"]: !sticky }
+      )}
+    >
       <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-1/4 max-w-[250px]">
         {isAuthenticated ? (
           <ShoppingCart className="mx-2" />
@@ -77,23 +87,23 @@ const Header = () => {
         </nav>
         <div className="w-2/3 flex flex-col items-center gap-2 mt-10">
           {isAuthenticated ? (
-              <ShoppingCart className="mx-2" />
+            <ShoppingCart className="mx-2" />
           ) : (
-              <>
-                <Link to="/signup" className="!w-full">
-                  <Button size={ButtonSizes.MEDIUM} className="!w-full">
-                    ثبت نام
-                  </Button>
-                </Link>
-                <Link to="/login">
-                  <Button
-                      size={ButtonSizes.MEDIUM}
-                      variant={ButtonVariants.OUTLINE}
-                  >
-                    ورود
-                  </Button>
-                </Link>
-              </>
+            <>
+              <Link to="/signup" className="!w-full">
+                <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                  ثبت نام
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button
+                  size={ButtonSizes.MEDIUM}
+                  variant={ButtonVariants.OUTLINE}
+                >
+                  ورود
+                </Button>
+              </Link>
+            </>
           )}
         </div>
 
@@ -105,10 +115,8 @@ const Header = () => {
       </div>
 
       <Link to={"/"} className="flex justify-center items-center gap-[10px]">
-        <p className="text-2xl font-medium">
-            لینوکس‌فست
-        </p>
         <img src={logo} width={50} height={50} />
+        <p className="text-2xl font-medium">لینوکس‌فست</p>
       </Link>
     </div>
   );

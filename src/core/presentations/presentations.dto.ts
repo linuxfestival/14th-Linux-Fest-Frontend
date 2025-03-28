@@ -1,6 +1,10 @@
 import { PaymentState } from "../payment/payment.dto.ts";
 
-export type PresentationService = "WORKSHOP" | "TALK";
+export enum PresentationService {
+  WORKSHOP = "WORKSHOP",
+  TALK = "TALK",
+  PACKAGE = "PACKAGE",
+}
 
 export interface PresenterDto {
   first_name: string;
@@ -10,6 +14,9 @@ export interface PresenterDto {
   avatar: string;
 }
 
+export interface Tag {
+  name: string;
+}
 export interface PresentationDto {
   service_type: PresentationService;
   capacity: number;
@@ -27,4 +34,7 @@ export interface PresentationDto {
   accessories: string;
   accessories_cost: number;
   accessories_capacity: number;
+  tags: Tag[];
 }
+
+export interface PresentationRequest {}
