@@ -18,6 +18,7 @@ createRoot(document.getElementById("root")!).render(
           hideProgressBar
           closeOnClick
           position="bottom-center"
+          limit={5}
         />
         <RouterProvider router={router} />
       </AuthContainer>

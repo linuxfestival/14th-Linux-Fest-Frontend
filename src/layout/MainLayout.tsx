@@ -22,7 +22,9 @@ const MainLayout: React.FC = () => {
     <div className="flex">
       <Sidebar
         isOpen={isSidebarOpen}
-        toggleSidebar={() => setSidebarOpen(false)}
+        toggleSidebar={() => {
+          setSidebarOpen(false);
+        }}
       />
       <div className="w-full flex flex-col h-[100dvh]  justify-center items-center md:p-[80px]">
         <PanelHeader toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />

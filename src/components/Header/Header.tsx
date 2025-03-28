@@ -36,7 +36,7 @@ const Header = ({ sticky = true }: Props) => {
         { ["fixed"]: sticky, ["absolute"]: !sticky }
       )}
     >
-      <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-1/4 max-w-[250px]">
+      <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-max xl:w-1/4 max-w-[250px]">
         {isAuthenticated ? (
           <>
             <ShoppingCart className="mx-2" />
@@ -95,7 +95,14 @@ const Header = ({ sticky = true }: Props) => {
         </nav>
         <div className="w-2/3 flex flex-col items-center gap-2 mt-10">
           {isAuthenticated ? (
-            <ShoppingCart className="mx-2" />
+            <>
+              <ShoppingCart className="mx-2" />
+              <IoPerson
+                size={30}
+                className="cursor-pointer"
+                onClick={() => navigate("/profile/edit")}
+              />
+            </>
           ) : (
             <>
               <Link to="/signup" className="!w-full">
@@ -122,9 +129,12 @@ const Header = ({ sticky = true }: Props) => {
         />
       </div>
 
-      <Link to={"/"} className="flex justify-center items-center gap-[10px]">
+      <Link
+        to={"/"}
+        className="flex justify-center items-center gap-0 xl:gap-[10px]"
+      >
         <img src={logo} width={50} height={50} />
-        <p className="text-2xl font-medium">لینوکس‌فست</p>
+        <p className="hidden xl:block text-2xl font-medium">لینوکس‌فست</p>
       </Link>
     </div>
   );

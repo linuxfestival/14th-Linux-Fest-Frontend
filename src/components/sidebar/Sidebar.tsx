@@ -41,15 +41,17 @@ const Sidebar = ({
     >
       <div className="flex flex-col justify-between h-full flex-1">
         <div className="flex flex-col items-center gap-[10px]">
-          <div
-            className="flex w-full justify-center items-center mb-4 cursor-pointer"
-            onClick={() => navigate("/")}
-          >
+          <div className="flex w-full justify-center items-center mb-4 cursor-pointer">
             <button onClick={toggleSidebar} className="p-2 md:hidden">
               <ArrowRight />
             </button>
-            <SidebarLogo />
-            <p className="text-xl font-bold text-white">لینوکس‌فست</p>
+            <div
+              className="hidden md:flex justify-center items-center"
+              onClick={(e) => navigate("/")}
+            >
+              <SidebarLogo />
+              <p className="text-xl font-bold text-white">لینوکس‌فست</p>
+            </div>
           </div>
           {sidebarData.map((button, index) => (
             <SidebarButton
