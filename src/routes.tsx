@@ -16,6 +16,7 @@ import CartLayout from "./components/Dashboard/Cart/CartLayout.tsx";
 import CartsList from "./components/Dashboard/Cart/pages/CartsList.tsx";
 import CartPayment from "./components/Dashboard/Cart/pages/CartPayment.tsx";
 import Workshop from "./components/Workshop/Workshop.tsx";
+import {Presenters} from "./components/Presenters/Presenters.tsx";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
   {
     path: "workshop/:id",
     element: <Workshop />,
+  },
+  {
+    path: "presenters",
+    element: <Presenters />,
   },
   {
     path: "login",

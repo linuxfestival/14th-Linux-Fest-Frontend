@@ -1,15 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  getAllPresentationsThunk,
+  getAllPresentationsThunk, getAllPresentersThunk,
   getPresentationByIDThunk,
 } from "./presentations.thunk";
-import { PresentationDto } from "./presentations.dto";
+import {PresentationDto, PresenterDto} from "./presentations.dto";
 
 interface PresentationsState {
   list: PresentationDto[];
   currentPresentation: PresentationDto | undefined;
   loading: boolean;
   loadedFirstTime: boolean;
+  presenters: PresenterDto[];
 }
 
 const initialState: PresentationsState = {
@@ -17,6 +18,7 @@ const initialState: PresentationsState = {
   currentPresentation: undefined,
   loading: false,
   loadedFirstTime: false,
+  presenters: []
 };
 
 const presentationsSlice = createSlice({
@@ -44,6 +46,17 @@ const presentationsSlice = createSlice({
       })
       .addCase(getPresentationByIDThunk.rejected, (state) => {
         state.currentPresentation = undefined;
+      })
+      .addCase(getAllPresentersThunk.pending, (state, action) => {
+        state.currentPresentation = undefined;
+        state.loading = true
+      })
+      .addCase(getAllPresentersThunk.fulfilled, (state, action) => {
+        state.presenters = action.payload;
+        state.loading = false
+      })
+      .addCase(getAllPresentersThunk.rejected, (state) => {
+        state.loading = false
       });
   },
 });

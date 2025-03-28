@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
-  getAllPresentations,
-  getPresentationByID,
+    getAllPresentations, getAllPresenters,
+    getPresentationByID,
 } from "./presentations.api.ts";
 import { AxiosResponse } from "axios";
-import { PresentationDto } from "./presentations.dto.ts";
+import {PresentationDto, PresenterDto} from "./presentations.dto.ts";
 
 export const getAllPresentationsThunk = createAsyncThunk(
   "presentations/get_all",
@@ -12,6 +12,18 @@ export const getAllPresentationsThunk = createAsyncThunk(
     try {
       const response: AxiosResponse<PresentationDto[]> =
         await getAllPresentations();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
+export const getAllPresentersThunk = createAsyncThunk(
+  "presenters/get_all",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse<PresenterDto[]> =
+        await getAllPresenters();
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error);

@@ -68,7 +68,8 @@ const Header = ({ sticky = true }: Props) => {
         <Link to={"/"}>خانه</Link>
         <Link to={"/workshops"}>ارائه ها</Link>
         <Link to={"/faq"}>سوالات متداول</Link>
-        <Link to={"/staff"}>دست اندرکاران</Link>
+        <Link to={"/presenters"}>ارائه‌دهندگان</Link>
+        <Link to={"/staff"}>دست‌اندرکاران</Link>
       </nav>
 
       <IoMenu size={50} className="visible lg:hidden" onClick={toggleMenu} />

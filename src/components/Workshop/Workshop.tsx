@@ -246,7 +246,7 @@ interface PresenterCardProps {
   description: string;
 }
 
-const PresenterCard = ({ avatar, name, description }: PresenterCardProps) => {
+export const PresenterCard = ({ avatar, name, description }: PresenterCardProps) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -267,8 +267,8 @@ const PresenterCard = ({ avatar, name, description }: PresenterCardProps) => {
         src={avatar}
         className="w-[120px] h-[120px] rounded-full object-cover"
       />
-      <h1 className="text-xl font-bold text-text-gray">{name}</h1>
-      <Button className="!bg-indigo mt-auto" onClick={() => setShowModal(true)}>
+      <h1 className="text-xl font-extrabold text-text-gray mt-2">{name}</h1>
+      <Button className="!bg-indigo mt-2" onClick={() => setShowModal(true)}>
         اطلاعات بیشتر
       </Button>
 
