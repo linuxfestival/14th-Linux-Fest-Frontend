@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { useAppDispatch } from "../../../store.ts";
 import {
   PresentationDto,
+  PresentationService,
   Tag as TagType,
 } from "../../../core/presentations/presentations.dto.ts";
 import { toast } from "react-toastify";
@@ -22,9 +23,10 @@ import {
 import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
 import { useNavigate } from "react-router-dom";
-import { FaAngleDoubleDown } from "react-icons/fa";
+import { FaAngleDoubleDown, FaLaptop } from "react-icons/fa";
 import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
 import { TiPin } from "react-icons/ti";
+import { GrWorkshop } from "react-icons/gr";
 
 interface WorkshopCardProps {
   id: number;
@@ -131,6 +133,18 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
             dir="auto"
             dangerouslySetInnerHTML={{ __html: description }}
           />
+        </div>
+        <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
+          {presentation?.service_type === PresentationService.TALK ? (
+            <FaLaptop size={18} className="text-indigo" />
+          ) : (
+            <GrWorkshop size={18} className="text-indigo" />
+          )}
+          <p className="text-sm text-white" dir="ltr">
+            {presentation?.service_type === PresentationService.TALK
+              ? "آنلاین"
+              : "حضوری"}
+          </p>
         </div>
         <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
           <IoTime size={18} className="text-indigo" />
