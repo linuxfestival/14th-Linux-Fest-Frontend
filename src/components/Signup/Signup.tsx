@@ -1,7 +1,7 @@
 import BadgeLinux from "../../assets/penwing.png";
 import Button from "../../components/Common/Button/Button.tsx";
 import InputField from "../Common/Button/Input.tsx";
-import { useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useSelector } from "react-redux";
 import { signupThunk } from "../../core/auth/auth.thunk.ts";
 import { RootState, useAppDispatch } from "../../store.ts";
@@ -110,6 +110,26 @@ const Signup = () => {
     isPasswordValid,
     isRepeatPassValid,
   ]);
+
+  useEffect(() => {
+    console.log(
+        isEmailValid,
+        isFirstNameValid,
+        isLastNameValid,
+        isPhoneNumberValid,
+        isPasswordValid,
+        isRepeatPassValid,
+        isFormValid
+    )
+  }, [
+    isEmailValid,
+    isFirstNameValid,
+    isLastNameValid,
+    isPhoneNumberValid,
+    isPasswordValid,
+    isRepeatPassValid,
+    isFormValid
+  ])
 
   const signup = async () => {
     if (!isFormValid) {
@@ -223,7 +243,7 @@ const Signup = () => {
             />
           </div>
           <Button
-            disabled={isFormValid}
+            disabled={!isFormValid}
             loading={loading}
             onClick={signup}
             className="w-full"
