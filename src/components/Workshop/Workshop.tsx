@@ -54,6 +54,7 @@ const Workshop = () => {
   const selectItemInCart = useSelector(selectItemInCartById(Number(id)));
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [persianDescription, setPersianDescription] = useState(true);
 
   const addToCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -90,7 +91,7 @@ const Workshop = () => {
 
       <div className="w-full h-[58vh] sm:h-[50vh] flex justify-between items-center gap-4 bg-[#272d35] pt-36 px-16 xl:px-48">
         <h1 className="font-bold text-3xl lg:text-5xl w-full text-center md:w-1/2">
-          {presentation.title}
+          {presentation.fa_title}
         </h1>
         <InfoCard presentation={presentation} className="hidden md:flex" />
       </div>
@@ -103,8 +104,18 @@ const Workshop = () => {
           <h1 className="text-2xl lg:text-4xl font-bold">توضیحات ارائه:</h1>
           <div
             className="text-xl lg:text-2xl text-text-gray mt-2"
-            dangerouslySetInnerHTML={{ __html: presentation.description }}
+            dangerouslySetInnerHTML={{
+              __html: persianDescription
+                ? presentation.fa_description
+                : presentation.en_description,
+            }}
           />
+          <p
+            className="text-md text-indigo w-full mt-2 cursor-pointer"
+            onClick={() => setPersianDescription(!persianDescription)}
+          >
+            {persianDescription ? "ترجمه به انگلیسی" : "ترجمه به فارسی"}
+          </p>
           <Button
             size={ButtonSizes.SMALL}
             disabled={presentation.remained_capacity === 0}
@@ -184,7 +195,7 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
   return (
     <div
       className={clsx(
-        "relative top-28 w-1/4 md:w-1/3 min-w-[350px] lg:min-w-[400px] flex flex-col justify-center items-start mt-4 rounded-xl bg-light-gray z-1",
+        "relative top-36 w-1/4 md:w-1/3 min-w-[350px] lg:min-w-[400px] flex flex-col justify-center items-start mt-4 rounded-xl bg-light-gray z-1",
         className
       )}
     >
@@ -250,7 +261,11 @@ interface PresenterCardProps {
   description: string;
 }
 
-export const PresenterCard = ({ avatar, name, description }: PresenterCardProps) => {
+export const PresenterCard = ({
+  avatar,
+  name,
+  description,
+}: PresenterCardProps) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {

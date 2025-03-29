@@ -75,6 +75,14 @@ const Login = () => {
 
       await router.navigate("/");
     } else {
+      console.log("!@! ", result.payload);
+      const payload = result.payload as { [key: string]: any };
+      if (
+        payload.detail === "No active account found with the given credentials"
+      ) {
+        passwordInput.setErrorText("رمز عبور یا شماره تلفن اشتباه است");
+        return;
+      }
       displayCommonErrorToast(result);
     }
   };

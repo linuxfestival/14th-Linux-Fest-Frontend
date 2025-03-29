@@ -9,7 +9,7 @@ import {
 import { CartItemDto } from "./cart.types";
 import { selectPresentationById } from "../presentations/presentations.selector";
 import { CouponStatus, AccessoryDto } from "./cart.api.ts";
-import {logout} from "../auth/auth.slice.ts";
+import { logout } from "../auth/auth.slice.ts";
 
 export enum CartPage {
   Cart = 1,
@@ -53,17 +53,18 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.items = [];
       state.totalAmount = 0;
-      state.selectedAccessories = []
-      state.discountedAmount = 0
+      state.selectedAccessories = [];
+      state.discountedAmount = 0;
     },
     updateTotalAmount(state) {
       state.totalAmount = state.items.reduce(
-        (acc, cur) => acc + cur.presentation.cost,
+        (acc, cur) =>
+          cur.payment_state === "PENDING" ? acc + cur.presentation.cost : acc,
         0
       );
       state.totalAmount += state.accessoryList
-          .filter(el => state.selectedAccessories.includes(el.id))
-          .reduce((acc, cur) => acc + cur.price, 0);
+        .filter((el) => state.selectedAccessories.includes(el.id))
+        .reduce((acc, cur) => acc + cur.price, 0);
       if (state.couponStatus != null && state.couponStatus.is_valid)
         state.discountedAmount =
           ((100 - state.couponStatus.percentage) / 100) * state.totalAmount;
@@ -80,13 +81,13 @@ const cartSlice = createSlice({
         state.selectedAccessories.push(action.payload);
       }
 
-      cartSlice.caseReducers.updateTotalAmount(state)
+      cartSlice.caseReducers.updateTotalAmount(state);
     },
     removeAccessory(state, action: PayloadAction<AccessoryDto["id"]>) {
       state.selectedAccessories = state.selectedAccessories.filter(
         (accessoryID) => accessoryID !== action.payload
       );
-      cartSlice.caseReducers.updateTotalAmount(state)
+      cartSlice.caseReducers.updateTotalAmount(state);
     },
   },
   extraReducers: (builder) => {

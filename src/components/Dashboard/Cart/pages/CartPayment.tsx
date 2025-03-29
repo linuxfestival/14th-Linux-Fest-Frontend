@@ -16,7 +16,10 @@ import {
 import { selectCartState } from "../../../../core/cart/cart.selector.ts";
 import Skeleton from "../../../Skeleton/Skeleton.tsx";
 import { AccessoryDto } from "../../../../core/cart/cart.api.ts";
-import { digitsToLatin } from "../../../../utils/digitsToPersian.ts";
+import {
+  digitsToLatin,
+  digitsToPersian,
+} from "../../../../utils/digitsToPersian.ts";
 import { IoCloseCircleSharp } from "react-icons/io5";
 
 const CartPayment = () => {
@@ -162,7 +165,7 @@ const CartPayment = () => {
             <div className="flex justify-between">
               <p>مجموع قابل پرداخت:</p>
               <p className="text-3xl font-bold">
-                {digitsToLatin(String(totalAmount))}
+                {digitsToPersian(String(totalAmount))}
                 <span className="text-sm font-normal">تومان</span>
               </p>
             </div>
@@ -170,10 +173,10 @@ const CartPayment = () => {
             <div className="flex gap-1">
               <p className="ml-auto">مجموع قابل پرداخت:</p>
               <p className="line-through text-xl text-red-500">
-                {digitsToLatin(String(totalAmount))}
+                {digitsToPersian(String(totalAmount))}
               </p>
               <p className="text-green-500 text-3xl font-bold">
-                {digitsToLatin(String(discountedAmount))}
+                {digitsToPersian(String(discountedAmount))}
                 <span className="text-sm font-normal">تومان</span>
               </p>
             </div>

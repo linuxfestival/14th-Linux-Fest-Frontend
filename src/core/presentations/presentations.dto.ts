@@ -22,8 +22,10 @@ export interface PresentationDto {
   capacity: number;
   start: Date;
   end: Date;
-  description: string;
-  title: string;
+  en_description: string;
+  fa_description: string;
+  en_title: string;
+  fa_title: string;
   remained_capacity: number;
   id: number;
   cost: number;

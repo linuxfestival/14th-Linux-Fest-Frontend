@@ -7,6 +7,7 @@ import { useAppDispatch } from "../../../store.ts";
 import {
   PresentationDto,
   PresentationService,
+  PresenterDto,
   Tag as TagType,
 } from "../../../core/presentations/presentations.dto.ts";
 import { toast } from "react-toastify";
@@ -31,27 +32,33 @@ import { GrWorkshop } from "react-icons/gr";
 interface WorkshopCardProps {
   id: number;
   title?: string;
-  description: string;
+  subTitle?: string;
+  description?: string;
   dateTime?: string;
   price: number;
   tags?: TagType[];
   showAddToCart?: boolean;
-  presentation?: PresentationDto;
   className?: string;
   pinned?: boolean;
+  banner?: string;
+  service_type: PresentationService;
+  presenters: PresenterDto[];
 }
 
 const WorkshopCard: React.FC<WorkshopCardProps> = ({
   id,
   title,
+  subTitle,
   description,
   dateTime,
   price,
   tags,
   showAddToCart,
-  presentation,
   className,
   pinned,
+  banner,
+  service_type,
+  presenters,
 }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -66,10 +73,10 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
       return;
     }
     setButtonLoading(true);
-    await dispatch(addItemToCartThunk(presentation?.id ?? 0));
+    await dispatch(addItemToCartThunk(id ?? 0));
     await dispatch(getCartThunk());
     setButtonLoading(false);
-  }, [dispatch, presentation?.id]);
+  }, [dispatch, id]);
 
   const removeFromCart = useCallback(async () => {
     if (!selectItemInCart) return;
@@ -99,8 +106,8 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
       >
         <img
           src={
-            presentation?.morkopoloyor !== ""
-              ? presentation?.morkopoloyor
+            banner !== ""
+              ? banner
               : "https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
           }
           className="w-full h-[120px] object-cover"
@@ -125,29 +132,42 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
             ))}
           </div>
         )} */}
-        <div className="flex flex-col justify-start items-start mt-4 px-4 h-[120px]">
+        <div
+          className={clsx("flex flex-col justify-start items-start mt-4 px-4", {
+            ["h-[160px]"]: !subTitle && description,
+            ["h-[120px]"]: subTitle && !description,
+          })}
+        >
           <h1
             className={clsx("text-2xl font-bold text-white line-clamp-2")}
             dir="auto"
           >
             {title}
           </h1>
-          <div
-            className="w-full text-sm text-text-gray line-clamp-3 mt-2"
-            dir="auto"
-            dangerouslySetInnerHTML={{ __html: description }}
-          />
+          {subTitle && (
+            <p
+              className="w-full text-sm text-text-gray/50 line-clamp-2 my-2"
+              dir="ltr"
+            >
+              {subTitle}
+            </p>
+          )}
+          {description && (
+            <div
+              className="w-full text-sm text-text-gray line-clamp-3 mt-2"
+              dir="auto"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          )}
         </div>
         <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
-          {presentation?.service_type === PresentationService.TALK ? (
+          {service_type === PresentationService.TALK ? (
             <FaLaptop size={18} className="text-indigo" />
           ) : (
             <GrWorkshop size={18} className="text-indigo" />
           )}
           <p className="text-sm text-white" dir="ltr">
-            {presentation?.service_type === PresentationService.TALK
-              ? "آنلاین"
-              : "حضوری"}
+            {service_type === PresentationService.TALK ? "آنلاین" : "حضوری"}
           </p>
         </div>
         <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
@@ -164,15 +184,15 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           <IoPerson size={18} className="text-indigo" />
           <p className="text-white w-full">ارائه دهندگان:</p>
         </div>
-        {presentation?.presenters && (
+        {presenters && (
           <div
             className={clsx("relative flex items-center mt-2 px-4 h-[32px]", {
-              ["gap-2"]: presentation.presenters.length <= 5,
+              ["gap-2"]: presenters.length <= 5,
             })}
           >
-            {presentation.presenters.length >= 5 ? (
+            {presenters.length >= 5 ? (
               <>
-                {presentation.presenters.map((presenter, index) => {
+                {presenters.map((presenter, index) => {
                   return (
                     index < 5 && (
                       <img
@@ -186,16 +206,14 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
                 <p
                   className="absolute w-max"
                   style={{
-                    right: `${
-                      Math.min(8, presentation.presenters.length + 2) * 16
-                    }px`,
+                    right: `${Math.min(8, presenters.length + 2) * 16}px`,
                   }}
                 >
                   {digitsToLatin("بیش از 5 برگزار کننده")}
                 </p>
               </>
             ) : (
-              presentation.presenters.map((presenter, index) => {
+              presenters.map((presenter, index) => {
                 return (
                   <img
                     src={presenter.avatar}

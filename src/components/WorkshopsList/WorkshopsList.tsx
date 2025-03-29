@@ -42,7 +42,9 @@ const WorkshopsList = () => {
   const filteredPresentations = presentations
     .filter(
       (presentation) =>
-        presentation.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        presentation.fa_title
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
         PinedTypes.includes(presentation.service_type)
     )
     .sort((a, b) => {
@@ -51,7 +53,7 @@ const WorkshopsList = () => {
         case "SORT_BY_PRICE":
           return a.cost - b.cost;
         case "SORT_BY_NAME":
-          return a.title.localeCompare(b.title);
+          return a.fa_title.localeCompare(b.fa_title);
         case "SORT_BY_DATE":
         default:
           return new Date(a.start).getTime() - new Date(b.start).getTime();
@@ -81,13 +83,17 @@ const WorkshopsList = () => {
                 key={presentation.id}
                 dateTime={new Date(presentation.start).toLocaleString("fa")}
                 id={presentation.id}
-                title={presentation.title}
-                description={presentation.description}
+                title={presentation.en_title}
+                // subTitle={presentation.en_title}
+                // TODO: Remove description
+                description={presentation.en_description}
                 price={presentation.cost}
                 showAddToCart={presentation.remained_capacity > 0}
                 tags={presentation.tags}
-                presentation={presentation}
                 pinned={PinedTypes.includes(presentation.service_type)}
+                banner={presentation.morkopoloyor}
+                service_type={presentation.service_type}
+                presenters={presentation.presenters}
               />
             ))}
       </div>
