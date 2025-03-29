@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import MainLayout from "./layout/MainLayout";
+import ProfileLayout from "./layout/ProfileLayout.tsx";
 import Home from "./components/Home/Home";
 import WorkshopsList from "./components/WorkshopsList/WorkshopsList.tsx";
 import ComingSoon from "./components/ComingSoon/ComingSoon.tsx";
@@ -16,88 +16,94 @@ import CartLayout from "./components/Dashboard/Cart/CartLayout.tsx";
 import CartsList from "./components/Dashboard/Cart/pages/CartsList.tsx";
 import CartPayment from "./components/Dashboard/Cart/pages/CartPayment.tsx";
 import Workshop from "./components/Workshop/Workshop.tsx";
-import {Presenters} from "./components/Presenters/Presenters.tsx";
+import { Presenters } from "./components/Presenters/Presenters.tsx";
+import MainLayout from "./layout/MainLayout.tsx";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <Signup />,
-  },
-  {
-    path: "profile/*",
     element: <MainLayout />,
     children: [
       {
-        path: "edit",
-        element: <Edit />,
+        path: "/",
+        element: <Home />,
       },
       {
-        path: "workshops",
-        element: <ProfileWorkshops />,
+        path: "/login",
+        element: <Login />,
       },
       {
-        path: "billing",
-        element: <Billings />,
+        path: "/signup",
+        element: <Signup />,
       },
       {
-        path: "cart",
-        element: <CartLayout />,
+        path: "profile/*",
+        element: <ProfileLayout />,
         children: [
           {
-            path: "list",
-            element: <CartsList />,
+            path: "edit",
+            element: <Edit />,
           },
           {
-            path: "checkout",
-            element: <CartPayment />,
+            path: "workshops",
+            element: <ProfileWorkshops />,
+          },
+          {
+            path: "billing",
+            element: <Billings />,
+          },
+          {
+            path: "cart",
+            element: <CartLayout />,
+            children: [
+              {
+                path: "list",
+                element: <CartsList />,
+              },
+              {
+                path: "checkout",
+                element: <CartPayment />,
+              },
+            ],
           },
         ],
       },
+      {
+        path: "payment/perhaps",
+        element: <PaymentStatus />,
+      },
+      {
+        path: "workshops",
+        element: <WorkshopsList />,
+      },
+      {
+        path: "workshop/:id",
+        element: <Workshop />,
+      },
+      {
+        path: "presenters",
+        element: <Presenters />,
+      },
+      {
+        path: "login",
+        element: <ComingSoon />,
+      },
+      {
+        path: "signup",
+        element: <ComingSoon />,
+      },
+      {
+        path: "faq",
+        element: <FAQ />,
+      },
+      {
+        path: "staff",
+        element: <Staff />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
     ],
-  },
-  {
-    path: "payment/perhaps",
-    element: <PaymentStatus />,
-  },
-  {
-    path: "workshops",
-    element: <WorkshopsList />,
-  },
-  {
-    path: "workshop/:id",
-    element: <Workshop />,
-  },
-  {
-    path: "presenters",
-    element: <Presenters />,
-  },
-  {
-    path: "login",
-    element: <ComingSoon />,
-  },
-  {
-    path: "signup",
-    element: <ComingSoon />,
-  },
-  {
-    path: "faq",
-    element: <FAQ />,
-  },
-  {
-    path: "staff",
-    element: <Staff />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
   },
 ]);
 

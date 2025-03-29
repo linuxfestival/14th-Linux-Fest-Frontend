@@ -32,9 +32,9 @@ export const sidebarData: SidebarButtonType[] = [
     icon: <GrCreditCard size={24} />,
     path: "/profile/billing",
   },
-  {
-    label: "پشتیبانی",
-    icon: <MdOutlineSupportAgent size={24} />,
-    path: "/profile/support",
-  },
+  // {
+  //   label: "پشتیبانی",
+  //   icon: <MdOutlineSupportAgent size={24} />,
+  //   path: "/profile/support",
+  // },
 ];

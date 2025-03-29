@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch } from "../../../store";
 import { useSelector } from "react-redux";
 import {
@@ -18,16 +18,22 @@ const Timeline = () => {
     selectPresentationsState
   );
 
+  const [visibleCount, setVisibleCount] = useState(5); // Number of presentations to show initially
+
   useEffect(() => {
     if (!loadedFirstTime) {
       dispatch(getAllPresentationsThunk());
     }
   }, [loadedFirstTime]);
 
+  const handleShowMore = () => {
+    setVisibleCount((prevCount) => prevCount + 5); // Load 5 more presentations
+  };
+
   return (
     <>
       <div className="flex flex-col md:grid grid-cols-9 mx-auto p-4">
-        {presentations.map((presentation, index) =>
+        {presentations.slice(0, visibleCount).map((presentation, index) =>
           index % 2 === 0 ? (
             <div className="flex flex-row-reverse md:contents" key={index}>
               <div
@@ -209,7 +215,18 @@ const Timeline = () => {
         )}
       </div>
 
-      {presentations.length > 0 && (
+      {presentations.length > visibleCount && (
+        <div className="flex justify-center my-4">
+          <button
+            onClick={handleShowMore}
+            className="px-4 py-2 bg-indigo-500 text-white rounded-lg shadow hover:bg-indigo-600 transition"
+          >
+            نمایش بیشتر
+          </button>
+        </div>
+      )}
+
+      {presentations.length > 0 && visibleCount >= presentations.length && (
         <div className="w-full flex justify-center items-center my-4 p-6 border border-white/10 rounded-xl bg-gradient-to-r from-[#2C2C2C] to-[#3A3A3A] shadow-lg hover:shadow-xl transition-shadow duration-300">
           <h3 className="font-semibold text-2xl mb-2 text-white">پایان</h3>
         </div>
