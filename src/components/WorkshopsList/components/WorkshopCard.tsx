@@ -197,7 +197,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
                     index < 5 && (
                       <img
                         src={presenter.avatar}
-                        className="absolute min-w-[32px] h-[32px] rounded-full border-2 border-[#2C2C2C] z-1"
+                        className="absolute min-w-[32px] h-[32px] rounded-full border-2 border-[#2C2C2C] z-1 object-cover"
                         style={{ right: `${(index + 1) * 16}px` }}
                       />
                     )
@@ -217,7 +217,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
                 return (
                   <img
                     src={presenter.avatar}
-                    className="w-[32px] h-[32px] rounded-full z-1"
+                    className="w-[32px] h-[32px] rounded-full z-1 object-contain"
                   />
                 );
               })
