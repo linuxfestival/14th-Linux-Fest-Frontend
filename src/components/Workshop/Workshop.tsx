@@ -54,7 +54,7 @@ const Workshop = () => {
   const selectItemInCart = useSelector(selectItemInCartById(Number(id)));
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [buttonLoading, setButtonLoading] = useState(false);
-  const [persianDescription, setPersianDescription] = useState(true);
+  const [persianDescription, setPersianDescription] = useState(false);
 
   const addToCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -91,7 +91,7 @@ const Workshop = () => {
 
       <div className="w-full h-[58vh] sm:h-[50vh] flex justify-between items-center gap-4 bg-[#272d35] pt-36 px-16 xl:px-48">
         <h1 className="font-bold text-3xl lg:text-5xl w-full text-center md:w-1/2">
-          {presentation.fa_title}
+          {presentation.en_title}
         </h1>
         <InfoCard presentation={presentation} className="hidden md:flex" />
       </div>
