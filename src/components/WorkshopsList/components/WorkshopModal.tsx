@@ -29,10 +29,10 @@ const WorkshopModal = ({ presentation, price, dateTime, onClose }: Props) => {
           <div className="overflow-hidden whitespace-nowrap w-full">
             <div
               className={clsx("font-bold text-xl", {
-                ["animate-marquee"]: presentation.title.length > 40,
+                ["animate-marquee"]: presentation.en_title.length > 40,
               })}
             >
-              {presentation?.title}
+              {presentation?.en_title}
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ const WorkshopModal = ({ presentation, price, dateTime, onClose }: Props) => {
         </div>
         <div
           className="w-full h-max mt-4 text-text-gray"
-          dangerouslySetInnerHTML={{ __html: presentation.description }}
+          dangerouslySetInnerHTML={{ __html: presentation.en_description }}
         />
         <div className="w-full flex flex-col justify-start items-start">
           <Divider title="ارائه دهندگان" />

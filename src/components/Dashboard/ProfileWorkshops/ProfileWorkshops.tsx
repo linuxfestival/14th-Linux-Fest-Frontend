@@ -23,7 +23,7 @@ const ProfileWorkshops = () => {
           .filter((el) => el.payment_state === "COMPLETED")
           .map((el) => (
             <RegisteredWorkshop
-              title={el.presentation.title}
+              title={el.presentation.en_title}
               time={new Date(el.presentation.start)}
             />
           ))}

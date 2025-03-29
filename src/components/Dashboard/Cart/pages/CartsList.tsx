@@ -31,7 +31,7 @@ const CartsList = () => {
           itemsList.map(({ presentation }, index) => (
             <CartItem
               id={presentation.id}
-              title={presentation?.title}
+              title={presentation?.en_title}
               price={presentation.cost}
               instructor={presentation.presenters
                 .map((el) => `${el.first_name} ${el.last_name}`)

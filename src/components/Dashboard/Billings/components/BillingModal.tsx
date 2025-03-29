@@ -51,7 +51,7 @@ const BillingModal: React.FC<BillingModalProps> = ({
         <h3 className="text-lg font-bold mt-6">موارد خریداری شده:</h3>
         <ul className="list-disc list-inside text-sm mt-2 space-y-1">
           {payment.participations.map((item, index) => (
-            <li key={index}>{item.presentation.title}</li>
+            <li key={index}>{item.presentation.en_title}</li>
           ))}
         </ul>
         <div className="mt-8 flex justify-center">
