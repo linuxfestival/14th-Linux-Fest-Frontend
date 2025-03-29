@@ -40,7 +40,7 @@ const CartItem: React.FC<CartItemProps> = ({
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-2 w-full bg-[#2C2C2C] md:px-4 md:py-2 rounded-lg shadow-lg md:h-[100px] max-w-3/4">
       <img
-        src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+        src="https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
         className="block md:hidden lg:block min-w-1/6 min-h-[100px] md:min-w-1/4 h-full object-cover rounded-md"
       />
       <div className="flex flex-col justify-center items-start gap-1 w-full p-4">

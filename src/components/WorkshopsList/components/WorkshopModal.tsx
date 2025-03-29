@@ -38,7 +38,7 @@ const WorkshopModal = ({ presentation, price, dateTime, onClose }: Props) => {
         </div>
         <div className="flex justify-start items-center">
           <img
-            src="https://static.vecteezy.com/system/resources/thumbnails/000/701/690/small_2x/abstract-polygonal-banner-background.jpg"
+            src="https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
             className="w-1/4 h-[100px] rounded-md"
           />
           <div className="flex flex-col justify-center items-start">
