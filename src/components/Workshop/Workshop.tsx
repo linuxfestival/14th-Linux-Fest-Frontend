@@ -103,7 +103,8 @@ const Workshop = () => {
         <div className="w-full md:w-1/2 flex flex-col">
           <h1 className="text-2xl lg:text-4xl font-bold">توضیحات ارائه:</h1>
           <div
-            className="text-xl lg:text-2xl text-text-gray mt-2"
+            className={clsx("text-xl lg:text-2xl text-text-gray mt-2",
+                persianDescription ? "text-right" : 'text-left')}
             dangerouslySetInnerHTML={{
               __html: persianDescription
                 ? presentation.fa_description
