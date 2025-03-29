@@ -1,7 +1,7 @@
 import BadgeLinux from "../../assets/penwing.png";
 import Button from "../../components/Common/Button/Button.tsx";
 import InputField from "../Common/Button/Input.tsx";
-import {useEffect, useMemo, useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { signupThunk } from "../../core/auth/auth.thunk.ts";
 import { RootState, useAppDispatch } from "../../store.ts";
@@ -113,14 +113,14 @@ const Signup = () => {
 
   useEffect(() => {
     console.log(
-        isEmailValid,
-        isFirstNameValid,
-        isLastNameValid,
-        isPhoneNumberValid,
-        isPasswordValid,
-        isRepeatPassValid,
-        isFormValid
-    )
+      isEmailValid,
+      isFirstNameValid,
+      isLastNameValid,
+      isPhoneNumberValid,
+      isPasswordValid,
+      isRepeatPassValid,
+      isFormValid
+    );
   }, [
     isEmailValid,
     isFirstNameValid,
@@ -128,8 +128,8 @@ const Signup = () => {
     isPhoneNumberValid,
     isPasswordValid,
     isRepeatPassValid,
-    isFormValid
-  ])
+    isFormValid,
+  ]);
 
   const signup = async () => {
     if (!isFormValid) {
@@ -229,6 +229,7 @@ const Signup = () => {
             />
             <InputField
               type="password"
+              name="password"
               autocomplete="new-password"
               label="پسورد"
               placeholder="WowSoSecret"
@@ -236,6 +237,7 @@ const Signup = () => {
             />
             <InputField
               type="password"
+              name="password_repeat"
               autocomplete="new-password"
               label="تکرار پسورد"
               placeholder="WowSoSecret"
