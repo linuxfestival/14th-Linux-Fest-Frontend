@@ -89,20 +89,21 @@ const Header = ({ sticky = true }: Props) => {
           <Link to={"/faq"} onClick={toggleMenu}>
             سوالات متداول
           </Link>
+          <Link to={"/presenters"} onClick={toggleMenu}>ارائه‌دهندگان</Link>
           <Link to={"/staff"} onClick={toggleMenu}>
             دست اندرکاران
           </Link>
         </nav>
         <div className="w-2/3 flex flex-col items-center gap-2 mt-10">
           {isAuthenticated ? (
-            <>
-              <ShoppingCart className="mx-2" />
-              <IoPerson
-                size={30}
-                className="cursor-pointer"
-                onClick={() => navigate("/profile/edit")}
-              />
-            </>
+              <>
+                <ShoppingCart className="mx-2"/>
+                <IoPerson
+                    size={30}
+                    className="cursor-pointer"
+                    onClick={() => navigate("/profile/edit")}
+                />
+              </>
           ) : (
             <>
               <Link to="/signup" className="!w-full">
