@@ -30,7 +30,6 @@ const WorkshopsFilter = ({ onSortSelect, onSearch, onReset }: Props) => {
     const selected = e.target.value as Sort;
     onSortSelect(selected);
     setSelectedSort(selected);
-    console.log("!@ salm");
   };
 
   return (

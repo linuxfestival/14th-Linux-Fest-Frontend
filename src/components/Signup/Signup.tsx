@@ -62,7 +62,7 @@ const Signup = () => {
     validators: [
       GV.required,
       GV.minLength(8),
-      GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/),
+      GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@+!#$%^&*]{8,}$/),
     ],
     errorMessages: {
       [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
@@ -228,14 +228,14 @@ const Signup = () => {
               {...phoneNumberInput}
             />
             <InputField
-              type="text"
+              type="password"
               autocomplete="new-password"
               label="پسورد"
               placeholder="WowSoSecret"
               {...passwordInput}
             />
             <InputField
-              type="text"
+              type="password"
               autocomplete="new-password"
               label="تکرار پسورد"
               placeholder="WowSoSecret"
