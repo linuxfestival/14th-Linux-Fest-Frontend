@@ -210,8 +210,13 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
       <div className="w-full flex flex-col p-4">
         <InfoRow
           icon={IoTime}
-          title="زمان برگذاری"
+          title="زمان برگزاری"
           value={new Date(presentation.start).toLocaleString("fa")}
+        />
+        <InfoRow
+          icon={IoTime}
+          title="زمان پایان"
+          value={new Date(presentation.end).toLocaleString("fa")}
         />
         <InfoRow
           icon={IoPricetag}
