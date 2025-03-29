@@ -25,7 +25,7 @@ import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
 import { useNavigate } from "react-router-dom";
 import { FaAngleDoubleDown, FaLaptop } from "react-icons/fa";
-import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
+import { digitsToPersian } from "../../../utils/digitsToPersian.ts";
 import { TiPin } from "react-icons/ti";
 import { GrWorkshop } from "react-icons/gr";
 
@@ -209,7 +209,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
                     right: `${Math.min(8, presenters.length + 2) * 16}px`,
                   }}
                 >
-                  {digitsToLatin("بیش از 5 برگزار کننده")}
+                  {digitsToPersian("بیش از 5 برگزار کننده")}
                 </p>
               </>
             ) : (

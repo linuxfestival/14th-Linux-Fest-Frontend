@@ -12,6 +12,7 @@ interface Props {
   height: number | string;
   borderRadius?: number;
   className?: string;
+  children?: React.ReactNode;
 }
 
 const Skeleton = ({
@@ -20,6 +21,7 @@ const Skeleton = ({
   height,
   borderRadius,
   className,
+  children,
 }: Props) => {
   const baseStyles = "skeleton-shimmer";
 
@@ -41,7 +43,9 @@ const Skeleton = ({
         height: height,
         ...customBorderRadius,
       }}
-    />
+    >
+      {children}
+    </div>
   );
 };
 

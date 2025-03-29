@@ -1,61 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
+import { CountUp } from "countup.js";
 
 interface Props {
   title: string;
   number: number;
-  moreThan?: boolean;
-  increment?: boolean;
 }
 
-const StaticsCard = ({
-  title,
-  number,
-  moreThan = false,
-  increment = false,
-}: Props) => {
-  const [displayNumber, setDisplayNumber] = useState(0);
+const StaticsCard = ({ title, number }: Props) => {
+  const countupRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    if (!increment) return;
+    if (countupRef.current) {
+      const countUpAnim = new CountUp(countupRef.current, number, {
+        startVal: number / 2,
+        duration: 4,
+        useGrouping: true,
+        numerals: ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"],
+        suffix: "+",
+        enableScrollSpy: true,
+        scrollSpyOnce: true,
+      });
 
-    let start = number;
-
-    let incrementTime = Math.floor(Math.random() * 10) * 100;
-
-    let timer = setInterval(() => {
-      start += 1;
-      setDisplayNumber(start);
-    }, incrementTime);
-
-    return () => clearInterval(timer);
-  }, [number]);
-
-  const convertToPersianText = (num: number) => {
-    const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-    const persianNumbers = (num: number) =>
-      num
-        .toString()
-        .split("")
-        .map((digit) => persianDigits[parseInt(digit)])
-        .join("");
-
-    if (num >= 1_000_000_000_000) {
-      return `${persianNumbers(Math.floor(num / 1_000_000_000_000))} تریلیون`;
-    } else if (num >= 1_000_000) {
-      return `${persianNumbers(Math.floor(num / 1_000_000))} میلیون`;
-    } else if (num >= 1_000) {
-      return `${persianNumbers(Math.floor(num / 1_000))} هزار`;
-    } else {
-      return persianNumbers(num);
+      if (!countUpAnim.error) {
+        countUpAnim.start();
+      } else {
+        console.error(countUpAnim.error);
+      }
     }
-  };
+  }, [number]);
 
   return (
     <div className="flex flex-col justify-end items-center rounded-xl gap-5 w-full">
-      <h2 className="font-bold text-white text-center text-3xl xl:text-4xl">
-        {moreThan && "+"}
-        {convertToPersianText(displayNumber)}
-      </h2>
+      <h2
+        ref={countupRef}
+        className="font-bold text-white text-center text-3xl xl:text-4xl"
+      ></h2>
       <p className="text-xs md:text-xl lg:text-2xl text-text-gray mt-auto text-center">
         {title}
       </p>

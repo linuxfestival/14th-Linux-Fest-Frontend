@@ -37,7 +37,7 @@ const WorkshopsList = () => {
     if (isAuthenticated) {
       dispatch(getCartThunk());
     }
-  }, [dispatch, loadedFirstTime, isAuthenticated]);
+  }, [loadedFirstTime, isAuthenticated]);
 
   const filteredPresentations = presentations
     .filter(
