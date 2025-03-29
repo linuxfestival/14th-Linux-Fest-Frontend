@@ -60,7 +60,7 @@ const Timeline = () => {
                               <img
                                 key={index}
                                 src={presenter.avatar}
-                                className="absolute min-w-[40px] h-[40px] rounded-full border-2 border-[#2C2C2C] z-1"
+                                className="absolute min-w-[40px] h-[40px] rounded-full border-2 border-[#2C2C2C] z-1 object-cover"
                                 style={{ right: `${(index + 1) * 20}px` }}
                               />
                             )
@@ -84,7 +84,7 @@ const Timeline = () => {
                           <img
                             key={index}
                             src={presenter.avatar}
-                            className="w-[40px] h-[40px] rounded-full z-1"
+                            className="w-[40px] h-[40px] rounded-full z-1 object-cover"
                           />
                         );
                       })
@@ -167,7 +167,7 @@ const Timeline = () => {
                               <img
                                 key={index}
                                 src={presenter.avatar}
-                                className="absolute min-w-[40px] h-[40px] rounded-full border-2 border-[#2C2C2C] z-1"
+                                className="absolute min-w-[40px] h-[40px] rounded-full border-2 border-[#2C2C2C] z-1 object-cover"
                                 style={{ right: `${(index + 1) * 20}px` }}
                               />
                             )
@@ -191,7 +191,7 @@ const Timeline = () => {
                           <img
                             key={index}
                             src={presenter.avatar}
-                            className="w-[40px] h-[40px] rounded-full z-1"
+                            className="w-[40px] h-[40px] rounded-full z-1 object-cover"
                           />
                         );
                       })
