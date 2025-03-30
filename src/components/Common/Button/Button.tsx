@@ -55,7 +55,8 @@ const Button = ({
         disabled || loading || !onClick
           ? undefined
           : (e) => {
-              e.stopPropagation();
+              e.stopPropagation(); // TODO: put prop for this, but i forgot for what page i put this here so i will not remove it
+              e.preventDefault();
               onClick();
             }
       }

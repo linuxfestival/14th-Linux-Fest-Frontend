@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Header from "../Header/Header.tsx";
 import WorkshopCard, {
   WorkshopCardSkeleton,
@@ -39,26 +39,33 @@ const WorkshopsList = () => {
     }
   }, [loadedFirstTime, isAuthenticated]);
 
-  const filteredPresentations = presentations
-    .filter(
-      (presentation) =>
-        presentation.fa_title
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        PinedTypes.includes(presentation.service_type)
-    )
-    .sort((a, b) => {
-      if (PinedTypes.includes(a.service_type)) return -1; // handle pinned types
-      switch (sortType) {
-        case "SORT_BY_PRICE":
-          return a.cost - b.cost;
-        case "SORT_BY_NAME":
-          return a.fa_title.localeCompare(b.fa_title);
-        case "SORT_BY_DATE":
-        default:
-          return new Date(a.start).getTime() - new Date(b.start).getTime();
-      }
-    });
+  const pinnedPresentations = useMemo(() => {
+    return presentations.filter((presentation) =>
+      PinedTypes.includes(presentation.service_type)
+    );
+  }, [presentations]);
+
+  const filteredPresentations = useMemo(() => {
+    return presentations
+      .filter(
+        (presentation) =>
+          presentation.fa_title
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) &&
+          !PinedTypes.includes(presentation.service_type)
+      )
+      .sort((a, b) => {
+        switch (sortType) {
+          case "SORT_BY_PRICE":
+            return a.cost - b.cost;
+          case "SORT_BY_NAME":
+            return a.fa_title.localeCompare(b.fa_title);
+          case "SORT_BY_DATE":
+          default:
+            return new Date(a.start).getTime() - new Date(b.start).getTime();
+        }
+      });
+  }, [presentations, searchText, sortType]);
 
   return (
     <div className="relative min-h-[100dvh] w-full flex flex-col justify-between items-center bg-pattern">
@@ -74,11 +81,13 @@ const WorkshopsList = () => {
           onSortSelect={setSortType}
         />
 
-        {presentationLoading
-          ? Array(6)
-              .fill(null)
-              .map((_, index) => <WorkshopCardSkeleton key={index} />)
-          : filteredPresentations.map((presentation) => (
+        {presentationLoading ? (
+          Array(6)
+            .fill(null)
+            .map((_, index) => <WorkshopCardSkeleton key={index} />)
+        ) : (
+          <>
+            {pinnedPresentations.map((presentation) => (
               <WorkshopCard
                 key={presentation.id}
                 dateTime={new Date(presentation.start).toLocaleString("fa")}
@@ -90,12 +99,31 @@ const WorkshopsList = () => {
                 price={presentation.cost}
                 showAddToCart={presentation.remained_capacity > 0}
                 tags={presentation.tags}
-                pinned={PinedTypes.includes(presentation.service_type)}
+                pinned
                 banner={presentation.morkopoloyor}
                 service_type={presentation.service_type}
                 presenters={presentation.presenters}
               />
             ))}
+            {filteredPresentations.map((presentation) => (
+              <WorkshopCard
+                key={presentation.id}
+                dateTime={new Date(presentation.start).toLocaleString("fa")}
+                id={presentation.id}
+                title={presentation.en_title}
+                // subTitle={presentation.en_title}
+                // TODO: Remove description
+                description={presentation.en_description}
+                price={presentation.cost}
+                showAddToCart={presentation.remained_capacity > 0}
+                tags={presentation.tags}
+                banner={presentation.morkopoloyor}
+                service_type={presentation.service_type}
+                presenters={presentation.presenters}
+              />
+            ))}
+          </>
+        )}
       </div>
 
       <Footer />

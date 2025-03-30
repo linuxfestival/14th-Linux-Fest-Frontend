@@ -23,7 +23,7 @@ import {
 } from "../../../core/cart/cart.selector.ts";
 import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaAngleDoubleDown, FaLaptop } from "react-icons/fa";
 import { digitsToPersian } from "../../../utils/digitsToPersian.ts";
 import { TiPin } from "react-icons/ti";
@@ -76,7 +76,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
     await dispatch(addItemToCartThunk(id ?? 0));
     await dispatch(getCartThunk());
     setButtonLoading(false);
-  }, [dispatch, id]);
+  }, [id]);
 
   const removeFromCart = useCallback(async () => {
     if (!selectItemInCart) return;
@@ -84,15 +84,15 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
     await dispatch(removeItemFromCartThunk(selectItemInCart?.id));
     await dispatch(getCartThunk());
     setButtonLoading(false);
-  }, [dispatch, selectItemInCart]);
+  }, [selectItemInCart]);
 
-  const handleClick = () => {
-    navigate(`/workshop/${id}`);
-  };
+  // const handleClick = () => {
+  //   navigate(`/workshop/${id}`);
+  // };
 
   return (
     <>
-      <div
+      <Link
         className={clsx(
           "relative flex flex-col rounded-xl bg-[#2C2C2C] w-[320px] h-max shadow-lg hover:shadow-xl transition-shadow overflow-hidden cursor-pointer",
           className,
@@ -102,7 +102,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           }
         )}
         dir="rtl"
-        onClick={handleClick}
+        to={`/workshop/${id}`}
       >
         <img
           src={
@@ -116,7 +116,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           <>
             <TiPin
               size={24}
-              className="text-bg-secondary absolute top-2 right-2"
+              className="text-ubuntu-red absolute top-1 right-1"
             />
             <div className="absolute left-0 top-0 h-12 w-12">
               <div className="bg-ubuntu-red absolute transform -rotate-45 text-center text-white font-semibold py-1 left-[-50px] top-[24px] w-[170px]">
@@ -246,7 +246,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
             {price === 0 ? "رایگان!" : `${price / 1000} هزار تومان`}
           </p>
         </div>
-      </div>
+      </Link>
 
       {/* {showModal && presentation && (
         <WorkshopModal

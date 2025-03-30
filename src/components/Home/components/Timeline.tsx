@@ -186,15 +186,24 @@ const Timeline = () => {
                         </p>
                       </>
                     ) : (
-                      presentation.presenters.map((presenter, index) => {
-                        return (
-                          <img
-                            key={index}
-                            src={presenter.avatar}
-                            className="w-[40px] h-[40px] rounded-full z-1 object-cover"
-                          />
-                        );
-                      })
+                      <>
+                        {presentation.presenters.map((presenter, index) => {
+                          return (
+                            <img
+                              key={index}
+                              src={presenter.avatar}
+                              className="w-[40px] h-[40px] rounded-full z-1 object-cover"
+                            />
+                          );
+                        })}
+                        {presentation.presenters.length < 3 && (
+                          <p className="text-sm text-gray-300">
+                            {presentation.presenters
+                              .map((p) => `${p.first_name} ${p.last_name}`)
+                              .join("و")}
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

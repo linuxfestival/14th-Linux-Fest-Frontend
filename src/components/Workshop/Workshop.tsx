@@ -1,21 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-import { Navigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import {
-  selectCurrentPresentation,
-  selectPresentationById,
-  selectPresentationsState,
-} from "../../core/presentations/presentations.selector";
+import { selectCurrentPresentation } from "../../core/presentations/presentations.selector";
 import { useAppDispatch } from "../../store";
-import {
-  getAllPresentationsThunk,
-  getPresentationByIDThunk,
-} from "../../core/presentations/presentations.thunk";
+import { getPresentationByIDThunk } from "../../core/presentations/presentations.thunk";
 import {
   IoCloseOutline,
-  IoLaptop,
+  IoInformation,
   IoPeople,
   IoPricetag,
   IoPricetagOutline,
@@ -37,7 +30,7 @@ import {
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import Divider from "../Divider/Divider";
 import { createPortal } from "react-dom";
-import { digitsToLatin, digitsToPersian } from "../../utils/digitsToPersian";
+import { digitsToPersian } from "../../utils/digitsToPersian";
 import {
   PresentationDto,
   PresentationService,
@@ -45,6 +38,7 @@ import {
 import { FaLaptop } from "react-icons/fa";
 import { Tag } from "../Common/Button/Tag";
 import Skeleton, { SkeletonVariants } from "../Skeleton/Skeleton";
+import { Tooltip } from "react-tooltip";
 
 const Workshop = () => {
   const dispatch = useAppDispatch();
@@ -103,8 +97,8 @@ const Workshop = () => {
         <div className="w-full md:w-1/2 flex flex-col">
           <h1 className="text-2xl lg:text-4xl font-bold">توضیحات ارائه:</h1>
           <div
-            className={clsx("text-xl lg:text-2xl text-text-gray mt-2",
-                persianDescription ? "text-right" : 'text-left')}
+            className={clsx("text-xl lg:text-2xl text-text-gray mt-2")}
+            dir={persianDescription ? "rtl" : "ltr"}
             dangerouslySetInnerHTML={{
               __html: persianDescription
                 ? presentation.fa_description
@@ -171,9 +165,10 @@ interface InfoRowProps {
   icon: IconType;
   title: string;
   value: string;
+  info?: string;
 }
 
-const InfoRow = ({ icon: Icon, title, value }: InfoRowProps) => (
+const InfoRow = ({ icon: Icon, title, value, info }: InfoRowProps) => (
   <div className="w-full flex justify-between items-center py-4 border-b-1 border-text-gray/20 first-of-type:pt-0  last-of-type:pb-0 last-of-type:border-0">
     <div className="w-max flex justify-center items-center gap-2">
       <Icon size={18} className="text-indigo" />
@@ -181,9 +176,25 @@ const InfoRow = ({ icon: Icon, title, value }: InfoRowProps) => (
         {title}
       </p>
     </div>
-    <p className="text-xl text-white" dir="rtl">
-      {digitsToPersian(value)}
-    </p>
+    <div className="w-max flex justify-center items-center">
+      <p className="text-xl text-white" dir="rtl">
+        {digitsToPersian(value)}
+      </p>
+      {info && (
+        <div
+          className="p-0.5 rounded-md bg-indigo mr-1"
+          data-tooltip-id={`tooltip-${title}`}
+          data-tooltip-content={info}
+        >
+          <IoInformation className=" text-primary" />
+        </div>
+      )}
+      <Tooltip
+        id={`tooltip-${title}`}
+        place="top-start"
+        border="1px solid white"
+      />
+    </div>
   </div>
 );
 
@@ -196,7 +207,7 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
   return (
     <div
       className={clsx(
-        "relative top-36 w-1/4 md:w-1/3 min-w-[350px] lg:min-w-[400px] flex flex-col justify-center items-start mt-4 rounded-xl bg-light-gray z-1",
+        "relative top-44 w-1/4 md:w-1/3 min-w-[350px] lg:min-w-[400px] flex flex-col justify-center items-start mt-4 rounded-xl bg-light-gray z-1",
         className
       )}
     >
@@ -218,6 +229,11 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
           icon={IoTime}
           title="زمان پایان"
           value={new Date(presentation.end).toLocaleString("fa")}
+          info={
+            presentation.id === 17
+              ? "زمان شروع روز دوم ساعت 9:00 می باشد"
+              : undefined
+          }
         />
         <InfoRow
           icon={IoPricetag}
@@ -231,7 +247,9 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
         <InfoRow
           icon={IoPeople}
           title="ظرفیت باقیمانده"
-          value={`${presentation.remained_capacity} / ${presentation.capacity}`}
+          value={`${presentation.remained_capacity} / ${
+            presentation.capacity + 25
+          }`}
         />
         <InfoRow
           icon={FaLaptop}
