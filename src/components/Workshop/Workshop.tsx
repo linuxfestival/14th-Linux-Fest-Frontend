@@ -224,14 +224,21 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
           icon={IoTime}
           title="زمان برگزاری"
           value={new Date(presentation.start).toLocaleString("fa")}
+          info={
+            // Replace this shit if you have the time and the energy. I don't
+            presentation.id === 17|| presentation.id === 15
+                ? "زمان پایان روز اول کارگاه، 19:00 و زمان شروع روز دوم ساعت 9:00 می باشد"
+                : undefined
+          }
         />
         <InfoRow
           icon={IoTime}
           title="زمان پایان"
           value={new Date(presentation.end).toLocaleString("fa")}
           info={
-            presentation.id === 17
-              ? "زمان شروع روز دوم ساعت 9:00 می باشد"
+            // Replace this shit if you have the time and the energy. I don't
+            presentation.id === 17 || presentation.id === 15
+              ? "زمان پایان روز اول کارگاه، 19:00 و زمان شروع روز دوم ساعت 9:00 می باشد"
               : undefined
           }
         />
