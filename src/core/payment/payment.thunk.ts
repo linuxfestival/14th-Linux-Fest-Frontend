@@ -45,7 +45,7 @@ export const finalizePaymentThunk = createAsyncThunk(
             // Call the API to register the user
             const response: AxiosResponse<FinalizePaymentResponse> = await finalizePayment(request);
 
-            return response.data;
+            return {data: response.data, status: response.status};
         } catch (error: any) {
             // TODO: Error handling
             const errorMessage = error?.response?.data;

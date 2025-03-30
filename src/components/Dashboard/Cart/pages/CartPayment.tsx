@@ -89,12 +89,18 @@ const CartPayment = () => {
         accessories: selectedAccessories,
       })
     ).then((result) => {
+      const status_code = result.payload.status;
+      const data = result.payload.data;
       if (finalizePaymentThunk.fulfilled.match(result)) {
-        if (result.payload.payment_url)
-          location.href = result.payload.payment_url;
+        if (data.payment_url)
+          location.href = data.payment_url;
+        else if (status_code === 204) {
+          toast.success("پرداخت با موفقیت انجام شد!")
+          navigate("/profile/workshops")
+        }
         else
           toast.error(
-            result.payload?.detail ??
+              data?.detail ??
               "ارور نامشخص! لطفا با پیشتیبانی ارتباط بگیرید."
           );
       } else {

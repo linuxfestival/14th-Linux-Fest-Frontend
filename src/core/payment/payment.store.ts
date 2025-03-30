@@ -40,12 +40,11 @@ const paymentSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(finalizePaymentThunk.fulfilled, (state, action: PayloadAction<FinalizePaymentResponse>) => {
+            .addCase(finalizePaymentThunk.fulfilled, (state) => {
                 state.loading = false;
             })
             .addCase(finalizePaymentThunk.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
             })
             .addCase(verifyPaymentThunk.pending, (state) => {
                 state.loading = true;
