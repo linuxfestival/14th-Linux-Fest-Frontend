@@ -45,6 +45,7 @@ export const Presenters = () => {
                         avatar={el.avatar}
                         name={`${el.first_name} ${el.last_name}`}
                         description={el.description}
+                        linkedin={el.linkedin}
                     />
                 ))}
             </div>
