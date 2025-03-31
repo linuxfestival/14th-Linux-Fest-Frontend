@@ -260,7 +260,7 @@ const InfoCard = ({ presentation, className }: InfoCardProps) => {
         />
         <InfoRow
           icon={FaLaptop}
-          title="نوع برگذاری"
+          title="نوع برگزاری"
           value={`${
             presentation.service_type === PresentationService.TALK
               ? "آنلاین"

@@ -89,8 +89,8 @@ const CartPayment = () => {
         accessories: selectedAccessories,
       })
     ).then((result) => {
-      const status_code = result.payload.status;
-      const data = result.payload.data;
+      const status_code = (result.payload as any).status;
+      const data = (result.payload as any).data;
       if (finalizePaymentThunk.fulfilled.match(result)) {
         if (data.payment_url)
           location.href = data.payment_url;
