@@ -3,6 +3,8 @@ import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import {StaffModel, StaffTeam, StaffTeamTranslation} from "../../models/StaffModel.ts";
 import {makeCall} from "../../utils/makeCall.ts";
+import {Link} from "react-router-dom";
+import {FaLinkedin} from "react-icons/fa";
 
 const ComingSoon = () => {
     const [staff, setStaff] = useState<StaffModel[]>([]);
@@ -53,6 +55,16 @@ const ComingSoon = () => {
                                          className="w-32 h-32 mx-auto rounded-full object-cover"/>
                                     <h3 className="text-xl font-semibold mt-2">{director.name}</h3>
                                     <p className="italic">"{director.quote}"</p>
+                                    {director.linkedin &&
+                                        <div className="flex justify-center mt-2">
+                                            <Link to={director.linkedin} target={"_blank"}>
+                                                <FaLinkedin
+                                                    className="text-secondary"
+                                                    size={30}
+                                                />
+                                            </Link>
+                                        </div>
+                                    }
                                 </div>
                             ))}
                         </div>
@@ -85,6 +97,16 @@ const ComingSoon = () => {
                                                          className="w-32 h-32 mx-auto rounded-full object-cover"/>
                                                     <h3 className="text-xl font-bold mt-2">{head.name}</h3>
                                                     <p className="italic">"{head.quote}"</p>
+                                                    {head.linkedin &&
+                                                        <div className="flex justify-center mt-2">
+                                                            <Link to={head.linkedin} target={"_blank"}>
+                                                                <FaLinkedin
+                                                                    className="text-secondary"
+                                                                    size={30}
+                                                                />
+                                                            </Link>
+                                                        </div>
+                                                    }
                                                 </div>
                                             )}
 
@@ -96,6 +118,16 @@ const ComingSoon = () => {
                                                          className="w-24 h-24 mx-auto rounded-full object-cover"/>
                                                     <h3 className="text-lg font-semibold mt-2">{member.name}</h3>
                                                     <p className="italic">"{member.quote}"</p>
+                                                    {member.linkedin &&
+                                                        <div className="flex justify-center mt-2">
+                                                            <Link to={member.linkedin} target={"_blank"}>
+                                                                <FaLinkedin
+                                                                    className="text-secondary"
+                                                                    size={30}
+                                                                />
+                                                            </Link>
+                                                        </div>
+                                                    }
                                                 </div>
                                             ))}
                                         </div>
@@ -106,9 +138,9 @@ const ComingSoon = () => {
                     })}
                 </div>
             </div>
-                <Footer/>
-            </>
-            );
-            };
+            <Footer/>
+        </>
+    );
+};
 
-            export default ComingSoon;
+export default ComingSoon;

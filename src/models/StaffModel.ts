@@ -5,6 +5,7 @@ export interface StaffModel {
     quote: string;
     role: StaffRole;
     team: StaffTeam;
+    linkedin?: string;
 }
 
 export enum StaffRole {
