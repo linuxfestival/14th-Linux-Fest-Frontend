@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "../../../store";
 import { useSelector } from "react-redux";
 import {
@@ -14,9 +14,15 @@ import Skeleton from "../../Skeleton/Skeleton";
 const Timeline = () => {
   const dispatch = useAppDispatch();
   const presentationLoading = useSelector(selectIsPresentationLoading);
-  const { list: presentations, loadedFirstTime } = useSelector(
+  const { list: rawPresentations, loadedFirstTime } = useSelector(
     selectPresentationsState
   );
+
+  const presentations = useMemo(() => {
+    return [...rawPresentations].sort(
+      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+    );
+  }, [rawPresentations]);
 
   const [visibleCount, setVisibleCount] = useState(5); // Number of presentations to show initially
 
@@ -33,7 +39,7 @@ const Timeline = () => {
   return (
     <>
       <div className="flex flex-col md:grid grid-cols-9 mx-auto p-4">
-        {presentations.slice(0, visibleCount).map((presentation, index) =>
+        {presentations.map((presentation, index) =>
           index % 2 === 0 ? (
             <div className="flex flex-row-reverse md:contents" key={index}>
               <div
@@ -93,7 +99,7 @@ const Timeline = () => {
                 )}
                 <div className="w-full flex flex-row-reverse items-center gap-2 text-gray-400 mt-2">
                   <IoTime size={18} className="text-indigo-500" />
-                  <p>{new Date(presentation.start).toLocaleString()}</p>
+                  <p>{new Date(presentation.start).toLocaleString("fa")}</p>
                 </div>
                 <p
                   className="text-gray-400 line-clamp-2"
@@ -209,7 +215,7 @@ const Timeline = () => {
                 )}
                 <div className="flex items-center gap-2 text-gray-400 my-2">
                   <IoTime size={18} className="text-indigo-500" />
-                  <p>{new Date(presentation.start).toLocaleString()}</p>
+                  <p>{new Date(presentation.start).toLocaleString("fa")}</p>
                 </div>
                 <p
                   className="text-gray-400 line-clamp-2"
