@@ -11,10 +11,10 @@ const Terminal = ({ windowName, children, className }: Props) => {
   return (
     <div className={clsx("w-2/3 h-max mt-15", className)}>
       <div className="relative bg-primary w-full flex items-center justify-center rounded-t-lg">
-        <div className="flex gap-1 absolute left-2">
-          <div className="w-[15px] h-[15px] bg-[#FE534F] rounded-full"></div>
-          <div className="w-[15px] h-[15px] bg-[#F7B72E] rounded-full"></div>
-          <div className="w-[15px] h-[15px] bg-[#21C735] rounded-full"></div>
+        <div className="flex gap-1 sm:gap-2 md:gap-3 absolute right-2">
+          <div className="w-[15px] h-[15px] bg-[#ff4748] rounded-full"></div>
+          <div className="w-[15px] h-[15px] bg-[#9629cc] rounded-full"></div>
+          <div className="w-[15px] h-[15px] bg-[#fccf18] rounded-full"></div>
         </div>
         <span className="mt-1">{windowName}</span>
       </div>
