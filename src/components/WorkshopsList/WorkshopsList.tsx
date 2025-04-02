@@ -40,31 +40,46 @@ const WorkshopsList = () => {
   }, [loadedFirstTime, isAuthenticated]);
 
   const pinnedPresentations = useMemo(() => {
-    return presentations.filter((presentation) =>
-      PinedTypes.includes(presentation.service_type) && presentation.remained_capacity !== 0
+    return presentations.filter(
+      (presentation) =>
+        PinedTypes.includes(presentation.service_type) &&
+        presentation.remained_capacity !== 0
     );
   }, [presentations]);
 
-  const filteredPresentations = useMemo(() => {
-    return presentations
-      .filter(
-        (presentation) =>
-          presentation.fa_title
-            .toLowerCase()
-            .includes(searchText.toLowerCase()) &&
-          !PinedTypes.includes(presentation.service_type)
+  const [filteredPresentations, fullPresentations] = useMemo(() => {
+    const filtered = presentations
+      .filter((presentation) =>
+        presentation.fa_title.toLowerCase().includes(searchText.toLowerCase())
       )
       .sort((a, b) => {
         switch (sortType) {
           case "SORT_BY_PRICE":
             return a.remained_capacity === 0 ? 1 : a.cost - b.cost;
           case "SORT_BY_NAME":
-            return a.remained_capacity === 0 ? 1 : a.fa_title.localeCompare(b.fa_title);
+            return a.remained_capacity === 0
+              ? 1
+              : a.fa_title.localeCompare(b.fa_title);
           case "SORT_BY_DATE":
           default:
-            return a.remained_capacity === 0 ? 1 : new Date(a.start).getTime() - new Date(b.start).getTime();
+            return a.remained_capacity === 0
+              ? 1
+              : new Date(a.start).getTime() - new Date(b.start).getTime();
         }
       });
+
+    const filteredPresentations = filtered.filter(
+      (presentation) =>
+        presentation.remained_capacity !== 0 &&
+        !PinedTypes.includes(presentation.service_type)
+    );
+
+    const fullPresentations = filtered.filter(
+      (presentation) => presentation.remained_capacity === 0
+    );
+
+    console.log("!@!", fullPresentations);
+    return [filteredPresentations, fullPresentations];
   }, [presentations, searchText, sortType]);
 
   return (
@@ -99,6 +114,7 @@ const WorkshopsList = () => {
                 price={presentation.cost}
                 tags={presentation.tags}
                 pinned
+                specialPackage
                 banner={presentation.morkopoloyor}
                 service_type={presentation.service_type}
                 presenters={presentation.presenters}
@@ -120,6 +136,24 @@ const WorkshopsList = () => {
                 service_type={presentation.service_type}
                 presenters={presentation.presenters}
                 remainedCapacity={presentation.remained_capacity}
+              />
+            ))}
+            {fullPresentations.map((presentation) => (
+              <WorkshopCard
+                key={presentation.id}
+                dateTime={new Date(presentation.start).toLocaleString("fa")}
+                id={presentation.id}
+                title={presentation.en_title}
+                // subTitle={presentation.en_title}
+                // TODO: Remove description
+                description={presentation.en_description}
+                price={presentation.cost}
+                tags={presentation.tags}
+                banner={presentation.morkopoloyor}
+                service_type={presentation.service_type}
+                presenters={presentation.presenters}
+                remainedCapacity={presentation.remained_capacity}
+                specialPackage={presentation.service_type === "PACKAGE"}
               />
             ))}
           </>

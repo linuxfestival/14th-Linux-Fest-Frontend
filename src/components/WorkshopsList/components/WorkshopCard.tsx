@@ -39,6 +39,7 @@ interface WorkshopCardProps {
   tags?: TagType[];
   className?: string;
   pinned?: boolean;
+  specialPackage?: boolean;
   banner?: string;
   service_type: PresentationService;
   presenters: PresenterDto[];
@@ -55,6 +56,7 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
   tags,
   className,
   pinned,
+  specialPackage,
   banner,
   service_type,
   presenters,
@@ -114,17 +116,14 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
           className="w-full h-[120px] object-cover"
         />
         {pinned && (
-          <>
-            <TiPin
-              size={24}
-              className="text-ubuntu-red absolute top-1 right-1"
-            />
-            <div className="absolute left-0 top-0 h-12 w-12">
-              <div className="bg-ubuntu-red absolute transform -rotate-45 text-center text-white font-semibold py-1 left-[-50px] top-[24px] w-[170px]">
-                پکیج ویژه
-              </div>
+          <TiPin size={24} className="text-ubuntu-red absolute top-1 right-1" />
+        )}
+        {specialPackage && (
+          <div className="absolute left-0 top-0 h-12 w-12">
+            <div className="bg-ubuntu-red absolute transform -rotate-45 text-center text-white font-semibold py-1 left-[-50px] top-[24px] w-[170px]">
+              پکیج ویژه
             </div>
-          </>
+          </div>
         )}
         {/* {tags && tags.length > 0 && (
           <div className="w-full flex flex-wrap gap-2 mt-2 px-4">
