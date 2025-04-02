@@ -41,7 +41,7 @@ const WorkshopsList = () => {
 
   const pinnedPresentations = useMemo(() => {
     return presentations.filter((presentation) =>
-      PinedTypes.includes(presentation.service_type)
+      PinedTypes.includes(presentation.service_type) && presentation.remained_capacity !== 0
     );
   }, [presentations]);
 
@@ -57,12 +57,12 @@ const WorkshopsList = () => {
       .sort((a, b) => {
         switch (sortType) {
           case "SORT_BY_PRICE":
-            return a.cost - b.cost;
+            return a.remained_capacity === 0 ? 1 : a.cost - b.cost;
           case "SORT_BY_NAME":
-            return a.fa_title.localeCompare(b.fa_title);
+            return a.remained_capacity === 0 ? 1 : a.fa_title.localeCompare(b.fa_title);
           case "SORT_BY_DATE":
           default:
-            return new Date(a.start).getTime() - new Date(b.start).getTime();
+            return a.remained_capacity === 0 ? 1 : new Date(a.start).getTime() - new Date(b.start).getTime();
         }
       });
   }, [presentations, searchText, sortType]);
