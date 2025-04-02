@@ -97,12 +97,12 @@ const WorkshopsList = () => {
                 // TODO: Remove description
                 description={presentation.en_description}
                 price={presentation.cost}
-                showAddToCart={presentation.remained_capacity > 0}
                 tags={presentation.tags}
                 pinned
                 banner={presentation.morkopoloyor}
                 service_type={presentation.service_type}
                 presenters={presentation.presenters}
+                remainedCapacity={presentation.remained_capacity}
               />
             ))}
             {filteredPresentations.map((presentation) => (
@@ -115,11 +115,11 @@ const WorkshopsList = () => {
                 // TODO: Remove description
                 description={presentation.en_description}
                 price={presentation.cost}
-                showAddToCart={presentation.remained_capacity > 0}
                 tags={presentation.tags}
                 banner={presentation.morkopoloyor}
                 service_type={presentation.service_type}
                 presenters={presentation.presenters}
+                remainedCapacity={presentation.remained_capacity}
               />
             ))}
           </>

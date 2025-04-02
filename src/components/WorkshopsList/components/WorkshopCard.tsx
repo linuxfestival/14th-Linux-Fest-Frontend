@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { IoPerson, IoPin, IoTime } from "react-icons/io5";
 import { Tag, TagVariants } from "../../Common/Button/Tag.tsx";
 import Button, { ButtonSizes } from "../../Common/Button/Button.tsx";
@@ -37,12 +37,12 @@ interface WorkshopCardProps {
   dateTime?: string;
   price: number;
   tags?: TagType[];
-  showAddToCart?: boolean;
   className?: string;
   pinned?: boolean;
   banner?: string;
   service_type: PresentationService;
   presenters: PresenterDto[];
+  remainedCapacity?: number;
 }
 
 const WorkshopCard: React.FC<WorkshopCardProps> = ({
@@ -53,12 +53,12 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
   dateTime,
   price,
   tags,
-  showAddToCart,
   className,
   pinned,
   banner,
   service_type,
   presenters,
+  remainedCapacity: remainingCapacity,
 }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -86,9 +86,10 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
     setButtonLoading(false);
   }, [selectItemInCart]);
 
-  // const handleClick = () => {
-  //   navigate(`/workshop/${id}`);
-  // };
+  const isFull = useMemo(() => {
+    console.log("!@! remainingCapacity", remainingCapacity);
+    return remainingCapacity === 0;
+  }, [remainingCapacity]);
 
   return (
     <>
@@ -232,19 +233,25 @@ const WorkshopCard: React.FC<WorkshopCardProps> = ({
         <div className="w-full flex flex-row-reverse justify-between items-center gap-8 mb-4 px-4">
           <Button
             size={ButtonSizes.SMALL}
-            disabled={!showAddToCart}
+            disabled={isFull}
             loading={buttonLoading}
             className={clsx(
               "text-sm !px-4 text-white hover:bg-indigo-dark transition-all rounded-md w-full",
-              { ["!bg-indigo"]: !existInCart }
+              { ["!bg-indigo"]: !existInCart && !isFull }
             )}
             onClick={existInCart ? removeFromCart : addToCart}
           >
-            {existInCart ? "حذف از سبد خرید" : "اضافه به سبد خرید"}
+            {isFull
+              ? "ظرفیت تکمیل"
+              : existInCart
+              ? "حذف از سبد خرید"
+              : "اضافه به سبد خرید"}
           </Button>
-          <p className="text-lg font-bold text-white w-full text-center">
-            {price === 0 ? "رایگان!" : `${price / 1000} هزار تومان`}
-          </p>
+          {!isFull && (
+            <p className="text-lg font-bold text-white w-full text-center">
+              {price === 0 ? "رایگان!" : `${price / 1000} هزار تومان`}
+            </p>
+          )}
         </div>
       </Link>
 
