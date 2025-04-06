@@ -95,6 +95,8 @@ const Workshop = () => {
           content={`لینوکس فست | ${presentation.en_title}`}
         />
         <meta property="og:description" content={presentation.en_description} />
+        <meta property="og:image" content="/favicon.ico" />
+        <meta property="og:site_name" content="لینوکس فست" />
         <link rel="canonical" href={`https://linux-fest.ir/workshop/${id}`} />
       </Helmet>
 

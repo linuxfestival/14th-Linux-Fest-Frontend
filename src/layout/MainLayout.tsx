@@ -40,6 +40,8 @@ const MainLayout = () => {
             property="og:description"
             content={pageInformation.description || ""}
           />
+          <meta property="og:image" content="/favicon.ico" />
+          <meta property="og:site_name" content="لینوکس فست" />
           <link
             rel="canonical"
             href={`https://linux-fest.ir${pathname === "/" ? "" : pathname}`}
