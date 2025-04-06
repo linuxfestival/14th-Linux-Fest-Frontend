@@ -42,6 +42,10 @@ const MainLayout = () => {
           />
           <meta property="og:image" content="/favicon.ico" />
           <meta property="og:site_name" content="لینوکس فست" />
+          <meta
+            property="og:url"
+            content={`https://linux-fest.ir${pathname === "/" ? "" : pathname}`}
+          />
           <link
             rel="canonical"
             href={`https://linux-fest.ir${pathname === "/" ? "" : pathname}`}
