@@ -24,6 +24,7 @@ const ProfileWorkshops = () => {
           .map((el) => (
             <RegisteredWorkshop
               title={el.presentation.en_title}
+              id={el.presentation.id}
               time={new Date(el.presentation.start)}
             />
           ))}
