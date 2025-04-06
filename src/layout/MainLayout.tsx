@@ -40,7 +40,10 @@ const MainLayout = () => {
             property="og:description"
             content={pageInformation.description || ""}
           />
-          <link rel="canonical" href={`https://linux-fest.ir/${pathname}`} />
+          <link
+            rel="canonical"
+            href={`https://linux-fest.ir${pathname === "/" ? "" : pathname}`}
+          />
         </Helmet>
       )}
       <Outlet />
