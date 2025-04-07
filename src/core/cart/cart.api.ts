@@ -21,6 +21,7 @@ export interface AccessoryDto {
   description: string;
   price: number;
   img: string;
+  is_active: boolean;
 }
 export type GetAccessoriesListRequest = void;
 export type GetAccessoriesListResponse = AccessoryDto[];
