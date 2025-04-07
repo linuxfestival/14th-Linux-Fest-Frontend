@@ -78,7 +78,7 @@ const CartPayment = () => {
     if (!user) return [];
     const userAccessories = user.accessories.map((a) => a.id);
     return accessoryList.filter(
-      (accessory) => !userAccessories.includes(accessory.id)
+      (accessory) => accessory.is_active && !userAccessories.includes(accessory.id)
     );
   }, [user, accessoryList]);
 
@@ -130,7 +130,7 @@ const CartPayment = () => {
             displayAccessories && accessoriesToDisplay.length > 0 ? (
               <div className="flex flex-col gap-4 items-center justify-start w-full px-4">
                 <h1 className="text-4xl font-bold mb-6 mt-4">محصول اضافه</h1>
-                {accessoryList?.filter(el => el.is_active)?.map((accessory) => (
+                {accessoriesToDisplay?.map((accessory) => (
                   <SelectableCard
                     title={accessory.name}
                     description={accessory.description}
