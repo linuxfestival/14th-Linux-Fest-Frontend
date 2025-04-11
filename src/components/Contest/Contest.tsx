@@ -94,9 +94,9 @@ const Contest = () => {
           </motion.div>
         </div>
 
-        <div className="relative px-20 flex justify-start items-start xl:items-center pt-8 mt-10 h-max overflow-hidden">
+        <div className="relative px-4 md:px-20 flex justify-start items-start xl:items-center pt-8 mt-10 h-max overflow-hidden">
           <motion.div
-            className="w-full lg:w-2/3 flex flex-col justify-center item-start lg:items-center relative h-full pb-15 mr-25"
+            className="w-full lg:w-2/3 flex flex-col justify-center item-start lg:items-center relative h-full pb-15 mr-0 md:mr-25"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -112,7 +112,7 @@ const Contest = () => {
               چرا این مسابقه؟
             </motion.h1>
             <motion.p
-              className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-text-gray w-full lg:w-3/4 mt-10 lg:text-center leading-12"
+              className="text-lg sm:text-xl md:text-2xl xl:text-3xl text-text-gray w-full lg:w-3/4 mt-4 md:mt-10 lg:text-center md:leading-12 max-w-[700px]"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -148,7 +148,7 @@ const Contest = () => {
             />
             <InfoCard
               title="کی برگزار میشه؟"
-              description={digitsToPersian("23 فروردین - ساعت 17:30 الی 19:30")}
+              description={digitsToPersian("23 فروردین - ساعت 17:00 الی 19:00")}
               icon={IoTime}
             />
           </motion.div>
@@ -186,34 +186,34 @@ const Contest = () => {
         </div>
 
         <div className="w-full flex flex-wrap justify-center items-center gap-20 py-10 px-20">
-          <div className="flex flex-col justify-between items-start text-xl md:text-3xl min-w-[450px] sm:min-w-[600px] w-full bg-[#2c2c2c] rounded-2xl px-4 py-2 h-[400px]">
+          <div className="flex flex-col justify-between items-start text-xl md:text-3xl min-w-[90vw] sm:min-w-[600px] w-full bg-[#2c2c2c] rounded-2xl px-4 py-2 h-[400px]">
             <div className="w-full flex justify-between items-center gap-10 py-8 px-4 h-full">
               <p className="font-bold">🥇 نفر اول:</p>
-              <p className="text-text-gray">
+              <p className="text-text-gray text-left">
                 {digitsToPersian("4 میلیون تومان")}
               </p>
             </div>
             <div className="w-full flex justify-between items-center gap-10 py-8 px-4 border-t-2 border-b-2 border-white/15 h-full">
               <p className="font-bold">🥈 نفر دوم:</p>
-              <p className="text-text-gray">
+              <p className="text-text-gray text-left">
                 {digitsToPersian("2 میلیون تومان")}
               </p>
             </div>
             <div className="w-full flex justify-between items-center gap-10 py-8 px-4 h-full">
               <p className="font-bold">🥉 نفر سوم:</p>
-              <p className="text-text-gray">
+              <p className="text-text-gray text-left">
                 {digitsToPersian("1 میلیون تومان")}
               </p>
             </div>
             <div className="w-full flex justify-between items-center gap-10 py-8 px-4 border-t-2 border-white/15 h-full">
               <p className="font-bold">به قید قرعه</p>
-              <p className="text-text-gray">
+              <p className="text-text-gray text-left">
                 {digitsToPersian("10 ماگ با طرح لینوکس فست")}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col justify-center items-start text-xl md:text-3xl min-w-[450px] sm:min-w-[600px] w-full bg-[#2c2c2c] rounded-2xl px-4 py-2 h-[400px]">
+          <div className="flex flex-col justify-center items-start text-xl md:text-3xl min-w-[90vw] sm:min-w-[600px] w-full bg-[#2c2c2c] rounded-2xl px-4 py-2 h-[400px]">
             <div className="w-full flex justify-start items-center gap-4 py-8 px-4 h-full">
               <div className="relative p-1 rounded-full bg-secondary/20">
                 <p className="w-9 h-9 text-center m-0 bg-secondary rounded-full">
@@ -222,7 +222,7 @@ const Contest = () => {
               </div>
               <div className="flex flex-col justify-center items-start">
                 <p className="text-text-gray text-lg">
-                  {digitsToPersian("17:00-17:30")}
+                  {digitsToPersian("16:30-17:00")}
                 </p>
                 <p className="text-2xl text-white font-bold">
                   آمادگی و ورود به محیط مسابقه
@@ -238,7 +238,7 @@ const Contest = () => {
               </div>
               <div className="flex flex-col justify-center items-start">
                 <p className="text-text-gray text-lg">
-                  {digitsToPersian("17:30-19:30")}
+                  {digitsToPersian("17:00-19:00")}
                 </p>
                 <p className="text-2xl text-white font-bold">شروع مسابقه</p>
               </div>
@@ -252,7 +252,7 @@ const Contest = () => {
               </div>
               <div className="flex flex-col justify-center items-start">
                 <p className="text-text-gray text-lg">
-                  {digitsToPersian("19:30-18:15")}
+                  {digitsToPersian("20:00-19:00")}
                 </p>
                 <p className="text-2xl text-white font-bold">
                   اختتامیه و تحویل جوایز
@@ -263,15 +263,21 @@ const Contest = () => {
         </div>
 
         <Divider title="ثبت نام در مسابقه" />
-        <ContestTimer timestamp={"2025-04-12T17:30:00+00:00"} />
+        <ContestTimer timestamp={"2025-04-12T17:00:00+00:00"} />
         {/* <ContestRegistration /> */}
         {!isAuthenticated ? (
-          <Link
-            to="/login"
-            className="block w-full text-center text-secondary my-20 text-2xl sm:text-3xl lg:text-6xl"
-          >
-            برای ثبت نام وارد شوید
-          </Link>
+            <Link
+                to="/login"
+                className="block w-full text-center my-20 text-2xl sm:text-3xl lg:text-6xl"
+            >
+              <span>برای ثبت نام </span>
+              <span
+                  className="text-secondary"
+              >
+                وارد
+              </span>
+              <span> شوید</span>
+            </Link>
         ) : (
           <div className="w-full px-20">
             <Button

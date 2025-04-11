@@ -37,10 +37,10 @@ const Home = () => {
 
           <div className="w-full mt-12 flex flex-col justify-center items-center">
             <Link to="/workshops" className="!w-2/3 md:!w-1/3">
-              <Button size={ButtonSizes.LARGE}>ثبت نام</Button>
+              <Button size={ButtonSizes.LARGE}>ثبت نام در مسابقه!</Button>
             </Link>
             <p className="mt-2 w-full text-sm lg:text-lg">
-              از ۲۰ تا ۲۲ فروردین
+              ظرفیت مسابقه رو به اتمام است!
             </p>
           </div>
 
