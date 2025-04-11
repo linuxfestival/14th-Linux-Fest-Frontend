@@ -23,7 +23,7 @@ export const verifyPayment = makeCall<
   VerifyPaymentResponse
 >("api/payments/verify/", "POST", true);
 
-export const registerCompetition = makeCall<undefined, undefined>(
+export const registerCompetition = makeCall<undefined, FinalizePaymentResponse>(
   "/api/users/competition_signup/",
   "POST",
   true

@@ -75,13 +75,16 @@ const paymentSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerCompetitionThunk.fulfilled, (state) => {
+      .addCase(registerCompetitionThunk.fulfilled, (state, action) => {
         state.loading = false;
-        toast.success("ثبت نام با موفقیت انجام شد");
+        const payload = action.payload as FinalizePaymentResponse
+        if (payload.payment_url)
+          location.href = payload.payment_url
       })
       .addCase(registerCompetitionThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        toast.success((action.payload as {detail?: string})?.detail ?? "مشکلی به وجود آمد!");
         console.log("!@!", action.payload);
       });
   },
