@@ -36,7 +36,7 @@ const Home = () => {
           </div>
 
           <div className="w-full mt-12 flex flex-col justify-center items-center">
-            <Link to="/workshops" className="!w-2/3 md:!w-1/3">
+            <Link to="/contest" className="!w-2/3 md:!w-1/3">
               <Button size={ButtonSizes.LARGE}>ثبت نام در مسابقه!</Button>
             </Link>
             <p className="mt-2 w-full text-sm lg:text-lg">
