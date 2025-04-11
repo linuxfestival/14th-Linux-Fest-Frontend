@@ -9,6 +9,10 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import store from "./store.ts";
 import AuthContainer from "./components/Container/AuthContainer.tsx";
 
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HelmetProvider>

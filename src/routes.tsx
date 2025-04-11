@@ -1,67 +1,133 @@
 import { createBrowserRouter } from "react-router-dom";
-import ProfileLayout from "./layout/ProfileLayout.tsx";
-import Home from "./components/Home/Home";
-import WorkshopsList from "./components/WorkshopsList/WorkshopsList.tsx";
-import ComingSoon from "./components/ComingSoon/ComingSoon.tsx";
-import Staff from "./components/Staff/Staff.tsx";
-import Login from "./components/Login/Login";
-import Signup from "./components/Signup/Signup";
-import FAQ from "./components/FAQ/FAQ.tsx";
-import PaymentStatus from "./components/PaymentStatus/PaymentStatus.tsx";
-import NotFound from "./components/notFound/NotFound.tsx";
-import Edit from "./components/Dashboard/Edit/Edit.tsx";
-import ProfileWorkshops from "./components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx";
-import Billings from "./components/Dashboard/Billings/Billings.tsx";
-import CartLayout from "./components/Dashboard/Cart/CartLayout.tsx";
-import CartsList from "./components/Dashboard/Cart/pages/CartsList.tsx";
-import CartPayment from "./components/Dashboard/Cart/pages/CartPayment.tsx";
-import Workshop from "./components/Workshop/Workshop.tsx";
-import { Presenters } from "./components/Presenters/Presenters.tsx";
-import MainLayout from "./layout/MainLayout.tsx";
+import React, { Suspense } from "react";
+import Fallback from "./components/Fallback/Fallback.tsx";
+
+const ProfileLayout = React.lazy(() => import("./layout/ProfileLayout.tsx"));
+const Home = React.lazy(() => import("./components/Home/Home"));
+const WorkshopsList = React.lazy(
+  () => import("./components/WorkshopsList/WorkshopsList.tsx")
+);
+const ComingSoon = React.lazy(
+  () => import("./components/ComingSoon/ComingSoon.tsx")
+);
+const Staff = React.lazy(() => import("./components/Staff/Staff.tsx"));
+const Login = React.lazy(() => import("./components/Login/Login"));
+const Signup = React.lazy(() => import("./components/Signup/Signup"));
+const FAQ = React.lazy(() => import("./components/FAQ/FAQ.tsx"));
+const PaymentStatus = React.lazy(
+  () => import("./components/PaymentStatus/PaymentStatus.tsx")
+);
+const NotFound = React.lazy(() => import("./components/notFound/NotFound.tsx"));
+const Edit = React.lazy(() => import("./components/Dashboard/Edit/Edit.tsx"));
+const ProfileWorkshops = React.lazy(
+  () => import("./components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx")
+);
+const Billings = React.lazy(
+  () => import("./components/Dashboard/Billings/Billings.tsx")
+);
+const CartLayout = React.lazy(
+  () => import("./components/Dashboard/Cart/CartLayout.tsx")
+);
+const CartsList = React.lazy(
+  () => import("./components/Dashboard/Cart/pages/CartsList.tsx")
+);
+const CartPayment = React.lazy(
+  () => import("./components/Dashboard/Cart/pages/CartPayment.tsx")
+);
+const Workshop = React.lazy(() => import("./components/Workshop/Workshop.tsx"));
+const Presenters = React.lazy(
+  () => import("./components/Presenters/Presenters.tsx")
+);
+const MainLayout = React.lazy(() => import("./layout/MainLayout.tsx"));
+const Contest = React.lazy(() => import("./components/Contest/Contest.tsx"));
 
 const router = createBrowserRouter([
   {
-    element: <MainLayout />,
+    element: (
+      <Suspense fallback={<Fallback />}>
+        <MainLayout />
+      </Suspense>
+    ),
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Home />
+          </Suspense>
+        ),
       },
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Login />
+          </Suspense>
+        ),
       },
       {
         path: "/signup",
-        element: <Signup />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Signup />
+          </Suspense>
+        ),
       },
       {
         path: "profile/*",
-        element: <ProfileLayout />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <ProfileLayout />
+          </Suspense>
+        ),
         children: [
           {
             path: "edit",
-            element: <Edit />,
+            element: (
+              <Suspense fallback={<Fallback />}>
+                <Edit />
+              </Suspense>
+            ),
           },
           {
             path: "workshops",
-            element: <ProfileWorkshops />,
+            element: (
+              <Suspense fallback={<Fallback />}>
+                <ProfileWorkshops />
+              </Suspense>
+            ),
           },
           {
             path: "billing",
-            element: <Billings />,
+            element: (
+              <Suspense fallback={<Fallback />}>
+                <Billings />
+              </Suspense>
+            ),
           },
           {
             path: "cart",
-            element: <CartLayout />,
+            element: (
+              <Suspense fallback={<Fallback />}>
+                <CartLayout />
+              </Suspense>
+            ),
             children: [
               {
                 path: "list",
-                element: <CartsList />,
+                element: (
+                  <Suspense fallback={<Fallback />}>
+                    <CartsList />
+                  </Suspense>
+                ),
               },
               {
                 path: "checkout",
-                element: <CartPayment />,
+                element: (
+                  <Suspense fallback={<Fallback />}>
+                    <CartPayment />
+                  </Suspense>
+                ),
               },
             ],
           },
@@ -69,39 +135,83 @@ const router = createBrowserRouter([
       },
       {
         path: "payment/perhaps",
-        element: <PaymentStatus />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <PaymentStatus />
+          </Suspense>
+        ),
       },
       {
         path: "workshops",
-        element: <WorkshopsList />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <WorkshopsList />
+          </Suspense>
+        ),
       },
       {
         path: "workshop/:id",
-        element: <Workshop />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Workshop />
+          </Suspense>
+        ),
       },
       {
         path: "presenters",
-        element: <Presenters />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Presenters />
+          </Suspense>
+        ),
       },
       {
         path: "login",
-        element: <ComingSoon />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <ComingSoon />
+          </Suspense>
+        ),
       },
       {
         path: "signup",
-        element: <ComingSoon />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <ComingSoon />
+          </Suspense>
+        ),
       },
       {
         path: "faq",
-        element: <FAQ />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <FAQ />
+          </Suspense>
+        ),
       },
       {
         path: "staff",
-        element: <Staff />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Staff />
+          </Suspense>
+        ),
+      },
+      {
+        path: "contest",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Contest />
+          </Suspense>
+        ),
       },
       {
         path: "*",
-        element: <NotFound />,
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <NotFound />
+          </Suspense>
+        ),
       },
     ],
   },

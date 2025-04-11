@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { MdOutlineSupportAgent } from "react-icons/md";
 import { Outlet, useLocation } from "react-router-dom";
 import { useGoftino } from "../hooks/useGoftino";
@@ -13,7 +13,7 @@ const MainLayout = () => {
 
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
 
     setPageInformation(PageMetaInformation[pathname]);

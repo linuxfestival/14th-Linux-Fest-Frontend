@@ -10,9 +10,10 @@ import clsx from "clsx";
 
 interface Props {
   sticky?: boolean;
+  contestStyle?: boolean;
 }
 
-const Header = ({ sticky = true }: Props) => {
+const Header = ({ sticky = true, contestStyle = false }: Props) => {
   const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -32,8 +33,12 @@ const Header = ({ sticky = true }: Props) => {
   return (
     <div
       className={clsx(
-        "top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray lg:rounded-[26px] shadow-md z-5",
-        { ["fixed"]: sticky, ["absolute"]: !sticky }
+        "top-0 left-0 lg:top-[25px] lg:left-1/2 lg:-translate-x-1/2 p-[10px] w-full lg:w-3/4 flex flex-row-reverse justify-between items-center bg-light-gray lg:rounded-[26px] z-5",
+        { ["fixed"]: sticky, ["absolute"]: !sticky },
+        {
+          ["!w-full !bg-transparent !shadow-none px-16"]: contestStyle,
+          ["shadow-md"]: !contestStyle,
+        }
       )}
     >
       <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-max xl:w-1/4 max-w-[250px]">
@@ -47,26 +52,29 @@ const Header = ({ sticky = true }: Props) => {
             />
           </>
         ) : (
-          <>
-            <Link to="/signup" className="!w-full">
-              <Button size={ButtonSizes.MEDIUM} className="!w-full">
-                ثبت نام
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button
-                size={ButtonSizes.MEDIUM}
-                variant={ButtonVariants.OUTLINE}
-              >
-                ورود
-              </Button>
-            </Link>
-          </>
+          !contestStyle && (
+            <>
+              <Link to="/signup" className="!w-full">
+                <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                  ثبت نام
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button
+                  size={ButtonSizes.MEDIUM}
+                  variant={ButtonVariants.OUTLINE}
+                >
+                  ورود
+                </Button>
+              </Link>
+            </>
+          )
         )}
       </div>
       <nav className="hidden lg:flex gap-4 text-lg font-medium">
         <Link to={"/"}>خانه</Link>
-        <Link to={"/workshops"}>ارائه ها</Link>
+        {/* <Link to={"/workshops"}>ارائه ها</Link> */}
+        <Link to={"/contest"}>مسابقه</Link>
         <Link to={"/faq"}>سوالات متداول</Link>
         <Link to={"/presenters"}>ارائه‌دهندگان</Link>
         <Link to={"/staff"}>دست‌اندرکاران</Link>
@@ -83,43 +91,50 @@ const Header = ({ sticky = true }: Props) => {
           <Link to={"/"} onClick={toggleMenu}>
             خانه
           </Link>
-          <Link to={"/workshops"} onClick={toggleMenu}>
+          {/* <Link to={"/workshops"} onClick={toggleMenu}>
             ارائه ها
+          </Link> */}
+          <Link to={"/contest"} onClick={toggleMenu}>
+            مسابقه
           </Link>
           <Link to={"/faq"} onClick={toggleMenu}>
             سوالات متداول
           </Link>
-          <Link to={"/presenters"} onClick={toggleMenu}>ارائه‌دهندگان</Link>
+          <Link to={"/presenters"} onClick={toggleMenu}>
+            ارائه‌دهندگان
+          </Link>
           <Link to={"/staff"} onClick={toggleMenu}>
             دست اندرکاران
           </Link>
         </nav>
         <div className="w-2/3 flex flex-col items-center gap-2 mt-10">
           {isAuthenticated ? (
-              <>
-                <ShoppingCart className="mx-2"/>
-                <IoPerson
-                    size={30}
-                    className="cursor-pointer"
-                    onClick={() => navigate("/profile/edit")}
-                />
-              </>
-          ) : (
             <>
-              <Link to="/signup" className="!w-full">
-                <Button size={ButtonSizes.MEDIUM} className="!w-full">
-                  ثبت نام
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button
-                  size={ButtonSizes.MEDIUM}
-                  variant={ButtonVariants.OUTLINE}
-                >
-                  ورود
-                </Button>
-              </Link>
+              <ShoppingCart className="mx-2" />
+              <IoPerson
+                size={30}
+                className="cursor-pointer"
+                onClick={() => navigate("/profile/edit")}
+              />
             </>
+          ) : (
+            !contestStyle && (
+              <>
+                <Link to="/signup" className="!w-full">
+                  <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                    ثبت نام
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button
+                    size={ButtonSizes.MEDIUM}
+                    variant={ButtonVariants.OUTLINE}
+                  >
+                    ورود
+                  </Button>
+                </Link>
+              </>
+            )
           )}
         </div>
 
