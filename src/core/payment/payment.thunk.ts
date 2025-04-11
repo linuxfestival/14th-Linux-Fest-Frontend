@@ -96,7 +96,8 @@ export const registerCompetitionThunk = createAsyncThunk(
 
       return response.data;
     } catch (err: any) {
-      return rejectWithValue("An unexpected error occurred. Please try again.");
+        const errorMessage = err?.response?.data;
+        return rejectWithValue(errorMessage || "An unexpected error occurred. Please try again.");
     }
   }
 );

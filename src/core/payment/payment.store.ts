@@ -84,7 +84,7 @@ const paymentSlice = createSlice({
       .addCase(registerCompetitionThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        toast.success((action.payload as {detail?: string})?.detail ?? "مشکلی به وجود آمد!");
+        toast.error((action.payload as {detail?: string})?.detail ?? "مشکلی به وجود آمد!");
         console.log("!@!", action.payload);
       });
   },
