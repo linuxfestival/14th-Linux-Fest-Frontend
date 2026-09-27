@@ -1,12 +1,8 @@
-import chalk from "chalk";
-
-const isProduction = process.env.NODE_ENV === "production";
-
 class Logger {
   private isProduction: boolean;
 
   constructor() {
-    this.isProduction = process.env.NODE_ENV === "production";
+    this.isProduction = import.meta.env.PROD;
   }
 
   private log(
@@ -20,19 +16,19 @@ class Logger {
   }
 
   public info(message: string): void {
-    this.log(message, chalk.bgBlue.white("[INFO]"), console.log);
+    this.log(message, "[INFO]", console.log);
   }
 
   public warn(message: string): void {
-    this.log(message, chalk.bgYellow.black("[WARN]"), console.warn);
+    this.log(message, "[WARN]", console.warn);
   }
 
   public error(message: string): void {
-    this.log(message, chalk.bgRed.white("[ERROR]"), console.error);
+    this.log(message, "[ERROR]", console.error);
   }
 
   public debug(message: string): void {
-    this.log(message, chalk.bgGreen.white("[DEBUG]"), console.debug);
+    this.log(message, "[DEBUG]", console.debug);
   }
 }
 

@@ -55,7 +55,12 @@ export const makeCall = <T, K>(
   };
 };
 
-const api = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
+const api = axios.create({
+  baseURL:
+    window.__RUNTIME_CONFIG__?.API_BASE_URL ||
+    import.meta.env.VITE_BASE_URL ||
+    "",
+});
 axiosRetry(api, {
   retries: 10,
   shouldResetTimeout: true,
