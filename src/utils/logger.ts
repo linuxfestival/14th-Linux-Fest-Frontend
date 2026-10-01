@@ -1,38 +1,35 @@
-import chalk from "chalk";
-
-const isProduction = process.env.NODE_ENV === "production";
-
 class Logger {
   private isProduction: boolean;
 
   constructor() {
-    this.isProduction = process.env.NODE_ENV === "production";
+    this.isProduction = import.meta.env.PROD;
   }
 
   private log(
     message: string,
     prefix: string,
-    logFunction: (msg: string) => void
+    style: string,
+    logFunction: typeof console.log
   ): void {
     if (!this.isProduction) {
-      logFunction(`${prefix} ${message}`);
+      logFunction(`%c${prefix}%c ${message}`, style, "");
     }
   }
 
   public info(message: string): void {
-    this.log(message, chalk.bgBlue.white("[INFO]"), console.log);
+    this.log(message, "[INFO]", "background: #2563eb; color: white", console.log);
   }
 
   public warn(message: string): void {
-    this.log(message, chalk.bgYellow.black("[WARN]"), console.warn);
+    this.log(message, "[WARN]", "background: #eab308; color: black", console.warn);
   }
 
   public error(message: string): void {
-    this.log(message, chalk.bgRed.white("[ERROR]"), console.error);
+    this.log(message, "[ERROR]", "background: #dc2626; color: white", console.error);
   }
 
   public debug(message: string): void {
-    this.log(message, chalk.bgGreen.white("[DEBUG]"), console.debug);
+    this.log(message, "[DEBUG]", "background: #16a34a; color: white", console.debug);
   }
 }
 
