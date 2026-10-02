@@ -1,11 +1,10 @@
 import BadgeLinux from "../../assets/penwing.png";
 import Button from "../../components/Common/Button/Button.tsx";
 import InputField from "../Common/Button/Input.tsx";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { signupThunk } from "../../core/auth/auth.thunk.ts";
 import { RootState, useAppDispatch } from "../../store.ts";
-import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import router from "../../routes.tsx";
 import { displayCommonErrorToast } from "../../utils/toastUtils.ts";
@@ -111,26 +110,6 @@ const Signup = () => {
     isRepeatPassValid,
   ]);
 
-  useEffect(() => {
-    console.log(
-      isEmailValid,
-      isFirstNameValid,
-      isLastNameValid,
-      isPhoneNumberValid,
-      isPasswordValid,
-      isRepeatPassValid,
-      isFormValid
-    );
-  }, [
-    isEmailValid,
-    isFirstNameValid,
-    isLastNameValid,
-    isPhoneNumberValid,
-    isPasswordValid,
-    isRepeatPassValid,
-    isFormValid,
-  ]);
-
   const signup = async () => {
     if (!isFormValid) {
       return;
@@ -147,6 +126,20 @@ const Signup = () => {
     );
 
     if (signupThunk.fulfilled.match(result)) {
+      if (result.payload.verification_required) {
+        await router.navigate(
+          `/verify-email?email=${encodeURIComponent(result.payload.email)}`
+        );
+        return;
+      }
+
+      if (!result.payload.tokens) {
+        displayCommonErrorToast({
+          payload: { detail: "توکن ورود از سرور دریافت نشد." },
+        });
+        return;
+      }
+
       Cookies.set("access_token", result.payload.tokens.access, {
         secure: true,
         sameSite: "Strict",
@@ -166,7 +159,9 @@ const Signup = () => {
           access: result.payload.tokens.access,
         })
       );
-      await router.navigate("/");
+      await router.navigate(
+        result.payload.is_first_login ? "/onboarding" : "/"
+      );
     } else {
       displayCommonErrorToast(result);
       console.error("Signup failed:", result.payload);

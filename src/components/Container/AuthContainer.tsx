@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { LoginResponse } from "../../core/auth/auth.dto.ts";
+import { useDispatch } from "react-redux";
 import { initializeUser, logout } from "../../core/auth/auth.slice.ts";
 import Cookies from "js-cookie";
 
@@ -18,7 +17,7 @@ const AuthContainer = ({ children }: { children: React.ReactNode }) => {
                     refresh: refreshToken,
                     phone_number: phoneNumber,
                 }));
-            } catch (error) {
+            } catch {
                 console.error("Failed to parse user data from localStorage");
                 dispatch(logout());
             }

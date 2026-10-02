@@ -7,12 +7,18 @@ const Home = React.lazy(() => import("./components/Home/Home"));
 const WorkshopsList = React.lazy(
   () => import("./components/WorkshopsList/WorkshopsList.tsx")
 );
-const ComingSoon = React.lazy(
-  () => import("./components/ComingSoon/ComingSoon.tsx")
-);
 const Staff = React.lazy(() => import("./components/Staff/Staff.tsx"));
 const Login = React.lazy(() => import("./components/Login/Login"));
 const Signup = React.lazy(() => import("./components/Signup/Signup"));
+const VerifyEmail = React.lazy(
+  () => import("./components/VerifyEmail/VerifyEmail")
+);
+const ForgotPassword = React.lazy(
+  () => import("./components/ForgotPassword/ForgotPassword")
+);
+const Onboarding = React.lazy(
+  () => import("./components/Onboarding/Onboarding")
+);
 const FAQ = React.lazy(() => import("./components/FAQ/FAQ.tsx"));
 const PaymentStatus = React.lazy(
   () => import("./components/PaymentStatus/PaymentStatus.tsx")
@@ -70,6 +76,30 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Fallback />}>
             <Signup />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/verify-email",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <VerifyEmail />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/forgot-password",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <ForgotPassword />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/onboarding",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Onboarding />
           </Suspense>
         ),
       },
@@ -162,22 +192,6 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Fallback />}>
             <Presenters />
-          </Suspense>
-        ),
-      },
-      {
-        path: "login",
-        element: (
-          <Suspense fallback={<Fallback />}>
-            <ComingSoon />
-          </Suspense>
-        ),
-      },
-      {
-        path: "signup",
-        element: (
-          <Suspense fallback={<Fallback />}>
-            <ComingSoon />
           </Suspense>
         ),
       },
