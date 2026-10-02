@@ -15,16 +15,16 @@ import useInputHandler, {
   GeneralValidators as GV,
 } from "../../hooks/useInputHandler.tsx";
 
-const phoneRegex = /^09[0-9]{9}$/;
 const Login = () => {
-  const phoneNumberInput = useInputHandler({
-    validators: [GV.required],
+  const emailInput = useInputHandler({
+    validators: [
+      GV.required,
+      GV.regexMatch(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+    ],
     errorMessages: {
       [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+      [GeneralErrors.RegexMatch]: "ایمیل وارد شده معتبر نیست!",
     },
-    numberOnly: true,
-    persianDigits: true,
-    maxLength: 11,
   });
 
   const passwordInput = useInputHandler({
@@ -34,19 +34,19 @@ const Login = () => {
     },
   });
 
-  const { rawValue: phoneNumber, valid: isPhoneNumberValid } = phoneNumberInput;
+  const { rawValue: email, valid: isEmailValid } = emailInput;
   const { rawValue: password, valid: isPasswordValid } = passwordInput;
 
   const dispatch = useAppDispatch();
   const { loading } = useSelector((state: RootState) => state.auth);
 
   const login = async () => {
-    if (!isPhoneNumberValid || !isPasswordValid) {
+    if (!isEmailValid || !isPasswordValid) {
       return;
     }
 
     const result = await dispatch(
-      loginThunk({ phone_number: phoneNumber, password })
+      loginThunk({ email, password })
     );
 
     if (loginThunk.fulfilled.match(result)) {
@@ -60,26 +60,36 @@ const Login = () => {
         secure: true,
         sameSite: "Strict",
       });
-      Cookies.set("phone_number", phoneNumber, {
+      Cookies.set("phone_number", userData.phone_number, {
         secure: true,
         sameSite: "Strict",
       });
 
       dispatch(
         initializeUser({
-          phone_number: phoneNumber,
+          phone_number: userData.phone_number,
           refresh: userData.refresh,
           access: userData.access,
         })
       );
 
-      await router.navigate("/");
+      await router.navigate(userData.is_first_login ? "/onboarding" : "/");
     } else {
-      const payload = result.payload as { [key: string]: any };
+      const payload = result.payload as {
+        detail?: string;
+        verification_required?: boolean;
+        email?: string;
+      };
+      if (payload.verification_required) {
+        await router.navigate(
+          `/verify-email?email=${encodeURIComponent(payload.email || email)}`
+        );
+        return;
+      }
       if (
-        payload.detail === "No active account found with the given credentials"
+        payload.detail === "No active account found with the given credentials."
       ) {
-        passwordInput.setErrorText("رمز عبور یا شماره تلفن اشتباه است");
+        passwordInput.setErrorText("رمز عبور یا ایمیل اشتباه است");
         return;
       }
       displayCommonErrorToast(result);
@@ -103,12 +113,12 @@ const Login = () => {
           </p>
           <div className="flex p-2 gap-4 flex-col w-full pb-7 mb-6">
             <InputField
-              type="text"
-              placeholder="09xxxxxxxxx"
-              autocomplete="tel"
-              label="شماره تلفن"
-              name="phone_number"
-              {...phoneNumberInput}
+              type="email"
+              placeholder="example@linux-fest.ir"
+              autocomplete="email"
+              label="ایمیل"
+              name="email"
+              {...emailInput}
             />
             <InputField
               type="password"
@@ -120,13 +130,16 @@ const Login = () => {
             />
           </div>
           <Button
-            disabled={!isPhoneNumberValid || !isPasswordValid}
+            disabled={!isEmailValid || !isPasswordValid}
             loading={loading}
             onClick={login}
             className="w-full"
           >
             ورود
           </Button>
+          <Link to="/forgot-password" className="mt-4 text-center text-indigo">
+            رمز عبور را فراموش کرده‌اید؟
+          </Link>
           <div className="md:hidden w-full flex justify-center items-center">
             <Link to={"/"} className="mt-5 text-indigo text-lg">
               <span>خانه</span>

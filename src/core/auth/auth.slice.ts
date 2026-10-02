@@ -3,9 +3,6 @@ import { loginThunk, signupThunk } from "./auth.thunk";
 import { LoginResponse } from "./auth.dto.ts";
 import {UserDto} from "../users/users.dto.ts";
 import Cookies from "js-cookie";
-import {RootState, useAppDispatch} from "../../store.ts";
-import {useSelector} from "react-redux";
-import {cartActions} from "../cart/cart.slice.ts";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -41,7 +38,7 @@ const authSlice = createSlice({
       Cookies.remove("refresh_token");
       Cookies.remove("phone_number");
     },
-    initializeUser(state, action: PayloadAction<LoginResponse & {phone_number: string}>) {
+    initializeUser(state, action: PayloadAction<{access: string; refresh: string; phone_number: string}>) {
       state.isAuthenticated = true;
       console.log("init user");
       state.user = {
@@ -63,7 +60,11 @@ const authSlice = createSlice({
         (state, action: PayloadAction<LoginResponse>) => {
           state.loading = false;
           state.isAuthenticated = true;
-          state.user = action.payload;
+          state.user = {
+            access: action.payload.access,
+            refresh: action.payload.refresh,
+          };
+          state.userPhoneNumber = action.payload.phone_number;
         }
       )
       .addCase(loginThunk.rejected, (state, action) => {
@@ -76,8 +77,11 @@ const authSlice = createSlice({
       })
       .addCase(signupThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.tokens;
+        state.isAuthenticated = Boolean(action.payload.tokens);
+        state.user = action.payload.tokens ?? null;
+        state.userPhoneNumber = action.payload.tokens
+          ? action.payload.phone_number
+          : undefined;
       })
       .addCase(signupThunk.rejected, (state, action) => {
         state.loading = false;
