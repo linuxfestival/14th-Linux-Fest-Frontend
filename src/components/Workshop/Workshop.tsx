@@ -40,7 +40,6 @@ import { Tag } from "../Common/Button/Tag";
 import Skeleton, { SkeletonVariants } from "../Skeleton/Skeleton";
 import { Tooltip } from "react-tooltip";
 import { Helmet } from "react-helmet-async";
-import { title } from "process";
 
 const Workshop = () => {
   const dispatch = useAppDispatch();

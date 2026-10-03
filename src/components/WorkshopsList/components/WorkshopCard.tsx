@@ -1,298 +1,171 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { IoPerson, IoPin, IoTime } from "react-icons/io5";
-import { Tag, TagVariants } from "../../Common/Button/Tag.tsx";
-import Button, { ButtonSizes } from "../../Common/Button/Button.tsx";
-import clsx from "clsx";
-import { useAppDispatch } from "../../../store.ts";
+import { Link } from "react-router-dom";
 import {
-  PresentationDto,
-  PresentationService,
-  PresenterDto,
-  Tag as TagType,
-} from "../../../core/presentations/presentations.dto.ts";
-import { toast } from "react-toastify";
-import {
-  addItemToCartThunk,
-  getCartThunk,
-  removeItemFromCartThunk,
-} from "../../../core/cart/cart.thunk.ts";
-import { useSelector } from "react-redux";
-import {
-  selectIsItemExistInCart,
-  selectItemInCartById,
-} from "../../../core/cart/cart.selector.ts";
-import Skeleton, { SkeletonVariants } from "../../Skeleton/Skeleton.tsx";
-import { selectIsAuthenticated } from "../../../core/auth/auth.selector.ts";
-import { Link, useNavigate } from "react-router-dom";
-import { FaAngleDoubleDown, FaLaptop } from "react-icons/fa";
-import { digitsToPersian } from "../../../utils/digitsToPersian.ts";
-import { TiPin } from "react-icons/ti";
-import { GrWorkshop } from "react-icons/gr";
+  HiArrowLeft,
+  HiCalendarDays,
+  HiClock,
+  HiUser,
+  HiVideoCamera,
+  HiMapPin,
+} from "react-icons/hi2";
+import { PresentationService } from "../../../core/presentations/presentations.dto";
+import { digitsToPersian } from "../../../utils/digitsToPersian";
+import type { WorkshopItem } from "../workshops.adapter";
+import WorkshopCartAction from "./WorkshopCartAction";
 
-interface WorkshopCardProps {
-  id: number;
-  title?: string;
-  subTitle?: string;
-  description?: string;
-  dateTime?: string;
-  price: number;
-  tags?: TagType[];
-  className?: string;
-  pinned?: boolean;
-  specialPackage?: boolean;
-  banner?: string;
-  service_type: PresentationService;
-  presenters: PresenterDto[];
-  remainedCapacity?: number;
+interface Props {
+  item: WorkshopItem;
 }
 
-const WorkshopCard: React.FC<WorkshopCardProps> = ({
-  id,
-  title,
-  subTitle,
-  description,
-  dateTime,
-  price,
-  tags,
-  className,
-  pinned,
-  specialPackage,
-  banner,
-  service_type,
-  presenters,
-  remainedCapacity: remainingCapacity,
-}) => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const existInCart = useSelector(selectIsItemExistInCart(id));
-  const selectItemInCart = useSelector(selectItemInCartById(id));
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const [buttonLoading, setButtonLoading] = useState(false);
+const WorkshopCard = ({ item }: Props) => {
+  const full = item.remaining === 0;
+  const featured = item.service === PresentationService.PACKAGE;
 
-  const addToCart = useCallback(async () => {
-    if (!isAuthenticated) {
-      toast.info("برای افزودن به سبد خرید باید وارد شوید");
-      return;
-    }
-    setButtonLoading(true);
-    await dispatch(addItemToCartThunk(id ?? 0));
-    await dispatch(getCartThunk());
-    setButtonLoading(false);
-  }, [id]);
+  let label = "پکیج یادگیری";
+  if (!featured) {
+    label =
+      item.service === PresentationService.TALK
+        ? "ارائه و گفت‌وگو"
+        : "کارگاه عملی";
+  }
 
-  const removeFromCart = useCallback(async () => {
-    if (!selectItemInCart) return;
-    setButtonLoading(true);
-    await dispatch(removeItemFromCartThunk(selectItemInCart?.id));
-    await dispatch(getCartThunk());
-    setButtonLoading(false);
-  }, [selectItemInCart]);
-
-  const isFull = useMemo(() => {
-    console.log("!@! remainingCapacity", remainingCapacity);
-    return remainingCapacity === 0;
-  }, [remainingCapacity]);
+  const actionClass =
+    "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray";
 
   return (
-    <>
-      <Link
-        className={clsx(
-          "relative flex flex-col rounded-xl bg-[#2C2C2C] w-[320px] h-max shadow-lg hover:shadow-xl transition-shadow overflow-hidden cursor-pointer",
-          className,
-          {
-            ["border-2 border-[#483d8b] w-[324px] scale-105 !bg-[#21252b]"]:
-              pinned,
-          }
-        )}
-        dir="rtl"
-        to={`/workshop/${id}`}
+    <article
+      className={`group flex min-w-0 flex-col overflow-hidden rounded-xl ${featured ? "bg-primary text-white md:col-span-2 md:grid md:grid-cols-[.75fr_1.25fr] xl:col-span-3" : "border border-primary/15 bg-white text-primary"}`}
+    >
+      <div
+        className={`relative flex h-44 items-center justify-center overflow-hidden ${featured ? "bg-dark-gray md:h-full md:min-h-72" : item.imageTone}`}
       >
         <img
-          src={
-            banner !== ""
-              ? banner
-              : "https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
-          }
-          className="w-full h-[120px] object-cover"
+          src={item.image}
+          alt={item.imageAlt}
+          loading="lazy"
+          className={`w-4/5 object-contain transition-transform duration-300 motion-safe:group-hover:scale-105 ${featured ? "h-36 md:h-64" : "h-36"}`}
         />
-        {pinned && (
-          <TiPin size={24} className="text-ubuntu-red absolute top-1 right-1" />
-        )}
-        {specialPackage && (
-          <div className="absolute left-0 top-0 h-12 w-12">
-            <div className="bg-ubuntu-red absolute transform -rotate-45 text-center text-white font-semibold py-1 left-[-50px] top-[24px] w-[170px]">
-              پکیج ویژه
-            </div>
-          </div>
-        )}
-        {/* {tags && tags.length > 0 && (
-          <div className="w-full flex flex-wrap gap-2 mt-2 px-4">
-            {tags.map((tag, index) => (
-              <Tag key={index} text={tag.name} variant={TagVariants.INDIGO} />
-            ))}
-          </div>
-        )} */}
-        <div
-          className={clsx("flex flex-col justify-start items-start mt-4 px-4", {
-            ["h-[160px]"]: !subTitle && description,
-            ["h-[120px]"]: subTitle && !description,
-          })}
+        <span
+          className={`absolute right-4 top-4 rounded-md px-3 py-1.5 text-xs font-extrabold ${featured ? "bg-secondary text-primary" : "bg-white text-primary"}`}
         >
-          <h1
-            className={clsx("text-2xl font-bold text-white line-clamp-2")}
-            dir="auto"
+          {label}
+        </span>
+        {full && (
+          <span className="absolute bottom-3 left-3 rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-white">
+            ظرفیت تکمیل
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          {item.level && (
+            <>
+              <span className={featured ? "text-indigo" : "text-dark-gray"}>
+                {item.level}
+              </span>
+              <span aria-hidden="true">·</span>
+            </>
+          )}
+          <span className={featured ? "text-indigo" : "text-dark-gray"}>
+            {item.tags.join(" / ")}
+          </span>
+        </div>
+        <h3 className="text-2xl font-black leading-9">{item.title}</h3>
+        {item.englishTitle && item.englishTitle !== item.title && (
+          <p
+            dir="ltr"
+            className={`mt-1 text-right text-sm font-medium ${featured ? "text-indigo" : "text-dark-gray"}`}
           >
-            {title}
-          </h1>
-          {subTitle && (
-            <p
-              className="w-full text-sm text-text-gray/50 line-clamp-2 my-2"
-              dir="ltr"
-            >
-              {subTitle}
-            </p>
-          )}
-          {description && (
-            <div
-              className="w-full text-sm text-text-gray line-clamp-3 mt-2"
-              dir="auto"
-              dangerouslySetInnerHTML={{ __html: description }}
-            />
-          )}
-        </div>
-        <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
-          {service_type === PresentationService.TALK ? (
-            <FaLaptop size={18} className="text-indigo" />
-          ) : (
-            <GrWorkshop size={18} className="text-indigo" />
-          )}
-          <p className="text-sm text-white" dir="ltr">
-            {service_type === PresentationService.TALK ? "آنلاین" : "حضوری"}
+            {item.englishTitle}
           </p>
-        </div>
-        <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
-          <IoTime size={18} className="text-indigo" />
-          <p className="text-sm text-white" dir="ltr">
-            {dateTime}
-          </p>
-        </div>
-        <div
-          className={clsx(
-            "w-full flex justify-start items-center gap-2 mt-2 px-4"
-          )}
+        )}
+        <p
+          className={`mt-3 line-clamp-2 text-sm leading-7 ${featured ? "text-text-gray" : "text-dark-gray"}`}
         >
-          <IoPerson size={18} className="text-indigo" />
-          <p className="text-white w-full">ارائه دهندگان:</p>
-        </div>
-        {presenters && (
+          {item.description}
+        </p>
+        <dl
+          className={`mt-5 grid grid-cols-2 gap-x-3 gap-y-3 text-xs sm:text-sm ${featured ? "text-text-gray" : "text-dark-gray"}`}
+        >
+          <div className="flex items-center gap-2">
+            <dt>
+              <HiCalendarDays className="size-4" aria-label="روز برگزاری" />
+            </dt>
+            <dd>{item.dateLabel}</dd>
+          </div>
+          <div className="flex items-center gap-2">
+            <dt>
+              <HiClock className="size-4" aria-label="زمان برگزاری" />
+            </dt>
+            <dd>{item.time}</dd>
+          </div>
+          <div className="col-span-2 flex items-center gap-2">
+            <dt>
+              <HiUser className="size-4" aria-label="ارائه‌دهنده" />
+            </dt>
+            <dd>{item.presenter}</dd>
+          </div>
+          <div className="col-span-2 flex items-center gap-2">
+            <dt>
+              {item.service === PresentationService.TALK ? (
+                <HiVideoCamera className="size-4" aria-label="نوع برگزاری" />
+              ) : (
+                <HiMapPin className="size-4" aria-label="نوع برگزاری" />
+              )}
+            </dt>
+            <dd>
+              {item.service === PresentationService.TALK
+                ? "آنلاین"
+                : "حضوری · دانشگاه امیرکبیر"}
+            </dd>
+          </div>
+        </dl>
+        <div
+          className={`mt-6 flex flex-1 flex-wrap items-end justify-between gap-3`}
+        >
           <div
-            className={clsx("relative flex items-center mt-2 px-4 h-[32px]", {
-              ["gap-2"]: presenters.length <= 5,
-            })}
+            className={`flex w-full flex-wrap items-center justify-between gap-3 border-t pt-5 ${featured ? "border-indigo/30" : "border-primary/15"}`}
           >
-            {presenters.length >= 5 ? (
-              <>
-                {presenters.map((presenter, index) => {
-                  return (
-                    index < 5 && (
-                      <img
-                        src={presenter.avatar}
-                        className="absolute min-w-[32px] h-[32px] rounded-full border-2 border-[#2C2C2C] z-1 object-cover"
-                        style={{ right: `${(index + 1) * 16}px` }}
-                      />
-                    )
-                  );
-                })}
-                <p
-                  className="absolute w-max"
-                  style={{
-                    right: `${Math.min(8, presenters.length + 2) * 16}px`,
-                  }}
-                >
-                  {digitsToPersian("بیش از 5 برگزار کننده")}
-                </p>
-              </>
-            ) : (
-              presenters.map((presenter, index) => {
-                return (
-                  <img
-                    src={presenter.avatar}
-                    className="w-[32px] h-[32px] rounded-full z-1 object-contain"
-                  />
-                );
-              })
-            )}
+            <div>
+              <p className="text-lg font-extrabold">
+                {item.price === 0 ? (
+                  "رایگان"
+                ) : (
+                  <>
+                    {digitsToPersian((item.price / 1000).toString())}
+                    <span
+                      className={`ms-1 text-xs font-normal ${featured ? "text-text-gray" : "text-dark-gray"}`}
+                    >
+                      هزار تومان
+                    </span>
+                  </>
+                )}
+              </p>
+              <p
+                className={`mt-1 text-xs ${featured ? "text-indigo" : "text-dark-gray"}`}
+              >
+                {full
+                  ? "ظرفیت تکمیل شده"
+                  : !item.registrationActive
+                    ? "ثبت‌نام بسته است"
+                    : `${digitsToPersian(item.remaining.toString())} جای خالی`}
+              </p>
+            </div>
+            <Link
+              to={`/workshop/${item.id}`}
+              className={`${actionClass} ${featured ? "bg-secondary text-primary hover:bg-[#e58210]" : "bg-text-white text-primary hover:bg-indigo/25"}`}
+            >
+              جزئیات برنامه
+              <HiArrowLeft aria-hidden="true" />
+            </Link>
           </div>
-        )}
-        <div className="w-full flex justify-center items-center gap-2 text-center text-indigo my-4">
-          <FaAngleDoubleDown className="animate-bounce rotate-90" />
-          <p>اطلاعات بیشتر</p>
-          <FaAngleDoubleDown className="animate-bounce -rotate-90" />
         </div>
-        <div className="w-full flex flex-row-reverse justify-between items-center gap-8 mb-4 px-4">
-          <Button
-            size={ButtonSizes.SMALL}
-            disabled={isFull}
-            loading={buttonLoading}
-            className={clsx(
-              "text-sm !px-4 text-white hover:bg-indigo-dark transition-all rounded-md w-full",
-              { ["!bg-indigo"]: !existInCart && !isFull }
-            )}
-            onClick={existInCart ? removeFromCart : addToCart}
-          >
-            {isFull
-              ? "ظرفیت تکمیل"
-              : existInCart
-              ? "حذف از سبد خرید"
-              : "اضافه به سبد خرید"}
-          </Button>
-          {!isFull && (
-            <p className="text-lg font-bold text-white w-full text-center">
-              {price === 0 ? "رایگان!" : `${price / 1000} هزار تومان`}
-            </p>
-          )}
-        </div>
-      </Link>
-
-      {/* {showModal && presentation && (
-        <WorkshopModal
-          presentation={presentation}
-          price={price}
-          dateTime={dateTime}
-          onClose={() => setShowModal(false)}
+        <WorkshopCartAction
+          id={item.id}
+          unavailable={full || !item.registrationActive}
+          featured={featured}
         />
-      )} */}
-    </>
-  );
-};
-
-export const WorkshopCardSkeleton = () => {
-  return (
-    <div className="flex flex-col rounded-xl bg-[#2C2C2C] w-[320px] h-[460px] shadow-lg overflow-hidden">
-      <Skeleton width={320} height={120} />
-      <div className="w-full flex flex-wrap gap-2 mt-2 px-4">
-        <Skeleton width={60} height={20} />
-        <Skeleton width={60} height={20} />
       </div>
-      <div className="flex flex-col justify-center items-start mt-4 px-4">
-        <Skeleton width={200} height={24} />
-        <Skeleton width={280} height={16} className="mt-2" />
-        <Skeleton width={280} height={16} />
-        <Skeleton width={200} height={16} />
-      </div>
-      <div className="w-full flex justify-start items-center gap-2 mt-4 px-4">
-        <Skeleton width={18} height={18} variant={SkeletonVariants.CIRCLE} />
-        <Skeleton width={100} height={16} />
-      </div>
-      <div className="w-full flex justify-start items-center gap-2 mt-2 px-4">
-        <Skeleton width={18} height={18} variant={SkeletonVariants.CIRCLE} />
-        <Skeleton width={120} height={16} />
-      </div>
-      <div className="w-full flex flex-row-reverse justify-between items-center gap-2 mb-4 mt-auto px-4">
-        <Skeleton width={100} height={32} />
-        <Skeleton width={80} height={24} />
-      </div>
-    </div>
+    </article>
   );
 };
 

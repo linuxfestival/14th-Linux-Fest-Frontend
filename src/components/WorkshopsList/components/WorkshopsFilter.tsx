@@ -1,82 +1,82 @@
-import React, { useState } from "react";
-import { FaSortNumericDownAlt } from "react-icons/fa";
-import { MdOutlineFilterAltOff, MdOutlineSort } from "react-icons/md";
+import { HiMagnifyingGlass, HiArrowPath } from "react-icons/hi2";
 
 export type Sort = "SORT_BY_DATE" | "SORT_BY_PRICE" | "SORT_BY_NAME";
 
 interface Props {
-  onSortSelect: (sortType: Sort) => void;
-  onSearch: (searchText: string) => void;
+  search: string;
+  sort: Sort;
+  availableOnly: boolean;
+  isFiltered: boolean;
+  onSearch: (value: string) => void;
+  onSortSelect: (value: Sort) => void;
+  onAvailabilityChange: (value: boolean) => void;
   onReset: () => void;
 }
 
-const WorkshopsFilter = ({ onSortSelect, onSearch, onReset }: Props) => {
-  const [selectedSort, setSelectedSort] = useState<Sort>("SORT_BY_DATE");
-  const [searchText, setSearchText] = useState("");
-
-  const handleReset = () => {
-    setSearchText("");
-    onSearch("");
-    onSortSelect("SORT_BY_DATE");
-    setSelectedSort("SORT_BY_DATE");
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
-    onSearch(e.target.value);
-  };
-
-  const handleSortSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = e.target.value as Sort;
-    onSortSelect(selected);
-    setSelectedSort(selected);
-  };
-
-  return (
-    <div className="w-full flex justify-between items-center bg-[#2C2C2C] rounded-full px-8 py-4 select-none">
-      <div className="flex items-center gap-2 relative">
-        <MdOutlineSort size={24} className="cursor-pointer" />
-        <select
-          onChange={handleSortSelect}
-          value={selectedSort}
-          className="pr-4 pl-2 py-2 rounded-full border-2 border-white/10 bg-[#2C2C2C] text-white outline-none cursor-pointer appearance-none"
-        >
-          <option
-            value="SORT_BY_DATE"
-            className="bg-[#2C2C2C] text-white border-0"
-          >
-            ترتیب بر اساس زمان
-          </option>
-          <option
-            value="SORT_BY_PRICE"
-            className="bg-[#2C2C2C] text-white border-0"
-          >
-            ترتیب بر اساس قیمت
-          </option>
-          <option
-            value="SORT_BY_NAME"
-            className="bg-[#2C2C2C] text-white border-0"
-          >
-            ترتیب بر اساس نام
-          </option>
-        </select>
-      </div>
-
-      <input
-        type="text"
-        placeholder="جست و جو ..."
-        className="px-4 py-2 rounded-full border-2 border-white/10 w-1/2 outline-none"
-        onChange={handleSearch}
-        value={searchText}
+const WorkshopsFilter = ({
+  search,
+  sort,
+  availableOnly,
+  isFiltered,
+  onSearch,
+  onSortSelect,
+  onAvailabilityChange,
+  onReset,
+}: Props) => (
+  <div
+    className="flex flex-col gap-4 rounded-xl bg-white p-5 sm:flex-row sm:flex-wrap sm:items-center"
+    role="region"
+    aria-label="جست‌وجو و فیلتر برنامه‌ها"
+  >
+    <div className="relative min-w-0 flex-1 sm:basis-64">
+      <HiMagnifyingGlass
+        aria-hidden="true"
+        className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-dark-gray"
       />
-
-      <MdOutlineFilterAltOff
-        size={24}
-        className="cursor-pointer"
-        onClick={handleReset}
+      <input
+        type="search"
+        aria-label="جست‌وجوی برنامه‌ها"
+        placeholder="جست‌وجوی برنامه، موضوع یا مدرس…"
+        value={search}
+        onChange={(event) => onSearch(event.target.value)}
+        className="h-11 w-full rounded-lg border border-primary/15 bg-text-white pr-11 pl-4 text-sm text-primary placeholder:text-dark-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       />
     </div>
-  );
-};
+    <div className="flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-2">
+        <select
+          aria-label="مرتب‌سازی"
+          value={sort}
+          onChange={(event) => onSortSelect(event.target.value as Sort)}
+          className="h-11 rounded-lg border border-primary/15 bg-white px-3 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <option value="SORT_BY_DATE">نزدیک‌ترین زمان</option>
+          <option value="SORT_BY_PRICE">کمترین قیمت</option>
+          <option value="SORT_BY_NAME">نام برنامه</option>
+        </select>
+      </div>
+      <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-dark-gray">
+        <input
+          type="checkbox"
+          checked={availableOnly}
+          onChange={(event) => onAvailabilityChange(event.target.checked)}
+          className="size-4 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        />
+        فقط ظرفیت‌دار
+      </label>
+      {isFiltered && (
+        <button
+          type="button"
+          onClick={onReset}
+          aria-label="بازنشانی فیلترها"
+          className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm text-dark-gray hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <HiArrowPath aria-hidden="true" className="size-4" />
+          بازنشانی
+        </button>
+      )}
+    </div>
+  </div>
+);
 
 export default WorkshopsFilter;

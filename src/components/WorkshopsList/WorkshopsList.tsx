@@ -1,167 +1,219 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Header from "../Header/Header.tsx";
-import WorkshopCard, {
-  WorkshopCardSkeleton,
-} from "./components/WorkshopCard.tsx";
-import { RootState, useAppDispatch } from "../../store.ts";
-import { getAllPresentationsThunk } from "../../core/presentations/presentations.thunk.ts";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { getCartThunk } from "../../core/cart/cart.thunk.ts";
+import { HiMagnifyingGlass } from "react-icons/hi2";
+import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
+import WorkshopCard from "./components/WorkshopCard";
+import WorkshopsFilter, { type Sort } from "./components/WorkshopsFilter";
+import { useAppDispatch } from "../../store";
+import { getAllPresentationsThunk } from "../../core/presentations/presentations.thunk";
 import {
   selectIsPresentationLoading,
   selectPresentationsState,
-} from "../../core/presentations/presentations.selector.ts";
-import { selectIsAuthenticated } from "../../core/auth/auth.selector.ts";
-import Footer from "../Footer/Footer.tsx";
-import WorkshopsFilter, { Sort } from "./components/WorkshopsFilter.tsx";
-import { PresentationService } from "../../core/presentations/presentations.dto.ts";
+} from "../../core/presentations/presentations.selector";
+import { PresentationService } from "../../core/presentations/presentations.dto";
+import {
+  toWorkshopItem,
+} from "./workshops.adapter";
+import { selectIsAuthenticated } from "../../core/auth/auth.selector";
+import { getCartThunk } from "../../core/cart/cart.thunk";
 
-// Pined Types
-const PinedTypes = [PresentationService.PACKAGE];
+const formats = [
+  { label: "همه برنامه‌ها", value: "ALL" },
+  { label: "کارگاه ها", value: PresentationService.WORKSHOP },
+  { label: "ارائه ها", value: PresentationService.TALK },
+  // { label: "پکیج‌ها", value: PresentationService.PACKAGE },
+];
+const normalize = (value: string) =>
+  value
+    .toLocaleLowerCase()
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\u200c/g, " ")
+    .trim();
 
 const WorkshopsList = () => {
   const dispatch = useAppDispatch();
-  const presentationLoading = useSelector(selectIsPresentationLoading);
-  const { list: presentations, loadedFirstTime } = useSelector(
-    selectPresentationsState
-  );
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  const [searchText, setSearchText] = useState("");
-  const [sortType, setSortType] = useState<Sort>("SORT_BY_DATE");
+  const loading = useSelector(selectIsPresentationLoading);
+  const { list, loadedFirstTime } = useSelector(selectPresentationsState);
+  const authenticated = useSelector(selectIsAuthenticated);
+  const [loadError, setLoadError] = useState(false);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<Sort>("SORT_BY_DATE");
+  const [format, setFormat] = useState("ALL");
+  const [day, setDay] = useState("ALL");
+  const [availableOnly, setAvailableOnly] = useState(false);
 
   useEffect(() => {
     if (!loadedFirstTime) {
-      dispatch(getAllPresentationsThunk());
+      dispatch(getAllPresentationsThunk()).then((result) =>
+        setLoadError(result.meta.requestStatus === "rejected"),
+      );
     }
-    if (isAuthenticated) {
-      dispatch(getCartThunk());
-    }
-  }, [loadedFirstTime, isAuthenticated]);
+  }, [dispatch, loadedFirstTime]);
 
-  const pinnedPresentations = useMemo(() => {
-    return presentations.filter(
-      (presentation) =>
-        PinedTypes.includes(presentation.service_type) &&
-        presentation.remained_capacity !== 0
-    );
-  }, [presentations]);
+  useEffect(() => {
+    if (authenticated) dispatch(getCartThunk());
+  }, [dispatch, authenticated]);
 
-  const [filteredPresentations, fullPresentations] = useMemo(() => {
-    const filtered = presentations
-      .filter((presentation) =>
-        presentation.fa_title.toLowerCase().includes(searchText.toLowerCase())
-      )
-      .sort((a, b) => {
-        switch (sortType) {
-          case "SORT_BY_PRICE":
-            return a.remained_capacity === 0 ? 1 : a.cost - b.cost;
-          case "SORT_BY_NAME":
-            return a.remained_capacity === 0
-              ? 1
-              : a.fa_title.localeCompare(b.fa_title);
-          case "SORT_BY_DATE":
-          default:
-            return a.remained_capacity === 0
-              ? 1
-              : new Date(a.start).getTime() - new Date(b.start).getTime();
-        }
-      });
-
-    const filteredPresentations = filtered.filter(
-      (presentation) =>
-        presentation.remained_capacity !== 0 &&
-        !PinedTypes.includes(presentation.service_type)
-    );
-
-    const fullPresentations = filtered.filter(
-      (presentation) => presentation.remained_capacity === 0
-    );
-
-    console.log("!@!", fullPresentations);
-    return [filteredPresentations, fullPresentations];
-  }, [presentations, searchText, sortType]);
+  const workshops = useMemo(
+    () => list.map(toWorkshopItem),
+    [list],
+  );
+  const days = useMemo(
+    () => [
+      ...new Map(
+        [...workshops]
+          .sort((a, b) => a.start.localeCompare(b.start))
+          .map((item) => [item.day, item.dateLabel]),
+      ).entries(),
+    ],
+    [workshops],
+  );
+  const visible = useMemo(
+    () =>
+      workshops
+        .filter(
+          (item) =>
+            (format === "ALL" || item.service === format) &&
+            (day === "ALL" || item.day === day) &&
+            (!availableOnly ||
+              (item.remaining > 0 && item.registrationActive)) &&
+            normalize(
+              [
+                item.title,
+                item.englishTitle,
+                item.description,
+                item.presenter,
+                ...item.tags,
+              ].join(" "),
+            ).includes(normalize(search)),
+        )
+        .sort((a, b) => {
+          const capacityOrder =
+            Number(a.remaining === 0) - Number(b.remaining === 0);
+          if (capacityOrder) return capacityOrder;
+          if (sort === "SORT_BY_PRICE") return a.price - b.price;
+          if (sort === "SORT_BY_NAME")
+            return a.title.localeCompare(b.title, "fa");
+          return a.start.localeCompare(b.start);
+        }),
+    [workshops, format, day, availableOnly, search, sort],
+  );
+  const reset = () => {
+    setSearch("");
+    setSort("SORT_BY_DATE");
+    setFormat("ALL");
+    setDay("ALL");
+    setAvailableOnly(false);
+  };
+  const isFiltered =
+    search !== "" ||
+    format !== "ALL" ||
+    day !== "ALL" ||
+    availableOnly ||
+    sort !== "SORT_BY_DATE";
 
   return (
-    <div className="relative min-h-[100dvh] w-full flex flex-col justify-between items-center bg-pattern">
+    <main className="min-h-dvh bg-text-white text-primary" dir="rtl">
       <Header />
 
-      <div className="w-3/4 flex justify-center items-center flex-wrap gap-10 overflow-hidden h-max mt-32 mb-8 pb-16">
+      <section
+        id="workshop-catalog"
+        className="mx-auto max-w-7xl scroll-mt-28 px-6 pb-20 pt-28 sm:px-8 sm:pt-32 lg:px-10"
+      >
         <WorkshopsFilter
-          onReset={() => {
-            setSearchText("");
-            setSortType("SORT_BY_DATE");
-          }}
-          onSearch={setSearchText}
-          onSortSelect={setSortType}
+          search={search}
+          sort={sort}
+          availableOnly={availableOnly}
+          onSearch={setSearch}
+          onSortSelect={setSort}
+          onAvailabilityChange={setAvailableOnly}
+          onReset={reset}
+          isFiltered={sort !== "SORT_BY_DATE" || availableOnly}
         />
-
-        {presentationLoading ? (
-          Array(6)
-            .fill(null)
-            .map((_, index) => <WorkshopCardSkeleton key={index} />)
+        <div className="my-5 flex flex-col gap-4 border-b border-primary/15 pb-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="نوع برنامه">
+            {formats.map((item) => (
+              <button key={item.value} type="button" aria-pressed={format === item.value} onClick={() => setFormat(item.value)}
+                className={`min-h-11 rounded-lg px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${format === item.value ? "bg-primary text-white" : "text-dark-gray hover:bg-primary/5 hover:text-primary"}`}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="روز برگزاری">
+            {[["ALL", "همه روزها"], ...days].map(([value, label]) => (
+              <button key={value} type="button" aria-pressed={day === value} onClick={() => setDay(value)}
+                className={`min-h-11 border-b-2 px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${day === value ? "border-secondary font-bold text-orange-ink" : "border-transparent text-dark-gray hover:text-primary"}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {loading ? (
+          <p role="status" className="py-16 text-center text-dark-gray">
+            در حال دریافت برنامه‌ها…
+          </p>
+        ) : loadError ? (
+          <div role="alert" className="py-16 text-center">
+            <h3 className="text-xl font-extrabold">
+              دریافت برنامه‌ها انجام نشد.
+            </h3>
+            <p className="mt-3 text-sm text-dark-gray">
+              اتصال اینترنت را بررسی کن و دوباره تلاش کن.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setLoadError(false);
+                dispatch(getAllPresentationsThunk()).then((result) =>
+                  setLoadError(result.meta.requestStatus === "rejected"),
+                );
+              }}
+              className="mt-6 rounded-lg bg-primary px-6 py-3 font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray"
+            >
+              تلاش دوباره
+            </button>
+          </div>
+        ) : visible.length ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {visible.map((item) => (
+              <WorkshopCard
+                key={item.id}
+                item={item}
+              />
+            ))}
+          </div>
         ) : (
-          <>
-            {pinnedPresentations.map((presentation) => (
-              <WorkshopCard
-                key={presentation.id}
-                dateTime={new Date(presentation.start).toLocaleString("fa")}
-                id={presentation.id}
-                title={presentation.en_title}
-                // subTitle={presentation.en_title}
-                // TODO: Remove description
-                description={presentation.en_description}
-                price={presentation.cost}
-                tags={presentation.tags}
-                pinned
-                specialPackage
-                banner={presentation.morkopoloyor}
-                service_type={presentation.service_type}
-                presenters={presentation.presenters}
-                remainedCapacity={presentation.remained_capacity}
-              />
-            ))}
-            {filteredPresentations.map((presentation) => (
-              <WorkshopCard
-                key={presentation.id}
-                dateTime={new Date(presentation.start).toLocaleString("fa")}
-                id={presentation.id}
-                title={presentation.en_title}
-                // subTitle={presentation.en_title}
-                // TODO: Remove description
-                description={presentation.en_description}
-                price={presentation.cost}
-                tags={presentation.tags}
-                banner={presentation.morkopoloyor}
-                service_type={presentation.service_type}
-                presenters={presentation.presenters}
-                remainedCapacity={presentation.remained_capacity}
-              />
-            ))}
-            {fullPresentations.map((presentation) => (
-              <WorkshopCard
-                key={presentation.id}
-                dateTime={new Date(presentation.start).toLocaleString("fa")}
-                id={presentation.id}
-                title={presentation.en_title}
-                // subTitle={presentation.en_title}
-                // TODO: Remove description
-                description={presentation.en_description}
-                price={presentation.cost}
-                tags={presentation.tags}
-                banner={presentation.morkopoloyor}
-                service_type={presentation.service_type}
-                presenters={presentation.presenters}
-                remainedCapacity={presentation.remained_capacity}
-                specialPackage={presentation.service_type === "PACKAGE"}
-              />
-            ))}
-          </>
+          <div className="flex flex-col items-center py-16 text-center">
+            <HiMagnifyingGlass
+              className="mb-4 size-10 text-dark-gray"
+              aria-hidden="true"
+            />
+            <h3 className="text-xl font-extrabold">
+              {isFiltered
+                ? "برنامه‌ای با این انتخاب پیدا نشد."
+                : "برنامه‌ها به‌زودی اینجا هستند."}
+            </h3>
+            <p className="mt-3 text-sm leading-7 text-dark-gray">
+              {isFiltered
+                ? "یک عبارت دیگر جست‌وجو کن یا فیلترها را بردار."
+                : "برای دیدن برنامه‌های تازه، کمی بعد دوباره سر بزن."}
+            </p>
+            <button
+              type="button"
+              onClick={
+                isFiltered ? reset : () => dispatch(getAllPresentationsThunk())
+              }
+              className="mt-6 rounded-lg bg-primary px-6 py-3 font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray"
+            >
+              {isFiltered ? "پاک کردن فیلترها" : "دریافت دوباره برنامه‌ها"}
+            </button>
+          </div>
         )}
-      </div>
-
+      </section>
       <Footer />
-    </div>
+    </main>
   );
 };
 

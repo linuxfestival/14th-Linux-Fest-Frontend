@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import ShoppingCart from "./components/ShoppingCart";
 import clsx from "clsx";
+import StickyHeader from "./StickyHeader";
 
 interface Props {
   sticky?: boolean;
@@ -14,7 +15,7 @@ interface Props {
   landing?: boolean;
 }
 
-const Header = ({
+const LegacyHeader = ({
   sticky = true,
   contestStyle = false,
   landing = false,
@@ -48,7 +49,7 @@ const Header = ({
       className={clsx(
         landing
           ? "relative z-5 mx-auto flex w-[calc(100%-2rem)] max-w-7xl flex-row-reverse items-center justify-between bg-transparent p-0 text-text-white md:w-[calc(100%-4rem)] md:py-5"
-          : "top-0 left-0 z-5 flex w-full flex-row-reverse items-center justify-between bg-light-gray p-[10px] lg:left-1/2 lg:top-[25px] lg:w-3/4 lg:-translate-x-1/2 lg:rounded-[26px]",
+          : "top-0 left-0 z-5 flex w-full flex-row-reverse items-center justify-between bg-light-gray text-text-white p-[10px] lg:left-1/2 lg:top-[25px] lg:w-3/4 lg:-translate-x-1/2 lg:rounded-[26px]",
         { ["fixed"]: sticky && !landing, ["absolute"]: !sticky && !landing },
         {
           ["!w-full !bg-transparent !shadow-none px-16"]: contestStyle,
@@ -102,13 +103,7 @@ const Header = ({
           className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
           to={"/workshops"}
         >
-          برنامه‌ها
-        </Link>
-        <Link
-          className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
-          to={"/contest"}
-        >
-          مسابقه
+          ارائه‌ها
         </Link>
         <Link
           className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
@@ -220,5 +215,12 @@ const Header = ({
     </div>
   );
 };
+
+const Header = (props: Props) =>
+  props.landing || props.contestStyle ? (
+    <LegacyHeader {...props} />
+  ) : (
+    <StickyHeader sticky={props.sticky} />
+  );
 
 export default Header;

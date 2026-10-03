@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { MdShoppingCart } from "react-icons/md";
-import { digitsToLatin } from "../../../utils/digitsToPersian";
+import { digitsToPersian } from "../../../utils/digitsToPersian";
 import { useSelector } from "react-redux";
 import { selectCartItemsCount } from "../../../core/cart/cart.selector";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { useAppDispatch } from "../../../store";
 import { getCartThunk } from "../../../core/cart/cart.thunk";
@@ -14,23 +14,29 @@ interface Props {
 
 const ShoppingCart = ({ className }: Props) => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const cartCount = useSelector(selectCartItemsCount);
 
   useEffect(() => {
     dispatch(getCartThunk());
-  }, []);
+  }, [dispatch]);
 
   return (
-    <div
-      className={clsx("relative cursor-pointer", className)}
-      onClick={() => navigate("/profile/cart/list")}
+    <Link
+      to="/profile/cart/list"
+      aria-label={`سبد خرید، ${digitsToPersian(String(cartCount))} برنامه`}
+      className={clsx(
+        "relative inline-flex size-11 items-center justify-center rounded-lg hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary",
+        className,
+      )}
     >
-      <div className="absolute -top-2 -right-2 bg-secondary text-sm text-white rounded-full w-5 h-5 flex justify-center items-center m-0">
-        {digitsToLatin(String(cartCount))}
+      <div
+        aria-hidden="true"
+        className="absolute -top-1 -right-1 bg-secondary text-xs font-bold text-primary rounded-full min-w-5 h-5 px-1 flex justify-center items-center m-0"
+      >
+        {digitsToPersian(String(cartCount))}
       </div>
-      <MdShoppingCart size={32} />
-    </div>
+      <MdShoppingCart size={24} aria-hidden="true" />
+    </Link>
   );
 };
 
