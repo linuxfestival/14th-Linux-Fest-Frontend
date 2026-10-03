@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import AlertIcon from "../icons/AlertIcon";
-import SuccessIcon from "../icons/SuccessIcon";
 import Loading from "../icons/Loading";
 
 interface InputFieldProps {
@@ -52,7 +51,7 @@ export default function InputField({ ...props }: InputFieldProps) {
         />
         <legend
           className={clsx(
-            "text-sm text-secondary-gray duration-300 px-1 mr-4 peer-focus:px-2 peer-placeholder-shown:scale-100"
+            "text-sm text-secondary-gray duration-300 px-1 mr-4 peer-focus:px-2 peer-placeholder-shown:scale-100",
           )}
         >
           {props.label}

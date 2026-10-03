@@ -5,47 +5,50 @@ import Fallback from "./components/Fallback/Fallback.tsx";
 const ProfileLayout = React.lazy(() => import("./layout/ProfileLayout.tsx"));
 const Home = React.lazy(() => import("./components/Home/Home"));
 const WorkshopsList = React.lazy(
-  () => import("./components/WorkshopsList/WorkshopsList.tsx")
+  () => import("./components/WorkshopsList/WorkshopsList.tsx"),
 );
+// const ComingSoon = React.lazy(
+//   () => import("./components/ComingSoon/ComingSoon.tsx"),
+// );
 const Staff = React.lazy(() => import("./components/Staff/Staff.tsx"));
 const Login = React.lazy(() => import("./components/Login/Login"));
 const Signup = React.lazy(() => import("./components/Signup/Signup"));
 const VerifyEmail = React.lazy(
-  () => import("./components/VerifyEmail/VerifyEmail")
+  () => import("./components/VerifyEmail/VerifyEmail"),
 );
 const ForgotPassword = React.lazy(
-  () => import("./components/ForgotPassword/ForgotPassword")
+  () => import("./components/ForgotPassword/ForgotPassword"),
 );
 const Onboarding = React.lazy(
-  () => import("./components/Onboarding/Onboarding")
+  () => import("./components/Onboarding/Onboarding"),
 );
 const FAQ = React.lazy(() => import("./components/FAQ/FAQ.tsx"));
 const PaymentStatus = React.lazy(
-  () => import("./components/PaymentStatus/PaymentStatus.tsx")
+  () => import("./components/PaymentStatus/PaymentStatus.tsx"),
 );
 const NotFound = React.lazy(() => import("./components/notFound/NotFound.tsx"));
 const Edit = React.lazy(() => import("./components/Dashboard/Edit/Edit.tsx"));
 const ProfileWorkshops = React.lazy(
-  () => import("./components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx")
+  () => import("./components/Dashboard/ProfileWorkshops/ProfileWorkshops.tsx"),
 );
 const Billings = React.lazy(
-  () => import("./components/Dashboard/Billings/Billings.tsx")
+  () => import("./components/Dashboard/Billings/Billings.tsx"),
 );
 const CartLayout = React.lazy(
-  () => import("./components/Dashboard/Cart/CartLayout.tsx")
+  () => import("./components/Dashboard/Cart/CartLayout.tsx"),
 );
 const CartsList = React.lazy(
-  () => import("./components/Dashboard/Cart/pages/CartsList.tsx")
+  () => import("./components/Dashboard/Cart/pages/CartsList.tsx"),
 );
 const CartPayment = React.lazy(
-  () => import("./components/Dashboard/Cart/pages/CartPayment.tsx")
+  () => import("./components/Dashboard/Cart/pages/CartPayment.tsx"),
 );
 const Workshop = React.lazy(() => import("./components/Workshop/Workshop.tsx"));
 const Presenters = React.lazy(
-  () => import("./components/Presenters/Presenters.tsx")
+  () => import("./components/Presenters/Presenters.tsx"),
 );
 const MainLayout = React.lazy(() => import("./layout/MainLayout.tsx"));
-const Contest = React.lazy(() => import("./components/Contest/Contest.tsx"));
+// const Contest = React.lazy(() => import("./components/Contest/Contest.tsx"));
 
 const router = createBrowserRouter([
   {
@@ -211,14 +214,14 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      {
-        path: "contest",
-        element: (
-          <Suspense fallback={<Fallback />}>
-            <Contest />
-          </Suspense>
-        ),
-      },
+      // {
+      //   path: "contest",
+      //   element: (
+      //     <Suspense fallback={<Fallback />}>
+      //       <Contest />
+      //     </Suspense>
+      //   ),
+      // },
       {
         path: "*",
         element: (

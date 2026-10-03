@@ -40,16 +40,17 @@ const Button = ({
   return (
     <div
       className={clsx(
-        "px-[16px] py-[8px] sm:py-[12px] text-center rounded-2xl text-white cursor-pointer transition-all",
+        "px-[16px] py-[8px] sm:py-[12px] text-center rounded-2xl text-white cursor-pointer transition-all rounded-2xl ",
         {
-          ["bg-secondary hover:bg-[#ee346c]"]: variant === ButtonVariants.FILL,
+          ["bg-secondary text-primary hover:bg-[#e58210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary"]:
+            variant === ButtonVariants.FILL,
           ["min-w-max w-1/2 font-medium text-lg"]: size === ButtonSizes.MEDIUM,
           ["w-full font-bold text-sm md:text-md lg:text-xl"]:
             size === ButtonSizes.LARGE,
           ["!bg-[#878787] !cursor-not-allowed select-none"]: disabled,
           ["flex justify-center items-center"]: loading,
         },
-        className
+        className,
       )}
       onClick={
         disabled || loading || !onClick

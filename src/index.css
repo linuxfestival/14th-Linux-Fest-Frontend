@@ -2,17 +2,18 @@
 @import "tailwindcss";
 
 @theme {
-    --color-primary: #151515;
-    --color-secondary: #FA175C;
-    --color-dark-gray: #242423;
-    --color-light-gray: #212120;
-    --color-text-gray: #C5C5C5;
-    --color-ubuntu-red: #B80C09;
-    --color-indigo: #7386E7;
-    --color-bg-sidebar: #1D1D1D;
-    --color-text-white: #EAEAEA;
-    --color-secondary-gray: #676A6E;
-    --color-bg-secondary: #202020;
+    --color-primary: #0B0D31;
+    --color-secondary: #F7941D;
+    --color-orange-ink: #A84D00;
+    --color-dark-gray: #0A3D77;
+    --color-light-gray: #0A3D77;
+    --color-text-gray: #C9DCF0;
+    --color-ubuntu-red: #C94B3B;
+    --color-indigo: #7EC8F3;
+    --color-bg-sidebar: #0B0D31;
+    --color-text-white: #F3F6F8;
+    --color-secondary-gray: #7EC8F3;
+    --color-bg-secondary: #0A3D77;
 }   
 
 @keyframes reverse-spin {
@@ -28,14 +29,65 @@
   animation: reverse-spin 1s linear infinite;
 }
 
+@keyframes terminal-cursor-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.terminal-cursor {
+  animation: terminal-cursor-blink 1s steps(1, end) infinite;
+}
+
+@keyframes hero-ticker-scroll {
+  from {
+    transform: translate3d(-66.666667%, 0, 0);
+  }
+  to {
+    transform: translate3d(-33.333333%, 0, 0);
+  }
+}
+
+.hero-ticker__track {
+  display: flex;
+  width: max-content;
+  animation: hero-ticker-scroll 20s linear infinite;
+  will-change: transform;
+}
+
+.hero-ticker__group {
+  display: flex;
+  flex: none;
+  gap: clamp(2rem, 4vw, 4rem);
+  min-width: 100vw;
+  justify-content: space-evenly;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-cursor,
+  .hero-ticker__track {
+    animation: none;
+  }
+
+  .hero-ticker__track {
+    transform: translate3d(-33.333333%, 0, 0);
+  }
+}
+
 body {
-    color: white;
-    background-color: #151515;
+    color: #F3F6F8;
+    background-color: #0B0D31;
     margin: 0;
     height: 100%;
     width: 100%;
     direction: rtl;
 }
+
+::selection { background: #F7941D; color: #0B0D31; }
+.landing-hero-dots::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .26; background-image: radial-gradient(#7ec8f3 1px, transparent 1.5px); background-size: 20px 20px; mask-image: linear-gradient(to bottom, black, transparent 88%); }
 
 * {
     font-family: "Vazirmatn", sans-serif !important;
