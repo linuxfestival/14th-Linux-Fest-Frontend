@@ -1,6 +1,6 @@
-import BadgeLinux from "../../assets/penwing.png";
-import Button from "../../components/Common/Button/Button.tsx";
-import InputField from "../Common/Button/Input.tsx";
+import AuthLayout from "../Auth/AuthLayout";
+import AuthField from "../Auth/AuthField";
+import AuthSubmit from "../Auth/AuthSubmit";
 import { RootState, useAppDispatch } from "../../store.ts";
 import { loginThunk } from "../../core/auth/auth.thunk.ts";
 import router from "../../routes.tsx";
@@ -9,7 +9,6 @@ import Cookies from "js-cookie";
 import { displayCommonErrorToast } from "../../utils/toastUtils.ts";
 import { Link } from "react-router-dom";
 import { initializeUser } from "../../core/auth/auth.slice.ts";
-import { FaArrowRight } from "react-icons/fa";
 import useInputHandler, {
   GeneralErrors,
   GeneralValidators as GV,
@@ -34,14 +33,17 @@ const Login = () => {
     },
   });
 
-  const { rawValue: email, valid: isEmailValid } = emailInput;
-  const { rawValue: password, valid: isPasswordValid } = passwordInput;
+  const { rawValue: email } = emailInput;
+  const { rawValue: password } = passwordInput;
 
   const dispatch = useAppDispatch();
   const { loading } = useSelector((state: RootState) => state.auth);
 
   const login = async () => {
-    if (!isEmailValid || !isPasswordValid) {
+    if (loading) return;
+    const valid = [emailInput.validate(), passwordInput.validate()].every(Boolean);
+    if (!valid) {
+      requestAnimationFrame(() => document.querySelector<HTMLInputElement>('input[aria-invalid="true"]')?.focus());
       return;
     }
 
@@ -75,7 +77,7 @@ const Login = () => {
 
       await router.navigate(userData.is_first_login ? "/onboarding" : "/");
     } else {
-      const payload = result.payload as {
+      const payload = (result.payload || {}) as {
         detail?: string;
         verification_required?: boolean;
         email?: string;
@@ -97,66 +99,18 @@ const Login = () => {
   };
 
   return (
-    <div className="relative h-[100dvh] overflow-auto w-full p-4 lg:p-13 flex justify-center items-center bg-pattern">
-      <div className="relative flex rounded-4xl p-4 w-full h-3/4 lg:h-full gap-2 justify-between items-center bg-[#101010cc] shadow-2xl xl:w-auto xl:aspect-4/3">
-        <div className="flex w-full md:w-4/7 flex-col md:m-10">
-          <h1 className="text-4xl font-bold text-white">ورود</h1>
-          <p className="text-lg text-gray-300 mb-9 mt-2">
-            حساب کاربری ندارید؟ &nbsp;
-            <a
-              href="/signup"
-              className="text-[#ffdd03] no-underline hover:underline"
-            >
-              ثبت نام
-            </a>
-            &nbsp; کنید
-          </p>
-          <div className="flex p-2 gap-4 flex-col w-full pb-7 mb-6">
-            <InputField
-              type="email"
-              placeholder="example@linux-fest.ir"
-              autocomplete="email"
-              label="ایمیل"
-              name="email"
-              {...emailInput}
-            />
-            <InputField
-              type="password"
-              placeholder="WowSoSecret"
-              autocomplete="current-password"
-              label="پسورد"
-              name="password"
-              {...passwordInput}
-            />
-          </div>
-          <Button
-            disabled={!isEmailValid || !isPasswordValid}
-            loading={loading}
-            onClick={login}
-            className="w-full"
-          >
-            ورود
-          </Button>
-          <Link to="/forgot-password" className="mt-4 text-center text-indigo">
-            رمز عبور را فراموش کرده‌اید؟
-          </Link>
-          <div className="md:hidden w-full flex justify-center items-center">
-            <Link to={"/"} className="mt-5 text-indigo text-lg">
-              <span>خانه</span>
-            </Link>
-          </div>
+    <AuthLayout title="ورود">
+      <form noValidate onSubmit={event => { event.preventDefault(); void login(); }}>
+        <fieldset disabled={loading} className="space-y-5">
+          <AuthField type="email" name="email" label="ایمیل" placeholder="you@example.com" autoComplete="email" direction="ltr" {...emailInput} />
+          <AuthField type="password" name="password" label="رمز عبور" placeholder="رمز عبورت را وارد کن" autoComplete="current-password" direction="ltr" {...passwordInput} />
+        </fieldset>
+        <div className="mb-6 mt-3 flex justify-end">
+          <Link to="/forgot-password" className="inline-flex min-h-11 items-center rounded-sm text-xs font-bold text-dark-gray underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">رمز عبورت را فراموش کرده‌ای؟</Link>
         </div>
-        <div className="relative hidden md:flex w-3/7 h-full rounded-3xl overflow-hidden justify-center items-center shadow-lg">
-          <img className="h-full object-cover" src={BadgeLinux} />
-          <Link to={"/"}>
-            <div className="absolute top-2 left-2 w-max flex justify-center items-center gap-2 px-4 py-2 bg-white/30 rounded-full cursor-pointer">
-              <FaArrowRight size={16} className="text-white" />
-              <p className="text-white font-bold">بازگشت به خانه</p>
-            </div>
-          </Link>
-        </div>
-      </div>
-    </div>
+        <AuthSubmit loading={loading}>ورود به حساب کاربری</AuthSubmit>
+      </form>
+    </AuthLayout>
   );
 };
 

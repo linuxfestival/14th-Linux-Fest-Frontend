@@ -3,12 +3,8 @@ import axiosRetry from "axios-retry";
 import { toast } from "react-toastify";
 import strings from "./locales/locales";
 import { logger } from "./logger";
-import router from "../routes.tsx";
 import Cookies from "js-cookie";
-import { refreshThunk } from "../core/auth/auth.thunk.ts";
-import store from "../store.ts";
-import { RefreshTokenResponse } from "../core/auth/auth.dto.ts";
-import { logout } from "../core/auth/auth.slice.ts";
+import type { RefreshTokenResponse } from "../core/auth/auth.dto.ts";
 
 // here we will do the main makeCall
 // the point is to handle all request failure errors and detect any axios error to provide error for all possible errors in easiest way
@@ -76,6 +72,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     if (error.response?.status === 401) {
+      // API factories are created while the store's modules initialize. Load
+      // their authentication dependencies only when a request needs recovery
+      // to avoid the makeCall -> store -> cart/auth API initialization cycle.
+      const [{ default: store }, { refreshThunk }, { logout }] = await Promise.all([
+        import("../store.ts"),
+        import("../core/auth/auth.thunk.ts"),
+        import("../core/auth/auth.slice.ts"),
+      ]);
       try {
         if (originalRequest.url?.includes("api/token/")) {
           throw error;
@@ -103,6 +107,7 @@ api.interceptors.response.use(
         if (!originalRequest.url?.includes("api/token/access/"))
           toast.error("نیاز دارید تا وارد شوید!");
         store.dispatch(logout());
+        const { default: router } = await import("../routes.tsx");
         router.navigate("/login");
         return Promise.reject(refreshError);
       }
