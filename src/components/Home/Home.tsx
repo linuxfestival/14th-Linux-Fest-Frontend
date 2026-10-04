@@ -6,14 +6,16 @@ import ProgramsSection from "./components/ProgramsSection";
 import SponsorsSection from "./components/SponsorsSection";
 
 const Home = () => (
-  <main className="overflow-hidden bg-text-white text-primary">
-    <HeroSection />
-    <ActivityTicker />
-    <ExperienceSection />
-    <ProgramsSection />
-    <SponsorsSection />
+  <>
+    <main className="overflow-hidden bg-text-white text-primary">
+      <HeroSection />
+      <ActivityTicker />
+      <ExperienceSection />
+      <ProgramsSection />
+      <SponsorsSection />
+    </main>
     <Footer />
-  </main>
+  </>
 );
 
 export default Home;
