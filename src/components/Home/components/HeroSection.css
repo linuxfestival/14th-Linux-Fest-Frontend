@@ -11,7 +11,33 @@
   animation: terminal-cursor-blink 1s steps(1, end) infinite;
 }
 
-.landing-hero-dots::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .26; background-image: radial-gradient(#7ec8f3 1px, transparent 1.5px); background-size: 20px 20px; mask-image: linear-gradient(to bottom, black, transparent 88%); }
+/* .landing-hero-dots::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .26; background-image: radial-gradient(#7ec8f3 1px, transparent 1.5px); background-size: 20px 20px; mask-image: linear-gradient(to bottom, black, transparent 88%); } */
+
+
+.landing-hero-dots::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-size: 20px 20px;
+  opacity: .26;
+  background-image: radial-gradient(#7ec8f3 1px, transparent 1.5px);
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+.landing-hero-dot-glow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.landing-hero-dots[data-dots-ready]::before {
+  opacity: 0;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .terminal-cursor {

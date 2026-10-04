@@ -3,9 +3,13 @@ import { Link } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi2";
 import Header from "../../Header/Header";
 import Penguin from "../../../assets/images/pinguin.png";
+import HeroDots from "./HeroDots";
 
 const HeroSection = () => (
-  <section className="landing-hero-dots relative isolate flex min-h-[95dvh] flex-col overflow-hidden bg-primary text-text-white">
+  <section
+    className="select-none landing-hero-dots relative isolate flex min-h-[95dvh] flex-col overflow-hidden bg-primary text-text-white"
+  >
+    <HeroDots />
     <Header landing />
     <div
       className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-8 px-6 py-8 sm:px-8 md:min-h-[32rem] md:grid-cols-[minmax(0,.95fr)_minmax(0,1.05fr)] md:gap-12 md:py-10 lg:px-10 lg:py-8"
