@@ -38,7 +38,7 @@ const experiences = [
 
 const ExperienceSection = () => (
   <section
-    className="experience-wash bg-text-white px-6 py-14 text-primary sm:px-8 sm:py-20 lg:px-10 lg:py-24"
+    className="experience-wash experience-montage bg-text-white px-6 py-14 text-primary sm:px-8 sm:py-20 lg:px-10 lg:py-24"
     dir="rtl"
     aria-labelledby="experience-heading"
   >
@@ -48,7 +48,7 @@ const ExperienceSection = () => (
           key={experience.title}
           className="grid grid-cols-1 items-center gap-8 border-b border-primary/15 py-12 first:pt-0 last:border-b-0 last:pb-0 sm:gap-10 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:py-20 xl:gap-20"
         >
-          <div className={`min-w-0 ${index % 2 === 1 ? "lg:order-2" : ""}`}>
+          <div className={`min-w-0 montage-photo ${index % 2 === 1 ? "lg:order-2" : ""}`}>
             <img
               className="h-auto w-full rounded-xl"
               src={experience.image}

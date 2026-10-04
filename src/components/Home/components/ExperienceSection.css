@@ -20,3 +20,95 @@
     radial-gradient(ellipse 500px 550px at 0% 52%, color-mix(in srgb, var(--color-secondary) 50%, transparent), transparent 75%),
     radial-gradient(ellipse 500px 500px at 100% 95%, var(--color-indigo), transparent 75%);
 }
+
+.experience-montage::before {
+  opacity: 0.25;
+}
+
+.experience-montage article {
+  border: 0;
+}
+
+.montage-photo {
+  position: relative;
+  isolation: isolate;
+  margin: 16px;
+}
+
+.montage-photo::before,
+.montage-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.montage-photo::before {
+  background: var(--color-indigo);
+  transform: rotate(-5deg);
+  opacity: 0.7;
+}
+
+.montage-photo::after {
+  border: 2px solid var(--color-secondary);
+  transform: rotate(5deg);
+}
+
+.montage-photo img {
+  display: block;
+  transform: rotate(-1.5deg);
+}
+
+.experience-montage article:nth-child(2) .montage-photo {
+  --montage-direction: -1;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .montage-photo {
+      view-timeline-name: --montage;
+      view-timeline-axis: block;
+    }
+
+    .montage-photo::before {
+      animation: lf-montage-back linear both;
+      animation-timeline: --montage;
+      animation-range: entry 0% exit 100%;
+    }
+
+    .montage-photo::after {
+      animation: lf-montage-outline linear both;
+      animation-timeline: --montage;
+      animation-range: entry 0% exit 100%;
+    }
+
+    .montage-photo img {
+      animation: lf-montage-photo linear both;
+      animation-timeline: --montage;
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+
+@keyframes lf-montage-back {
+  from { transform: translateY(20px) rotate(-7deg); }
+  to { transform: translateY(-20px) rotate(2deg); }
+}
+
+@keyframes lf-montage-outline {
+  from { transform: translateY(-10px) rotate(7deg); }
+  to { transform: translateY(10px) rotate(-3deg); }
+}
+
+@keyframes lf-montage-photo {
+  from { transform: rotate(calc(var(--montage-direction, 1) * -2deg)); }
+  to { transform: rotate(calc(var(--montage-direction, 1) * 2deg)); }
+}
+
+@media (max-width: 639px) {
+  .montage-photo {
+    margin: 12px;
+  }
+}

@@ -32,14 +32,15 @@ const LegacyHeader = ({
     const root = document.getElementById("root");
     if (!root) return;
 
-    root.style.overflow = menuOpen ? "hidden" : "auto";
+    const previousOverflow = root.style.overflow;
+    if (menuOpen) root.style.overflow = "hidden";
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
 
     window.addEventListener("keydown", closeOnEscape);
     return () => {
-      root.style.overflow = "auto";
+      if (menuOpen) root.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [menuOpen]);
