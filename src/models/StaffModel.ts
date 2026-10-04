@@ -1,4 +1,6 @@
 export interface StaffModel {
+    // Contact fields may grow independently of the directory's core fields.
+    [key: string]: unknown;
     id: number;
     name: string;
     image: string;

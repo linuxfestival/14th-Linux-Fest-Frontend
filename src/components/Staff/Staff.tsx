@@ -1,146 +1,77 @@
-import React, {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
-import {StaffModel, StaffTeam, StaffTeamTranslation} from "../../models/StaffModel.ts";
-import {makeCall} from "../../utils/makeCall.ts";
-import {Link} from "react-router-dom";
-import {FaLinkedin} from "react-icons/fa";
+import type { StaffModel } from "../../models/StaffModel";
+import { makeCall } from "../../utils/makeCall";
+import StaffCard from "./StaffCard";
+import { groupStaff } from "./staff.adapter";
 
-const ComingSoon = () => {
-    const [staff, setStaff] = useState<StaffModel[]>([]);
+const getStaff = makeCall<void, StaffModel[]>("/api/staff/", "GET");
 
-    useEffect(() => {
-        makeCall("/api/staff/", "GET").call(null, null)
-            .then(response => setStaff(response.data as StaffModel[]))
-            .catch(error => console.error("Error fetching staff:", error));
-    }, []);
+const Staff = () => {
+  const [staff, setStaff] = useState<StaffModel[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [retry, setRetry] = useState(0);
 
-    const teamOrder = [
-        "DIRECTOR",
-        "SCIENTIFIC",
-        "TECHNICAL",
-        "GRAPHICS",
-        "MARKETING",
-        "EXECUTIVE",
-        "MEDIA",
-        "DECORATION",
-    ];
+  useEffect(() => {
+    let active = true;
+    void getStaff().then(response => {
+      if (!active) return;
+      setStaff(response.data);
+      setLoadState("ready");
+    }).catch(() => {
+      if (active) setLoadState("error");
+    });
+    return () => { active = false; };
+  }, [retry]);
 
-    const groupedStaff = staff.reduce<Record<string, StaffModel[]>>((acc, member) => {
-        if (!acc[member.team]) {
-            acc[member.team] = [];
-        }
-        acc[member.team].push(member);
-        return acc;
-    }, {});
-
-    const sortedGroupedStaff = Object.fromEntries(
-        Object.entries(groupedStaff).sort(
-            ([teamA], [teamB]) => teamOrder.indexOf(teamA) - teamOrder.indexOf(teamB)
-        )
-    );
-
-    return (
-        <>
-            <div className="relative pt-24 w-full flex justify-center items-center bg-pattern">
-                <Header/>
-                <div className="container mx-auto p-4">
-                    {/* Directors Section */}
-                    <section className="mb-8">
-                        <h2 className="text-2xl font-bold mb-4">دبیران</h2>
-                        <div className="grid grid-cols-1 gap-4">
-                            {staff.filter(member => member.role === "DIRECTOR").map(director => (
-                                <div key={director.id} className="p-4 bg-light-gray rounded-lg text-center">
-                                    <img src={director.image} alt={director.name}
-                                         className="w-32 h-32 mx-auto rounded-full object-cover"/>
-                                    <h3 className="text-xl font-semibold mt-2">{director.name}</h3>
-                                    <p className="italic">"{director.quote}"</p>
-                                    {director.linkedin &&
-                                        <div className="flex justify-center mt-2">
-                                            <Link to={director.linkedin} target={"_blank"}>
-                                                <FaLinkedin
-                                                    className="text-secondary"
-                                                    size={30}
-                                                />
-                                            </Link>
-                                        </div>
-                                    }
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-
-                    {/* Teams Section */}
-                    {Object.entries(sortedGroupedStaff).map(([team, members]) => {
-                        const typedTeam = team as StaffTeam; // Ensure correct typing for the team
-
-                        // Find the head of the team (assuming role === "HEAD" is the identifier)
-                        const head = members.find(member => member.role === "HEAD");
-                        const staffWithoutHead = members.filter(member => member.role !== "HEAD");
-
-                        return (
-                            <>
-                                {typedTeam !== StaffTeam.DIRECTOR && (
-                                    <section key={typedTeam} className="mb-8">
-                                        {/* Section Title */}
-                                        <h2 className="text-2xl font-bold mb-4">
-                                            {StaffTeamTranslation[typedTeam] ?? ""}
-                                        </h2>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
-                                            {/* Head of the Team (Full Row) */}
-                                            {head && (
-                                                <div
-                                                    className="col-span-1 sm:col-span-2  text-center p-4 bg-light-gray rounded-lg">
-                                                    <h4 className="font-semibold my-2 mb-4">Head</h4>
-                                                    <img src={head.image} alt={head.name}
-                                                         className="w-32 h-32 mx-auto rounded-full object-cover"/>
-                                                    <h3 className="text-xl font-bold mt-2">{head.name}</h3>
-                                                    <p className="italic">"{head.quote}"</p>
-                                                    {head.linkedin &&
-                                                        <div className="flex justify-center mt-2">
-                                                            <Link to={head.linkedin} target={"_blank"}>
-                                                                <FaLinkedin
-                                                                    className="text-secondary"
-                                                                    size={30}
-                                                                />
-                                                            </Link>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            )}
-
-                                            {/* Other Team Members (Half Width) */}
-                                            {staffWithoutHead.map(member => (
-                                                <div key={member.id}
-                                                     className="p-4 bg-light-gray rounded-lg text-center">
-                                                    <img src={member.image} alt={member.name}
-                                                         className="w-24 h-24 mx-auto rounded-full object-cover"/>
-                                                    <h3 className="text-lg font-semibold mt-2">{member.name}</h3>
-                                                    <p className="italic">"{member.quote}"</p>
-                                                    {member.linkedin &&
-                                                        <div className="flex justify-center mt-2">
-                                                            <Link to={member.linkedin} target={"_blank"}>
-                                                                <FaLinkedin
-                                                                    className="text-secondary"
-                                                                    size={30}
-                                                                />
-                                                            </Link>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section>
-                                )}
-                            </>
-                        );
-                    })}
+  return (
+    <div className="flex min-h-dvh flex-col bg-text-white text-primary" dir="rtl">
+      <Helmet><title>لینوکس‌فست | دست‌اندرکاران</title></Helmet>
+      <Header />
+      <main className="mx-auto min-h-[70dvh] w-full max-w-7xl flex-1 px-5 pb-16 pt-28 sm:px-8 sm:pb-20 sm:pt-32 lg:px-10">
+        <div className="mb-9 border-b border-primary/15 pb-7">
+          <h1 className="text-3xl font-black leading-snug sm:text-4xl">دست‌اندرکاران</h1>
+          <p className="mt-3 text-base leading-8 text-dark-gray">با تیم برگزاری لینوکس‌فست آشنا شوید.</p>
+        </div>
+        {loadState === "loading" ? (
+          <div role="status" aria-label="در حال دریافت دست‌اندرکاران">
+            <span className="sr-only">در حال دریافت دست‌اندرکاران…</span>
+            <div aria-hidden="true" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2].map(index => (
+                <div key={index} className="overflow-hidden rounded-xl border border-primary/15 bg-white">
+                  <div className="flex h-48 items-center justify-center bg-indigo/20"><div className="size-28 rounded-full bg-primary/10 motion-safe:animate-pulse" /></div>
+                  <div className="space-y-4 p-6"><div className="h-5 w-2/3 rounded bg-primary/10 motion-safe:animate-pulse" /><div className="h-4 w-1/2 rounded bg-primary/5 motion-safe:animate-pulse" /></div>
                 </div>
+              ))}
             </div>
-            <Footer/>
-        </>
-    );
+          </div>
+        ) : loadState === "error" ? (
+          <div role="alert" className="rounded-xl border border-primary/15 bg-white p-6 sm:p-8">
+            <h2 className="text-lg font-bold">دریافت دست‌اندرکاران انجام نشد.</h2>
+            <p className="mt-3 text-sm leading-7 text-dark-gray">اتصال اینترنت را بررسی کن و دوباره تلاش کن.</p>
+            <button type="button" onClick={() => { setLoadState("loading"); setRetry(value => value + 1); }}
+              className="mt-5 min-h-11 rounded-lg bg-secondary px-5 py-3 text-sm font-bold text-primary hover:bg-[#e58210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">تلاش دوباره</button>
+          </div>
+        ) : !staff.length ? (
+          <p className="rounded-xl border border-primary/15 bg-white p-6 text-sm leading-7 text-dark-gray sm:p-8">هنوز اطلاعات دست‌اندرکاران منتشر نشده است.</p>
+        ) : (
+          <div className="space-y-12">
+            {groupStaff(staff).map(group => (
+              <section key={group.team} aria-labelledby={`team-${encodeURIComponent(group.team)}`}>
+                <h2 id={`team-${encodeURIComponent(group.team)}`} className="mb-5 break-words text-xl font-extrabold sm:text-2xl">{group.title}</h2>
+                <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {group.members.map(member => <StaffCard key={member.id} member={member} />)}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
-export default ComingSoon;
+export default Staff;
