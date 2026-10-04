@@ -4,10 +4,10 @@ import Header from "../../Header/Header";
 import Penguin from "../../../assets/images/pinguin.png";
 
 const HeroSection = () => (
-  <section className="landing-hero-dots relative isolate overflow-hidden bg-primary text-text-white">
+  <section className="landing-hero-dots relative isolate flex min-h-[95dvh] flex-col overflow-hidden bg-primary text-text-white">
     <Header landing />
     <div
-      className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-6 py-8 sm:px-8 md:min-h-[32rem] md:grid-cols-[minmax(0,.95fr)_minmax(0,1.05fr)] md:gap-12 md:py-10 lg:px-10 lg:py-8"
+      className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-8 px-6 py-8 sm:px-8 md:min-h-[32rem] md:grid-cols-[minmax(0,.95fr)_minmax(0,1.05fr)] md:gap-12 md:py-10 lg:px-10 lg:py-8"
       dir="ltr"
     >
       <div
@@ -50,16 +50,16 @@ const HeroSection = () => (
             </span>
           </em>
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#d7e8fa] sm:text-base sm:leading-7 lg:text-lg">
-          ارائه‌ها و کارگاه‌ها، بر پایه‌ی جامعه متن‌باز.
+        <p className="mt-4 max-w-[34rem] text-base leading-8 text-[#d7e8fa] lg:text-lg">
+          لینوکس بهونه‌ست، از هم یاد می‌گیریم و دوست پیدا می‌کنیم.
         </p>
         <div className="mt-7 flex flex-col-reverse items-stretch gap-4 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-x-8 sm:gap-y-5">
           <Link
             className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-secondary px-5 py-3.5 font-extrabold text-primary transition-colors hover:bg-[#e58210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary sm:w-auto sm:py-3"
             to="/workshops"
           >
-            شروع ثبت نام
-            <HiArrowLeft />
+            مشاهده ارائه‌ها
+            <HiArrowLeft aria-hidden="true" />
           </Link>
         </div>
       </div>

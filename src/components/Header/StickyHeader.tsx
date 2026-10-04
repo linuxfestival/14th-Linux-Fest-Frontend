@@ -135,7 +135,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                   to="/signup"
                   className={`hidden lg:inline-flex ${signupClass}`}
                 >
-                  ثبت نام
+                  ساخت حساب
                 </Link>
               </>
             )}
@@ -204,7 +204,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                   onClick={() => setOpen(false)}
                   className={`inline-flex ${signupClass}`}
                 >
-                  ثبت نام
+                  ساخت حساب
                 </Link>
                 <Link
                   to="/login"

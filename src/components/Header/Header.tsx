@@ -74,7 +74,7 @@ const LegacyHeader = ({
             <>
               <Link to="/signup" className="!w-full">
                 <Button size={ButtonSizes.MEDIUM} className="!w-full">
-                  ثبت نام
+                  ساخت حساب
                 </Button>
               </Link>
               <Link to="/login">
@@ -177,7 +177,7 @@ const LegacyHeader = ({
                 <>
                   <Link to="/signup" className="!w-full">
                     <Button size={ButtonSizes.MEDIUM} className="!w-full">
-                      ثبت نام
+                      ساخت حساب
                     </Button>
                   </Link>
                   <Link to="/login">
