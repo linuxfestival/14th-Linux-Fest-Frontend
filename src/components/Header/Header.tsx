@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button, { ButtonSizes, ButtonVariants } from "../Common/Button/Button";
 import { IoClose, IoMenu, IoPerson } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -23,25 +23,42 @@ const LegacyHeader = ({
   const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menu = useRef<HTMLDialogElement>(null);
+  const menuToggle = useRef<HTMLButtonElement>(null);
+  const { pathname } = useLocation();
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    setMenuOpen((open) => !open);
   };
 
   useEffect(() => {
-    const root = document.getElementById("root");
-    if (!root) return;
+    setMenuOpen(false);
+  }, [pathname]);
 
-    const previousOverflow = root.style.overflow;
-    if (menuOpen) root.style.overflow = "hidden";
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const close = () => setMenuOpen(false);
+    desktop.addEventListener("change", close);
+    return () => desktop.removeEventListener("change", close);
+  }, []);
 
-    window.addEventListener("keydown", closeOnEscape);
+  useLayoutEffect(() => {
+    if (!menuOpen) return;
+    const dialog = menu.current;
+    const toggle = menuToggle.current;
+    // The top layer escapes the hero's stacking context and fixed ancestors.
+    dialog?.showModal();
+    const elements = [document.documentElement, document.body];
+    const previousOverflow = elements.map((element) => element.style.overflow);
+    elements.forEach((element) => {
+      element.style.overflow = "hidden";
+    });
     return () => {
-      if (menuOpen) root.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      dialog?.close();
+      elements.forEach((element, index) => {
+        element.style.overflow = previousOverflow[index];
+      });
+      if (toggle?.isConnected) toggle.focus({ preventScroll: true });
     };
   }, [menuOpen]);
 
@@ -54,7 +71,7 @@ const LegacyHeader = ({
         { ["fixed"]: sticky && !landing, ["absolute"]: !sticky && !landing },
         {
           ["!w-full !bg-transparent !shadow-none px-16"]: contestStyle,
-          ["[&_nav]:!gap-8 [&_nav]:!text-[.92rem] [&_nav_a:first-child]:hidden [&_.bg-secondary]:!bg-secondary [&_.bg-secondary]:!font-extrabold [&_.bg-secondary]:!text-primary [&_img]:!size-10 [&_img]:!object-contain [&_p]:!text-2xl [&_p]:!font-black"]:
+          ["[&>nav]:!gap-8 [&>nav]:!text-[.92rem] [&>nav_a:first-child]:hidden [&_.bg-secondary]:!bg-secondary [&_.bg-secondary]:!font-extrabold [&_.bg-secondary]:!text-primary [&_img]:!size-10 [&_img]:!object-contain [&_p]:!text-2xl [&_p]:!font-black"]:
             landing,
           ["shadow-md"]: !contestStyle,
         },
@@ -127,8 +144,9 @@ const LegacyHeader = ({
       </nav>
 
       <button
+        ref={menuToggle}
         type="button"
-        className="visible rounded-sm p-2 text-text-white outline-offset-4 focus-visible:outline-2 focus-visible:outline-secondary lg:hidden"
+        className="inline-flex size-12 items-center justify-center rounded-lg text-text-white outline-offset-4 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-secondary lg:hidden"
         onClick={toggleMenu}
         aria-label="باز کردن منو"
         aria-expanded={menuOpen}
@@ -138,71 +156,85 @@ const LegacyHeader = ({
       </button>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-10 flex h-full w-full flex-col items-center justify-center bg-light-gray lg:hidden">
-          <nav
-            id="mobile-navigation"
-            className="flex flex-col gap-5 text-lg font-medium text-center"
-            aria-label="ناوبری موبایل"
-          >
-            <Link to={"/"} onClick={toggleMenu}>
-              خانه
-            </Link>
-            <Link to={"/workshops"} onClick={toggleMenu}>
-              ارائه‌ها
-            </Link>
-            <Link to={"/contest"} onClick={toggleMenu}>
-              مسابقه
-            </Link>
-            <Link to={"/faq"} onClick={toggleMenu}>
-              سوالات متداول
-            </Link>
-            <Link to={"/presenters"} onClick={toggleMenu}>
-              ارائه‌دهندگان
-            </Link>
-            <Link to={"/staff"} onClick={toggleMenu}>
-              دست اندرکاران
-            </Link>
-          </nav>
-          <div className="w-2/3 flex flex-col items-center gap-2 mt-10">
-            {isAuthenticated ? (
-              <>
-                <ShoppingCart className="mx-2" />
-                <IoPerson
-                  size={30}
-                  className="cursor-pointer"
-                  onClick={() => navigate("/profile/edit")}
-                />
-              </>
-            ) : (
-              !contestStyle && (
+        <dialog
+          ref={menu}
+          id="mobile-navigation"
+          aria-label="منوی سایت"
+          onCancel={() => setMenuOpen(false)}
+          onClose={() => setMenuOpen(false)}
+          dir="rtl"
+          data-lenis-prevent
+          className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-primary p-6 text-text-white outline-none sm:p-8 [&_nav_a]:flex [&_nav_a]:min-h-14 [&_nav_a]:items-center [&_nav_a]:rounded-lg [&_nav_a]:px-4 [&_nav_a]:hover:bg-white/5 [&_nav_a]:hover:text-secondary [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-4 [&_a]:focus-visible:outline-secondary"
+        >
+          <div className="mx-auto flex min-h-full w-full max-w-md flex-col pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
+            <div className="mb-8 flex items-center justify-between border-b border-indigo/20 pb-5">
+              <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-xl font-black">
+                <img src={logo} width={40} height={40} alt="نشان لینوکس‌فست" />
+                <span>لینوکس‌فست</span>
+              </Link>
+              <button
+                type="button"
+                autoFocus
+                className="inline-flex size-12 items-center justify-center rounded-lg text-indigo hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary"
+                onClick={() => setMenuOpen(false)}
+                aria-label="بستن منو"
+              >
+                <IoClose size={28} aria-hidden="true" />
+              </button>
+            </div>
+            <nav
+              className="mb-8 flex flex-col gap-1 text-lg font-bold"
+              aria-label="ناوبری موبایل"
+            >
+              <Link to={"/"} onClick={toggleMenu}>
+                خانه
+              </Link>
+              <Link to={"/workshops"} onClick={toggleMenu}>
+                ارائه‌ها
+              </Link>
+              <Link to={"/faq"} onClick={toggleMenu}>
+                سوالات متداول
+              </Link>
+              <Link to={"/presenters"} onClick={toggleMenu}>
+                ارائه‌دهندگان
+              </Link>
+              <Link to={"/staff"} onClick={toggleMenu}>
+                دست اندرکاران
+              </Link>
+            </nav>
+            <div className="mt-auto flex w-full items-center gap-4 border-t border-indigo/20 pt-6 [&>a]:flex-1">
+              {isAuthenticated ? (
                 <>
-                  <Link to="/signup" className="!w-full">
-                    <Button size={ButtonSizes.MEDIUM} className="!w-full">
-                      ساخت حساب
-                    </Button>
-                  </Link>
-                  <Link to="/login">
-                    <Button
-                      size={ButtonSizes.MEDIUM}
-                      variant={ButtonVariants.OUTLINE}
-                    >
-                      ورود
-                    </Button>
+                  <ShoppingCart className="mx-2" />
+                  <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center gap-2 rounded-lg text-indigo hover:bg-white/5">
+                    <IoPerson size={24} aria-hidden="true" />
+                    حساب کاربری
                   </Link>
                 </>
-              )
-            )}
-          </div>
+              ) : (
+                !contestStyle && (
+                  <>
+                    <Link to="/signup" onClick={() => setMenuOpen(false)}>
+                      <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                        ساخت حساب
+                      </Button>
+                    </Link>
+                    <Link to="/login" onClick={() => setMenuOpen(false)}>
+                      <Button
+                        size={ButtonSizes.MEDIUM}
+                        variant={ButtonVariants.OUTLINE}
+                        className="!w-full"
+                      >
+                        ورود
+                      </Button>
+                    </Link>
+                  </>
+                )
+              )}
+            </div>
 
-          <button
-            type="button"
-            className="mt-10 rounded-sm p-3 outline-offset-4 focus-visible:outline-2 focus-visible:outline-secondary"
-            onClick={() => setMenuOpen(false)}
-            aria-label="بستن منو"
-          >
-            <IoClose size={24} aria-hidden="true" />
-          </button>
-        </div>
+          </div>
+        </dialog>
       )}
 
       <Link
