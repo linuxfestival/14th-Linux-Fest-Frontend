@@ -1,72 +1,86 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
-import { motion } from "framer-motion";
-import Header from "../Header/Header.tsx";
-import Footer from "../Footer/Footer.tsx";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "../../store.ts";
-import { getFAQThunk } from "../../core/users/users.thunk.ts";
+import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { useSelector } from "react-redux";
+import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
+import { type RootState, useAppDispatch } from "../../store";
+import { getFAQThunk } from "../../core/users/users.thunk";
 
-interface FAQItemProps {
-  question: string;
-  answer: string;
-}
+const answerClass =
+  "mt-3 max-w-prose break-words text-base leading-8 text-dark-gray [&_p]:mb-3 [&_p:last-child]:mb-0 [&_a]:rounded-sm [&_a]:font-bold [&_a]:text-orange-ink [&_a]:underline [&_a]:underline-offset-4 [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-primary [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6 [&_li]:my-2 [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_pre]:max-w-full [&_pre]:overflow-x-auto";
 
-const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  return (
-    <div className="w-[70vw] overflow-hidden">
-      <button
-        className="w-full flex justify-between items-center cursor-pointer bg-dark-gray p-4 text-left text-lg font-medium "
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="text-right">{question}</span>
-        <FaChevronDown
-          className={`transform transition-transform ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
-        />
-      </button>
-      <motion.div
-        initial={{ height: 0 }}
-        animate={{ height: isOpen ? contentRef.current?.scrollHeight : 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="overflow-hidden"
-      >
-        <div
-          ref={contentRef}
-          className="p-4 bg-bg-sidebar"
-          dangerouslySetInnerHTML={{ __html: answer }}
-        />
-      </motion.div>
-    </div>
-  );
-};
-
-const FAQ: React.FC = () => {
+const FAQ = () => {
   const dispatch = useAppDispatch();
-
-  const { faqs } = useSelector((state: RootState) => state.users);
+  const faqs = useSelector((state: RootState) => state.users.faqs);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
-    dispatch(getFAQThunk());
-  }, [dispatch]);
+    let active = true;
+    void dispatch(getFAQThunk()).then(result => {
+      if (active) {
+        setLoadState(getFAQThunk.fulfilled.match(result) ? "ready" : "error");
+      }
+    });
+    return () => { active = false; };
+  }, [dispatch, retry]);
 
   return (
-    <>
-      <div className="relative pt-24 w-full min-h-[80vh] flex justify-center items-center bg-pattern">
-        <Header />
-        <div className=" mx-auto shadow-md rounded-lg overflow-hidden mb-24 mt-12">
-          <h2 className="text-3xl font-bold mb-11">سوالات متداول</h2>
-          {faqs.map((faq, index) => (
-            <FAQItem key={index} question={faq.question} answer={faq.answer} />
-          ))}
+    <div className="min-h-dvh bg-text-white text-primary" dir="rtl">
+      <Helmet>
+        <title>لینوکس‌فست | سوالات متداول</title>
+      </Helmet>
+      <Header />
+      <main className="mx-auto min-h-[70dvh] w-full max-w-4xl px-5 pb-16 pt-28 sm:px-8 sm:pb-20 sm:pt-36">
+        <h1 className="text-3xl font-black leading-snug sm:text-4xl">
+          سوالات متداول
+        </h1>
+        <p className="mt-3 text-base leading-8 text-dark-gray">
+          پاسخ پرسش‌های رایج درباره لینوکس‌فست.
+        </p>
+        <div className="mt-8 overflow-hidden rounded-xl border border-primary/15 bg-white sm:mt-10">
+          {loadState === "loading" ? (
+            <div role="status" aria-label="در حال دریافت سوالات">
+              <span className="sr-only">در حال دریافت سوالات…</span>
+              <div aria-hidden="true">
+                {[0, 1, 2].map(index => (
+                  <div key={index} className="space-y-4 border-b border-primary/15 p-6 last:border-b-0 sm:p-8">
+                    <div className="h-5 w-2/3 rounded bg-primary/10 motion-safe:animate-pulse" />
+                    <div className="h-4 w-full rounded bg-primary/5 motion-safe:animate-pulse" />
+                    <div className="h-4 w-4/5 rounded bg-primary/5 motion-safe:animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : loadState === "error" ? (
+            <div role="alert" className="p-6 sm:p-8">
+              <p className="font-bold">دریافت سوالات انجام نشد.</p>
+              <button
+                type="button"
+                onClick={() => { setLoadState("loading"); setRetry(value => value + 1); }}
+                className="mt-4 min-h-11 rounded-lg bg-secondary px-5 py-3 text-sm font-bold text-primary hover:bg-[#e58210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                تلاش دوباره
+              </button>
+            </div>
+          ) : faqs.length ? (
+            faqs.map((faq, index) => (
+              <article key={`${faq.question}-${index}`} className="border-b border-primary/15 p-6 last:border-b-0 sm:p-8">
+                <h2 className="break-words text-lg font-bold leading-8 sm:text-xl">
+                  {faq.question}
+                </h2>
+                <div className={answerClass} dangerouslySetInnerHTML={{ __html: faq.answer }} />
+              </article>
+            ))
+          ) : (
+            <p className="p-6 text-sm leading-7 text-dark-gray sm:p-8">
+              هنوز سوالی منتشر نشده است.
+            </p>
+          )}
         </div>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
