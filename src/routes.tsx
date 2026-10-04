@@ -5,6 +5,7 @@ import { DashboardLoading } from "./components/Dashboard/DashboardUI";
 
 const ProfileLayout = React.lazy(() => import("./layout/ProfileLayout.tsx"));
 const Home = React.lazy(() => import("./components/Home/Home"));
+const Sponsor = React.lazy(() => import("./components/Sponsor/Sponsor"));
 const WorkshopsList = React.lazy(
   () => import("./components/WorkshopsList/WorkshopsList.tsx"),
 );
@@ -64,6 +65,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Fallback />}>
             <Home />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/sponsor",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Sponsor />
           </Suspense>
         ),
       },

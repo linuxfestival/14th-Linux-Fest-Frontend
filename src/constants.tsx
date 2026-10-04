@@ -60,6 +60,10 @@ export const PageMetaInformation: Record<string, PageInformationOptions> = {
       "لینوکس ایران",
     ],
   },
+  ["/sponsor"]: {
+    title: "پیام همکاران سیستم",
+    description: "پیام همکاران سیستم، حامی لینوکس‌فست، و آشنایی با تیم توسعه نرم‌افزار آن‌ها.",
+  },
   ["/workshops"]: {
     title: "ارائه ها",
     description: "ارائه های چهاردهمین جشنواره لینوکس و متن‌باز را کشف کنید",

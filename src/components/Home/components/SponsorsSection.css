@@ -1,0 +1,16 @@
+.sponsor-section {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--color-text-white);
+  background-image:
+    radial-gradient(
+      ellipse at 12% 85%,
+      color-mix(in srgb, var(--color-indigo) 35%, transparent),
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse at 95% 10%,
+      color-mix(in srgb, var(--color-secondary) 14%, transparent),
+      transparent 60%
+    );
+}
