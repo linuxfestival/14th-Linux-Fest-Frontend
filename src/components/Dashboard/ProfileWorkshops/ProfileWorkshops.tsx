@@ -1,42 +1,79 @@
-import React, { useEffect } from "react";
-import RegisteredWorkshop from "./Components/RegisteredWorkshop";
-import { RootState, useAppDispatch } from "../../../store.ts";
-import { getCartThunk } from "../../../core/cart/cart.thunk.ts";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Lottie from "lottie-react";
-import notFound from "../../../assets/lottie/notFound.json";
-
+import { type RootState, useAppDispatch } from "../../../store";
+import { getCartThunk } from "../../../core/cart/cart.thunk";
+import RegisteredWorkshop from "./Components/RegisteredWorkshop";
+import {
+  DashboardEmpty,
+  DashboardLoading,
+  DashboardPage,
+  DashboardPanel,
+} from "../DashboardUI";
+import { secondaryActionClass } from "../dashboard.styles";
 const ProfileWorkshops = () => {
+  const { items, loading } = useSelector((state: RootState) => state.cart);
   const dispatch = useAppDispatch();
-
-  const { items: cart } = useSelector((root: RootState) => root.cart);
-
+  const [error, setError] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
-    dispatch(getCartThunk());
-  }, [dispatch]);
-
+    let active = true;
+    void dispatch(getCartThunk()).then((result) => {
+      if (active) {
+        setReady(true);
+        setError(!getCartThunk.fulfilled.match(result));
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [dispatch, retry]);
+  const registered = items.filter((item) => item.payment_state === "COMPLETED");
   return (
-    <div className="flex flex-col justify-center items-center gap-4 h-full w-full">
-      <h1 className="text-4xl font-bold mb-6">کارگاه های من</h1>
-      <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
-        {cart
-          .filter((el) => el.payment_state === "COMPLETED")
-          .map((el) => (
+    <DashboardPage
+      title="کارگاه‌های من"
+      description="ارائه‌هایی که ثبت‌نام و پرداختشان تکمیل شده، اینجا نمایش داده می‌شوند."
+    >
+      {loading || !ready ? (
+        <DashboardLoading />
+      ) : error ? (
+        <DashboardPanel>
+          <p role="alert" className="text-sm text-ubuntu-red">
+            دریافت ارائه‌ها ناموفق بود.
+          </p>
+          <button
+            type="button"
+            className={`${secondaryActionClass} mt-4`}
+            onClick={() => {
+              setReady(false);
+              setRetry((value) => value + 1);
+            }}
+          >
+            تلاش دوباره
+          </button>
+        </DashboardPanel>
+      ) : registered.length ? (
+        <div className="grid gap-4">
+          {registered.map(({ id, presentation }) => (
             <RegisteredWorkshop
-              title={el.presentation.en_title}
-              id={el.presentation.id}
-              time={new Date(el.presentation.start)}
+              key={id}
+              id={presentation.id}
+              title={presentation.fa_title || presentation.en_title}
+              time={new Date(presentation.start)}
+              end={new Date(presentation.end)}
+              image={presentation.morkopoloyor}
             />
           ))}
-        {cart.filter((el) => el.payment_state === "COMPLETED").length === 0 && (
-          <>
-            <Lottie animationData={notFound} />
-            <p className="text-2xl font-bold">کارگاهی یافت نشد!</p>
-          </>
-        )}
-      </div>
-    </div>
+        </div>
+      ) : (
+        <DashboardPanel>
+          <DashboardEmpty
+            title="هنوز ارائه‌ای ثبت‌نام نکرده‌اید"
+            description="ارائه‌های جشنواره را ببینید و کارگاه یا ارائه مورد علاقه‌تان را انتخاب کنید."
+          />
+        </DashboardPanel>
+      )}
+    </DashboardPage>
   );
 };
-
 export default ProfileWorkshops;

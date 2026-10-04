@@ -71,8 +71,7 @@ export const toWorkshopItem = (item: PresentationDto): WorkshopItem => {
     image:
       item.morkopoloyor ||
       (item.service_type === PresentationService.TALK ? Microphone : Terminal),
-    imageAlt: `تصویر برنامه ${item.fa_title || item.en_title}`,
+    imageAlt: `تصویر ارائه ${item.fa_title || item.en_title}`,
     imageTone: "bg-indigo/20",
   };
 };
-

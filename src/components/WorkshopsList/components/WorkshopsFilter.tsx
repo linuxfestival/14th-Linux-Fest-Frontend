@@ -26,7 +26,7 @@ const WorkshopsFilter = ({
   <div
     className="flex flex-col gap-4 rounded-xl bg-white p-5 sm:flex-row sm:flex-wrap sm:items-center"
     role="region"
-    aria-label="جست‌وجو و فیلتر برنامه‌ها"
+    aria-label="جست‌وجو و فیلتر ارائه‌ها"
   >
     <div className="relative min-w-0 flex-1 sm:basis-64">
       <HiMagnifyingGlass
@@ -35,8 +35,8 @@ const WorkshopsFilter = ({
       />
       <input
         type="search"
-        aria-label="جست‌وجوی برنامه‌ها"
-        placeholder="جست‌وجوی برنامه، موضوع یا مدرس…"
+        aria-label="جست‌وجوی ارائه‌ها"
+        placeholder="جست‌وجوی ارائه، موضوع یا مدرس…"
         value={search}
         onChange={(event) => onSearch(event.target.value)}
         className="h-11 w-full rounded-lg border border-primary/15 bg-text-white pr-11 pl-4 text-sm text-primary placeholder:text-dark-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -52,7 +52,7 @@ const WorkshopsFilter = ({
         >
           <option value="SORT_BY_DATE">نزدیک‌ترین زمان</option>
           <option value="SORT_BY_PRICE">کمترین قیمت</option>
-          <option value="SORT_BY_NAME">نام برنامه</option>
+          <option value="SORT_BY_NAME">نام ارائه</option>
         </select>
       </div>
       <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-dark-gray">

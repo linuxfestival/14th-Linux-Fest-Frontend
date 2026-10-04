@@ -1,116 +1,132 @@
-import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { IoCloseCircle, IoCopy, IoTimeOutline } from "react-icons/io5";
-import BillingModal from "./components/BillingModal.tsx";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "../../../store.ts";
-import { getPaymentListThunk } from "../../../core/payment/payment.thunk.ts";
-import { PaymentDto } from "../../../core/payment/payment.dto.ts";
-import Button from "../../Common/Button/Button.tsx";
-import { FaCheckCircle } from "react-icons/fa";
-import { MdOutlineAccessTimeFilled } from "react-icons/md";
-import { convertAndFormatToPersian } from "../../../utils/digitsToPersian.ts";
-
+import { toast } from "react-toastify";
+import { HiArrowLeft, HiDocumentText } from "react-icons/hi2";
+import { type RootState, useAppDispatch } from "../../../store";
+import { getPaymentListThunk } from "../../../core/payment/payment.thunk";
+import type { PaymentDto } from "../../../core/payment/payment.dto";
+import BillingModal from "./components/BillingModal";
+import {
+  DashboardEmpty,
+  DashboardLoading,
+  DashboardPage,
+  DashboardPanel,
+  PaymentBadge,
+} from "../DashboardUI";
+import { dateText, priceText, secondaryActionClass } from "../dashboard.styles";
 const Billings = () => {
-  const [selectedPayment, setSelectedPayment] = useState<PaymentDto | null>(
-    null
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const paymentsPerPage = 5;
-
   const dispatch = useAppDispatch();
-  const { payments } = useSelector((state: RootState) => state.payment);
-
-  const copyToClipboard = (id: string) => {
-    navigator.clipboard.writeText(id);
-    toast.info("شناسه تراکنش کپی شد!");
-  };
-
-  useEffect(() => {
-    dispatch(getPaymentListThunk());
-  }, [dispatch]);
-
-  const indexOfLastPayment = currentPage * paymentsPerPage;
-  const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
-  const currentPayments = payments.slice(
-    indexOfFirstPayment,
-    indexOfLastPayment
+  const { payments, loading, error } = useSelector(
+    (state: RootState) => state.payment,
   );
-
-  const totalPages = Math.ceil(payments.length / paymentsPerPage);
-
+  const [selected, setSelected] = useState<PaymentDto | null>(null);
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    void dispatch(getPaymentListThunk());
+  }, [dispatch]);
+  const pages = Math.max(1, Math.ceil(payments.length / 5));
+  const currentPage = Math.min(page, pages);
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.info("شناسه تراکنش کپی شد.");
+    } catch {
+      toast.error("کپی انجام نشد؛ شناسه را دستی کپی کنید.");
+    }
+  };
   return (
-    <div className="flex flex-col justify-center items-center gap-6 h-full w-full">
-      <h1 className="text-4xl font-bold mb-6">پرداخت‌ها</h1>
-      <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
-        {currentPayments.map((payment) => (
-          <div
-            key={payment.id}
-            className="bg-[#2C2C2C] w-full px-6 py-4 rounded-lg shadow-lg cursor-pointer hover:bg-[#3A3A3A] transition-all"
-            onClick={() => setSelectedPayment(payment)}
+    <DashboardPage
+      title="پرداخت‌ها"
+      description="وضعیت پرداخت‌ها و رسید خریدهای خود را بررسی کنید."
+    >
+      {loading ? (
+        <DashboardLoading />
+      ) : error ? (
+        <DashboardPanel>
+          <p role="alert" className="text-sm text-ubuntu-red">
+            دریافت پرداخت‌ها ناموفق بود.
+          </p>
+          <button
+            type="button"
+            className={`${secondaryActionClass} mt-4`}
+            onClick={() => void dispatch(getPaymentListThunk())}
           >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                {payment.payment_state === "COMPLETED" ? (
-                  <FaCheckCircle size={24} className="text-green-500" />
-                ) : payment.payment_state === "FAILED" ? (
-                  <IoCloseCircle size={24} className="text-red-500" />
-                ) : (
-                  <MdOutlineAccessTimeFilled
-                    size={24}
-                    className="text-gray-500"
-                  />
-                )}
-                <div>
-                  <p className="text-lg font-bold">
-                    {convertAndFormatToPersian(payment.total_price + "")}
-                  </p>
-                  <p className="text-sm text-text-gray hidden sm:flex items-center gap-1">
-                    <IoTimeOutline size={16} />
-                    {new Date(payment.created_date).toLocaleString("fa")}
-                  </p>
-                </div>
-              </div>
-              <button
-                className="flex items-center gap-1 cursor-pointer text-sm text-indigo hover:underline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  copyToClipboard(payment.authority);
-                }}
-              >
-                <IoCopy size={16} />
-                کپی شناسه
-              </button>
-            </div>
+            تلاش دوباره
+          </button>
+        </DashboardPanel>
+      ) : payments.length === 0 ? (
+        <DashboardPanel>
+          <DashboardEmpty
+            title="هنوز پرداختی ثبت نشده"
+            description="پس از خرید، وضعیت پرداخت و جزئیات رسید در این بخش در دسترس خواهد بود."
+          />
+        </DashboardPanel>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {payments
+              .slice((currentPage - 1) * 5, currentPage * 5)
+              .map((payment) => (
+                <button
+                  type="button"
+                  key={payment.id}
+                  onClick={() => setSelected(payment)}
+                  className="flex w-full flex-wrap items-center gap-4 rounded-xl border border-primary/15 bg-white p-5 text-right hover:border-primary/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-indigo/15 text-dark-gray">
+                    <HiDocumentText aria-hidden="true" className="size-6" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-lg font-bold">
+                      {priceText(payment.total_price)}{" "}
+                      <span className="text-xs font-normal">تومان</span>
+                    </span>
+                    <span className="mt-1 block text-xs leading-6 text-dark-gray">
+                      {dateText(payment.created_date)}
+                    </span>
+                  </span>
+                  <PaymentBadge state={payment.payment_state} />
+                  <span className="inline-flex items-center gap-2 text-xs font-bold text-orange-ink">
+                    مشاهده رسید
+                    <HiArrowLeft aria-hidden="true" className="size-4" />
+                  </span>
+                </button>
+              ))}
           </div>
-        ))}
-      </div>
-      <div className="flex justify-center items-center w-full px-4 max-w-[400px] gap-4 mt-4">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage(currentPage - 1)}
-        >
-          قبلی
-        </Button>
-        <span className="text-white text-nowrap">
-          {currentPage} از {totalPages}
-        </span>
-        <Button
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage(currentPage + 1)}
-        >
-          بعدی
-        </Button>
-      </div>
-      {selectedPayment && (
+          <nav
+            aria-label="صفحه‌بندی پرداخت‌ها"
+            className="flex items-center justify-center gap-4"
+          >
+            <button
+              type="button"
+              className={secondaryActionClass}
+              disabled={currentPage === 1}
+              onClick={() => setPage(currentPage - 1)}
+            >
+              قبلی
+            </button>
+            <span className="text-xs text-dark-gray">
+              {priceText(currentPage)} از {priceText(pages)}
+            </span>
+            <button
+              type="button"
+              className={secondaryActionClass}
+              disabled={currentPage === pages}
+              onClick={() => setPage(currentPage + 1)}
+            >
+              بعدی
+            </button>
+          </nav>
+        </>
+      )}
+      {selected && (
         <BillingModal
-          payment={selectedPayment}
-          onClose={() => setSelectedPayment(null)}
-          onCopy={copyToClipboard}
+          payment={selected}
+          onClose={() => setSelected(null)}
+          onCopy={(value) => void copy(value)}
         />
       )}
-    </div>
+    </DashboardPage>
   );
 };
-
 export default Billings;

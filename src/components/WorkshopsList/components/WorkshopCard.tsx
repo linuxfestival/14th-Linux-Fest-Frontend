@@ -154,7 +154,7 @@ const WorkshopCard = ({ item }: Props) => {
               to={`/workshop/${item.id}`}
               className={`${actionClass} ${featured ? "bg-secondary text-primary hover:bg-[#e58210]" : "bg-text-white text-primary hover:bg-indigo/25"}`}
             >
-              جزئیات برنامه
+              جزئیات ارائه
               <HiArrowLeft aria-hidden="true" />
             </Link>
           </div>

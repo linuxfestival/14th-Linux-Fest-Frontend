@@ -147,7 +147,7 @@ const LegacyHeader = ({
               خانه
             </Link>
             <Link to={"/workshops"} onClick={toggleMenu}>
-              برنامه‌ها
+              ارائه‌ها
             </Link>
             <Link to={"/contest"} onClick={toggleMenu}>
               مسابقه

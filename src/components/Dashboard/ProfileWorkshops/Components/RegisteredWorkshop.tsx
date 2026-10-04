@@ -1,89 +1,54 @@
-import clsx from "clsx";
-import React from "react";
-import { RiShareForwardFill } from "react-icons/ri";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import { HiArrowLeft, HiCalendarDays } from "react-icons/hi2";
+import fallback from "../../../../assets/images/terminal.png";
 
-export enum WorkshopStatus {
-  NOT_STARTED = "NOT_STARTED",
-  IN_PROGRESS = "IN_PROGRESS",
-  FINISHED = "FINISHED",
-}
-
-interface Props {
-  id: number
+import { dateText } from "../../dashboard.styles";
+const RegisteredWorkshop = ({
+  id,
+  title,
+  time,
+  end,
+  image,
+}: {
+  id: number;
   title: string;
   time: Date;
-}
-
-const RegisteredWorkshop = ({ id, title, time }: Props) => {
-  const now = new Date();
-  const startTime = new Date(time);
-  const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // Assuming 2-hour duration
-
-  // Determine status based on time
-  let status: WorkshopStatus;
-  if (now < startTime) {
-    status = WorkshopStatus.NOT_STARTED;
-  } else if (now >= startTime && now <= endTime) {
-    status = WorkshopStatus.IN_PROGRESS;
-  } else {
-    status = WorkshopStatus.FINISHED;
-  }
-
-  // Determine if the workshop is live
-  const live = status === WorkshopStatus.IN_PROGRESS;
-
+  end: Date;
+  image?: string;
+}) => {
+  const now = Date.now();
+  const upcoming = now < time.getTime();
+  const live = !upcoming && now <= end.getTime();
   return (
-    <div className="bg-[#404040] w-full px-4 py-2 rounded-lg relative shadow-lg">
-      <Link to={`/workshop/${id}`}>
-        <div className="flex items-center justify-between gap-8">
-          <div className="flex items-center gap-2">
-            <img
-                src="https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
-                className="w-[50px] h-[50px] rounded-lg"
-            />
-            <div>
-              <h1 className="text-lg font-bold">{title}</h1>
-              <p className="text-xs text-text-gray">
-                {startTime.toLocaleString("fa")}
-              </p>
-            </div>
-          </div>
-          {status === WorkshopStatus.NOT_STARTED && (
-              <p className="px-4 py-2 bg-[#802020] text-md font-bold rounded-full">
-                برگزار نشده
-              </p>
-          )}
-          {status === WorkshopStatus.IN_PROGRESS && (
-              <div className="flex flex-row-reverse items-center gap-2">
-                <p className="px-4 py-2 bg-indigo text-md font-bold rounded-full">
-                  درحال برگزاری
-                </p>
-                {live && (
-                    <div className="flex items-center bg-blue-500 text-white px-2 py-1 rounded-full gap-2">
-                      <RiShareForwardFill size={16}/>
-                      <p className="text-md font-bold text-sm cursor-pointer">
-                        ورود به کلاس
-                      </p>
-                    </div>
-                )}
-              </div>
-          )}
-          {status === WorkshopStatus.FINISHED && (
-              <p className="px-4 py-2 bg-[#208020] text-md font-bold rounded-full">
-                برگزار شده
-              </p>
-          )}
-        </div>
-        {live && (
-            <span className="flex size-3 absolute -top-1 -right-1">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-75"></span>
-          <span className="relative inline-flex size-3 rounded-full bg-blue-500"></span>
+    <article className="flex min-w-0 flex-col gap-5 rounded-xl border border-primary/15 bg-white p-5 sm:flex-row sm:items-center">
+      <img
+        src={image || fallback}
+        alt=""
+        onError={(event) => {
+          event.currentTarget.src = fallback;
+        }}
+        className="h-36 w-full rounded-lg bg-indigo/15 object-contain sm:size-24"
+      />
+      <div className="min-w-0 flex-1">
+        <span
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${live ? "bg-green-50 text-green-800" : "bg-indigo/15 text-dark-gray"}`}
+        >
+          {upcoming ? "پیش رو" : live ? "در حال برگزاری" : "برگزار شده"}
         </span>
-        )}
+        <h2 className="mt-3 break-words text-lg font-bold">{title}</h2>
+        <p className="mt-2 flex items-start gap-2 text-xs leading-6 text-dark-gray">
+          <HiCalendarDays aria-hidden="true" className="mt-1 size-4 shrink-0" />
+          {dateText(time)}
+        </p>
+      </div>
+      <Link
+        to={`/workshop/${id}`}
+        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold text-orange-ink hover:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-primary"
+      >
+        جزئیات ارائه
+        <HiArrowLeft aria-hidden="true" className="size-4" />
       </Link>
-    </div>
+    </article>
   );
 };
-
 export default RegisteredWorkshop;

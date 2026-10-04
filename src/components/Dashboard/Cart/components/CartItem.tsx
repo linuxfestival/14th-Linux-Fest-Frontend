@@ -1,78 +1,94 @@
-import React, { useCallback } from "react";
-import { GrTrash } from "react-icons/gr";
-import { IoPerson, IoTime } from "react-icons/io5";
-import { digitsToLatin } from "../../../../utils/digitsToPersian";
-import { toLocalPrice } from "../../../../utils/toLocalPrice";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { selectItemInCartById } from "../../../../core/cart/cart.selector";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { HiCalendarDays, HiTrash, HiUser } from "react-icons/hi2";
+import { useAppDispatch } from "../../../../store";
 import {
   getCartThunk,
   removeItemFromCartThunk,
 } from "../../../../core/cart/cart.thunk";
-import { useAppDispatch } from "../../../../store";
+import { selectCartState } from "../../../../core/cart/cart.selector";
+import fallback from "../../../../assets/images/terminal.png";
 
-interface CartItemProps {
-  id: number;
-  title: string;
-  instructor: string;
-  dateTime: string;
-  price: number;
-  currency: string;
-}
-
-const CartItem: React.FC<CartItemProps> = ({
+import { priceText } from "../../dashboard.styles";
+const CartItem = ({
   id,
   title,
   instructor,
   dateTime,
   price,
   currency,
+  image,
+}: {
+  id: number;
+  title: string;
+  instructor: string;
+  dateTime: string;
+  price: number;
+  currency: string;
+  image?: string;
 }) => {
   const dispatch = useAppDispatch();
-  const selectItemInCart = useSelector(selectItemInCartById(id));
-
-  const removeFromCart = useCallback(async () => {
-    if (!selectItemInCart) return;
-    await dispatch(removeItemFromCartThunk(selectItemInCart?.id));
-    await dispatch(getCartThunk());
-  }, [dispatch, selectItemInCart]);
-
+  const { loading } = useSelector(selectCartState);
+  const [removing, setRemoving] = useState(false);
+  const remove = async () => {
+    if (loading || removing) return;
+    setRemoving(true);
+    const result = await dispatch(removeItemFromCartThunk(id));
+    if (removeItemFromCartThunk.fulfilled.match(result))
+      await dispatch(getCartThunk());
+    else toast.error("حذف ارائه ناموفق بود. دوباره تلاش کنید.");
+    setRemoving(false);
+  };
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-2 w-full bg-[#2C2C2C] md:px-4 md:py-2 rounded-lg shadow-lg md:h-[100px] max-w-3/4">
-      <img
-        src="https://raw.githubusercontent.com/gist/vschmidt94/7ae2c23fede9f53bf63da4d7ace5fc14/raw/e41ed2bd565a54e90b33209dc820086e93121ab5/retro_gruvbox_linux_wallpaper.svg"
-        className="block md:hidden lg:block min-w-1/6 min-h-[100px] md:min-w-1/4 h-full object-cover rounded-md"
-      />
-      <div className="flex flex-col justify-center items-start gap-1 w-full p-4">
-        <h1 className="text-xl md:text-lg font-bold w-full md:w-max text-center">
-          {title}
-        </h1>
-        <div className="flex flex-col md:flex-row gap-4"></div>
-        <div className="flex items-center gap-1 text-text-gray mt-1 md:mt-0">
-          <IoPerson />
-          <p className="text-sm md:text-md">{instructor}</p>
-        </div>
-        <div className="flex items-center gap-1 text-text-gray">
-          <IoTime />
-          <p className="text-sm md:text-md" dir="ltr">
+    <article className="min-w-0 rounded-xl border border-primary/15 bg-white p-5">
+      <div className="flex items-start gap-4">
+        <img
+          src={image || fallback}
+          alt=""
+          onError={(event) => {
+            event.currentTarget.src = fallback;
+          }}
+          className="hidden size-20 shrink-0 rounded-lg bg-indigo/15 object-contain sm:block"
+        />
+        <div className="min-w-0 flex-1">
+          <Link
+            to={`/workshop/${id}`}
+            className="block break-words rounded-sm text-base font-bold leading-7 hover:text-orange-ink focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            {title}
+          </Link>
+          <p className="mt-2 flex items-start gap-2 text-xs leading-6 text-dark-gray">
+            <HiUser aria-hidden="true" className="mt-1 size-4 shrink-0" />
+            {instructor || "ارائه‌دهنده اعلام نشده"}
+          </p>
+          <p className="mt-1 flex items-start gap-2 text-xs leading-6 text-dark-gray">
+            <HiCalendarDays
+              aria-hidden="true"
+              className="mt-1 size-4 shrink-0"
+            />
             {dateTime}
           </p>
         </div>
       </div>
-
-      <div className="flex items-center justify-end w-full md:w-max px-4 pb-2 md:px-0 md:pb-0 min-w-max gap-5">
-        <GrTrash
-          size={16}
-          onClick={removeFromCart}
-          className="text-red-400 cursor-pointer"
-        />
-        <h1 className="text-3xl md:text-3xl lg:text-2xl font-bold">
-          {digitsToLatin(toLocalPrice(price))}
-          <span className="text-sm"> {currency}</span>
-        </h1>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-primary/10 pt-3">
+        <p className="text-lg font-bold">
+          {priceText(price)}{" "}
+          <span className="text-xs font-normal text-dark-gray">{currency}</span>
+        </p>
+        <button
+          type="button"
+          disabled={loading || removing}
+          onClick={() => void remove()}
+          aria-label={`حذف ${title} از سبد خرید`}
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-xs font-bold text-ubuntu-red hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50"
+        >
+          <HiTrash aria-hidden="true" className="size-4" />
+          {removing ? "در حال حذف…" : "حذف از سبد"}
+        </button>
       </div>
-    </div>
+    </article>
   );
 };
-
 export default CartItem;

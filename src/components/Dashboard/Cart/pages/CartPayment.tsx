@@ -1,35 +1,36 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
-import SelectableCard from "../components/SelectableCard";
-import Button, { ButtonVariants } from "../../../Common/Button/Button";
-import { useNavigate } from "react-router-dom";
-import { finalizePaymentThunk } from "../../../../core/payment/payment.thunk.ts";
-import InputField from "../../../Common/Button/Input.tsx";
-import { RootState, useAppDispatch } from "../../../../store.ts";
-import { toast } from "react-toastify";
-import { FinalizePaymentResponse } from "../../../../core/payment/payment.dto.ts";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { HiCreditCard } from "react-icons/hi2";
+import { type RootState, useAppDispatch } from "../../../../store";
+import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
+import { selectCartState } from "../../../../core/cart/cart.selector";
 import {
   getAccessoriesListThunk,
   getCouponStatusThunk,
-} from "../../../../core/cart/cart.thunk.ts";
-import { selectCartState } from "../../../../core/cart/cart.selector.ts";
-import Skeleton from "../../../Skeleton/Skeleton.tsx";
-import { AccessoryDto } from "../../../../core/cart/cart.api.ts";
+} from "../../../../core/cart/cart.thunk";
+import { finalizePaymentThunk } from "../../../../core/payment/payment.thunk";
+import AuthField from "../../../Auth/AuthField";
+import SelectableCard from "../components/SelectableCard";
 import {
-  digitsToLatin,
-  digitsToPersian,
-} from "../../../../utils/digitsToPersian.ts";
-import { IoCloseCircleSharp } from "react-icons/io5";
-
+  DashboardButton,
+  DashboardLoading,
+  DashboardPage,
+  DashboardPanel,
+} from "../../DashboardUI";
+import { priceText, secondaryActionClass } from "../../dashboard.styles";
 const CartPayment = () => {
-  const [coupon, setCoupon] = useState("");
-  const [showCouponModal, setShowCouponModal] = useState(false);
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
+  const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [paymentError, setPaymentError] = useState("");
+  const [accessoryError, setAccessoryError] = useState(false);
   const {
+    items,
     totalAmount,
     couponStatus,
     discountedAmount,
@@ -37,209 +38,237 @@ const CartPayment = () => {
     accessoryList,
     selectedAccessories,
   } = useSelector(selectCartState);
-
-  const { user } = useSelector((root: RootState) => root.users);
-
+  const user = useSelector((state: RootState) => state.users.user);
+  const paymentLoading = useSelector(
+    (state: RootState) => state.payment.loading,
+  );
+  const loadAccessories = () => {
+    setAccessoryError(false);
+    void dispatch(getAccessoriesListThunk()).then((result) =>
+      setAccessoryError(!getAccessoriesListThunk.fulfilled.match(result)),
+    );
+  };
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Checkout));
-    dispatch(getAccessoriesListThunk());
-  }, [dispatch]);
-
-  const takeAStepBackMortalAndThouShallBeForgiven = useCallback(() => {
-    navigate("/profile/cart/list");
-  }, [navigate]);
-
-  const applyCouponOnClick = () => {
-    dispatch(getCouponStatusThunk(coupon)).then((result) => {
-      if (result.payload && getCouponStatusThunk.fulfilled.match(result)) {
-        if (result.payload.is_valid) {
-          toast.success("کد تخفیف اعمال شد!");
-          setShowCouponModal(false);
-        } else toast.error("اعتبار کد تخفیف تمام شده است!");
-      } else {
-        toast.error(
-          (
-            result.payload as {
-              detail?: string;
-            }
-          )?.detail ?? "ارور نامشخص! لطفا با پیشتیبانی ارتباط بگیرید."
-        );
-      }
-    });
-  };
-
-  const displayAccessories = useMemo<boolean>(() => {
-    if (user == null) return false;
-    const userAccessories = user.accessories;
-    return true;
-  }, [user]);
-
-  const accessoriesToDisplay = useMemo<AccessoryDto[]>(() => {
-    if (!user) return [];
-    const userAccessories = user.accessories.map((a) => a.id);
-    return accessoryList.filter(
-      (accessory) => accessory.is_active && !userAccessories.includes(accessory.id)
+    void dispatch(getAccessoriesListThunk()).then((result) =>
+      setAccessoryError(!getAccessoriesListThunk.fulfilled.match(result)),
     );
-  }, [user, accessoryList]);
-
-  const dieInHonorOfMoney = useCallback(() => {
-    dispatch(
-      finalizePaymentThunk({
-        coupon: couponStatus && couponStatus.is_valid ? coupon : "",
-        accessories: selectedAccessories,
-      })
-    ).then((result) => {
-      const status_code = (result.payload as any).status;
-      const data = (result.payload as any).data;
-      if (finalizePaymentThunk.fulfilled.match(result)) {
-        if (data.payment_url)
-          location.href = data.payment_url;
-        else if (status_code === 204) {
-          toast.success("پرداخت با موفقیت انجام شد!")
-          navigate("/profile/workshops")
-        }
-        else
-          toast.error(
-              data?.detail ??
-              "ارور نامشخص! لطفا با پیشتیبانی ارتباط بگیرید."
-          );
-      } else {
-        const payload = result.payload as FinalizePaymentResponse;
-        toast.error(
-          payload.detail ?? "ارور نامشخص! لطفا با پیشتیبانی ارتباط بگیرید."
-        );
-      }
-    });
-  }, [coupon, couponStatus, dispatch, selectedAccessories]);
-
-  const handleAccessoryClick = (id: AccessoryDto["id"]) => {
-    const exist = selectedAccessories.some((accessoryID) => id === accessoryID);
-
-    if (exist) {
-      dispatch(cartActions.removeAccessory(id));
+  }, [dispatch]);
+  const available = accessoryList.filter(
+    (item) =>
+      item.is_active &&
+      !user?.accessories.some((owned) => owned.id === item.id),
+  );
+  const hasDiscount =
+    !!appliedCoupon && couponStatus?.is_valid && discountedAmount !== undefined;
+  const pending = items.filter((item) => item.payment_state !== "COMPLETED");
+  const applyCoupon = async () => {
+    if (!coupon.trim() || couponLoading || paymentLoading) return;
+    setCouponLoading(true);
+    setCouponError("");
+    const value = coupon.trim();
+    const result = await dispatch(getCouponStatusThunk(value));
+    if (
+      getCouponStatusThunk.fulfilled.match(result) &&
+      result.payload?.is_valid
+    ) {
+      setAppliedCoupon(value);
+      toast.success("کد تخفیف اعمال شد.");
     } else {
-      dispatch(cartActions.addAccessory(id));
+      setAppliedCoupon("");
+      setCouponError(
+        "کد تخفیف معتبر نیست یا دریافت آن ناموفق بود. دوباره بررسی کنید.",
+      );
+    }
+    setCouponLoading(false);
+  };
+  const pay = async () => {
+    if (
+      paymentLoading ||
+      couponLoading ||
+      accessoryLoading ||
+      !user ||
+      (!pending.length && !selectedAccessories.length)
+    )
+      return;
+    setPaymentError("");
+    const result = await dispatch(
+      finalizePaymentThunk({
+        coupon: hasDiscount ? appliedCoupon : "",
+        accessories: selectedAccessories,
+      }),
+    );
+    if (finalizePaymentThunk.fulfilled.match(result)) {
+      if (result.payload.data?.payment_url)
+        window.location.assign(result.payload.data.payment_url);
+      else if (result.payload.status === 204) {
+        toast.success("پرداخت با موفقیت انجام شد.");
+        navigate("/profile/workshops");
+      } else
+        setPaymentError(
+          result.payload.data?.detail || "پرداخت انجام نشد. دوباره تلاش کنید.",
+        );
+    } else {
+      const payload = result.payload as { detail?: string } | undefined;
+      setPaymentError(payload?.detail || "پرداخت انجام نشد. دوباره تلاش کنید.");
     }
   };
-
   return (
-    <>
-      <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
-        <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
-          {!accessoryLoading ? (
-            displayAccessories && accessoriesToDisplay.length > 0 ? (
-              <div className="flex flex-col gap-4 items-center justify-start w-full px-4">
-                <h1 className="text-4xl font-bold mb-6 mt-4">محصول اضافه</h1>
-                {accessoriesToDisplay?.map((accessory) => (
+    <DashboardPage
+      title="تکمیل خرید"
+      description="محصولات اختیاری، کد تخفیف و مبلغ نهایی را پیش از پرداخت بررسی کنید."
+    >
+      <div className="grid items-start gap-6 xl:grid-cols-[1fr_22rem]">
+        <div className="min-w-0 space-y-6">
+          <DashboardPanel>
+            <h2 className="text-lg font-bold">محصولات اختیاری</h2>
+            <p className="mt-2 text-sm leading-7 text-dark-gray">
+              در صورت تمایل، محصولات زیر را به خریدتان اضافه کنید.
+            </p>
+            <fieldset disabled={paymentLoading} className="mt-5 space-y-3">
+              {accessoryLoading ? (
+                <DashboardLoading text="در حال دریافت محصولات…" />
+              ) : accessoryError ? (
+                <>
+                  <p role="alert" className="text-sm text-ubuntu-red">
+                    دریافت محصولات ناموفق بود.
+                  </p>
+                  <button
+                    type="button"
+                    className={secondaryActionClass}
+                    onClick={loadAccessories}
+                  >
+                    تلاش دوباره
+                  </button>
+                </>
+              ) : available.length ? (
+                available.map((item) => (
                   <SelectableCard
-                    title={accessory.name}
-                    description={accessory.description}
-                    active={selectedAccessories.some(
-                      (accessoryID) => accessory.id === accessoryID
-                    )}
-                    image={accessory.img}
-                    onClick={() => handleAccessoryClick(accessory.id)}
-                    key={accessory.id}
+                    key={item.id}
+                    title={item.name}
+                    description={item.description}
+                    image={item.img}
+                    price={item.price}
+                    active={selectedAccessories.includes(item.id)}
+                    onClick={() =>
+                      dispatch(
+                        selectedAccessories.includes(item.id)
+                          ? cartActions.removeAccessory(item.id)
+                          : cartActions.addAccessory(item.id),
+                      )
+                    }
                   />
-                ))}
+                ))
+              ) : (
+                <p className="text-sm leading-7 text-dark-gray">
+                  محصول اضافه‌ای برای انتخاب در دسترس نیست.
+                </p>
+              )}
+            </fieldset>
+          </DashboardPanel>
+          <DashboardPanel>
+            <h2 className="text-lg font-bold">روش پرداخت</h2>
+            <div className="mt-5 flex items-center gap-4 rounded-lg border border-secondary bg-secondary/10 p-4">
+              <HiCreditCard aria-hidden="true" className="size-6" />
+              <div>
+                <p className="text-sm font-bold">درگاه زرین‌پال</p>
+                <p className="mt-1 text-xs leading-6 text-dark-gray">
+                  برای پرداخت به درگاه هدایت می‌شوید.
+                </p>
               </div>
-            ) : (
-              <></>
-            )
-          ) : (
-            <>
-              <Skeleton borderRadius={8} width={150} height={60} />
-              <Skeleton borderRadius={8} width={150} height={60} />
-              <Skeleton borderRadius={8} width={150} height={60} />
-            </>
-          )}
-        </div>
-
-        <h1 className="text-4xl font-bold mb-6 mt-12">روش های پرداخت</h1>
-        <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
-          <SelectableCard
-            title="پرداخت با زرین پال"
-            active={true}
-            image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2Uj1aeKDQmxRlusgFJjEdbtg0ZwnN5XP0IA&s"
-            onClick={() => {}}
-          />
-        </div>
-      </div>
-      <div className="flex flex-col gap-4 items-center justify-start w-full px-4 max-w-[600px]">
-        <div className="flex flex-col w-full  ">
-          {discountedAmount == null ? (
-            <div className="flex justify-between">
-              <p>مجموع قابل پرداخت:</p>
-              <p className="text-3xl font-bold">
-                {digitsToPersian(String(totalAmount))}
-                <span className="text-sm font-normal">تومان</span>
-              </p>
             </div>
-          ) : (
-            <div className="flex gap-1">
-              <p className="ml-auto">مجموع قابل پرداخت:</p>
-              <p className="line-through text-xl text-red-500">
-                {digitsToPersian(String(totalAmount))}
-              </p>
-              <p className="text-green-500 text-3xl font-bold">
-                {digitsToPersian(String(discountedAmount))}
-                <span className="text-sm font-normal">تومان</span>
-              </p>
+          </DashboardPanel>
+        </div>
+        <DashboardPanel className="xl:sticky xl:top-28">
+          <h2 className="text-lg font-bold">خلاصه پرداخت</h2>
+          <dl className="mt-5 space-y-3 text-sm text-dark-gray">
+            <div className="flex justify-between gap-3">
+              <dt>ارائه‌ها</dt>
+              <dd>{priceText(pending.length)}</dd>
             </div>
-          )}
-          <p
-            className="text-secondary cursor-pointer mt-1"
-            onClick={() => setShowCouponModal(true)}
+            <div className="flex justify-between gap-3">
+              <dt>محصولات اضافه</dt>
+              <dd>{priceText(selectedAccessories.length)}</dd>
+            </div>
+          </dl>
+          <form
+            className="mt-6 border-t border-primary/15 pt-5"
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              void applyCoupon();
+            }}
           >
-            کد تخفیف دارید؟
-          </p>
-        </div>
-        <div className="flex gap-2 w-full">
-          <Button
-            onClick={takeAStepBackMortalAndThouShallBeForgiven}
-            className="border-2"
-            variant={ButtonVariants.OUTLINE}
-          >
-            قبلی
-          </Button>
-          <Button onClick={dieInHonorOfMoney}>پرداخت</Button>
-        </div>
-      </div>
-      {showCouponModal && (
-        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-999">
-          <div
-            className="absolute w-full h-full bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowCouponModal(false)}
-          ></div>
-          <div className="flex flex-col w-5/6 lg:w-1/2 bg-dark-gray h-[200px] p-4 rounded-xl z-999">
-            <div className="mb-2">
-              <IoCloseCircleSharp
-                className="cursor-pointer"
-                size={24}
-                onClick={() => setShowCouponModal(false)}
+            <fieldset disabled={couponLoading || paymentLoading}>
+              <AuthField
+                label="کد تخفیف"
+                name="coupon"
+                value={coupon}
+                onChange={(event) => {
+                  setCoupon(event.target.value);
+                  setCouponError("");
+                }}
+                direction="ltr"
+                placeholder="کد را وارد کنید"
+                errorText={couponError}
               />
-            </div>
-            <InputField
-              className="grow"
-              type={"text"}
-              value={coupon}
-              placeholder={"MinosPrime"}
-              label={"کد تخفیف؟"}
-              onChange={(e) => setCoupon(e.target.value)}
-            />
-            <Button
-              className="text-[1rem] w-full"
-              variant={ButtonVariants.FILL}
-              disabled={coupon === ""}
-              onClick={applyCouponOnClick}
-            >
-              اعمال
-            </Button>
+              <button
+                type="submit"
+                disabled={!coupon.trim()}
+                className={`${secondaryActionClass} mt-3 w-full`}
+              >
+                {couponLoading ? "در حال بررسی…" : "اعمال کد تخفیف"}
+              </button>
+            </fieldset>
+            {hasDiscount && (
+              <p
+                role="status"
+                className="mt-3 break-all text-xs leading-6 text-green-800"
+              >
+                کد {appliedCoupon} اعمال شده است.
+              </p>
+            )}
+          </form>
+          <div className="mt-6 border-t border-primary/15 pt-5">
+            <p className="text-sm text-dark-gray">مبلغ نهایی</p>
+            {hasDiscount && (
+              <p className="mt-2 text-sm text-dark-gray line-through">
+                {priceText(totalAmount)} تومان
+              </p>
+            )}
+            <p className="mt-2 text-2xl font-black">
+              {priceText(hasDiscount ? discountedAmount! : totalAmount)}{" "}
+              <span className="text-xs font-normal">تومان</span>
+            </p>
           </div>
-        </div>
-      )}
-    </>
+          {paymentError && (
+            <p role="alert" className="mt-4 text-sm leading-7 text-ubuntu-red">
+              {paymentError}
+            </p>
+          )}
+          <DashboardButton
+            type="button"
+            onClick={() => void pay()}
+            loading={paymentLoading}
+            disabled={
+              couponLoading ||
+              accessoryLoading ||
+              !user ||
+              (!pending.length && !selectedAccessories.length)
+            }
+            className="mt-6 w-full"
+          >
+            پرداخت و تکمیل خرید
+          </DashboardButton>
+          <Link
+            to="/profile/cart/list"
+            className={`${secondaryActionClass} mt-3 w-full`}
+          >
+            بازگشت به سبد خرید
+          </Link>
+        </DashboardPanel>
+      </div>
+    </DashboardPage>
   );
 };
-
 export default CartPayment;

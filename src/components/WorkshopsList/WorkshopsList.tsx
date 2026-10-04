@@ -12,14 +12,12 @@ import {
   selectPresentationsState,
 } from "../../core/presentations/presentations.selector";
 import { PresentationService } from "../../core/presentations/presentations.dto";
-import {
-  toWorkshopItem,
-} from "./workshops.adapter";
+import { toWorkshopItem } from "./workshops.adapter";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import { getCartThunk } from "../../core/cart/cart.thunk";
 
 const formats = [
-  { label: "همه برنامه‌ها", value: "ALL" },
+  { label: "همه ارائه‌ها", value: "ALL" },
   { label: "کارگاه ها", value: PresentationService.WORKSHOP },
   { label: "ارائه ها", value: PresentationService.TALK },
   // { label: "پکیج‌ها", value: PresentationService.PACKAGE },
@@ -56,10 +54,7 @@ const WorkshopsList = () => {
     if (authenticated) dispatch(getCartThunk());
   }, [dispatch, authenticated]);
 
-  const workshops = useMemo(
-    () => list.map(toWorkshopItem),
-    [list],
-  );
+  const workshops = useMemo(() => list.map(toWorkshopItem), [list]);
   const days = useMemo(
     () => [
       ...new Map(
@@ -133,18 +128,36 @@ const WorkshopsList = () => {
           isFiltered={sort !== "SORT_BY_DATE" || availableOnly}
         />
         <div className="my-5 flex flex-col gap-4 border-b border-primary/15 pb-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2" role="group" aria-label="نوع برنامه">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="نوع ارائه"
+          >
             {formats.map((item) => (
-              <button key={item.value} type="button" aria-pressed={format === item.value} onClick={() => setFormat(item.value)}
-                className={`min-h-11 rounded-lg px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${format === item.value ? "bg-primary text-white" : "text-dark-gray hover:bg-primary/5 hover:text-primary"}`}>
+              <button
+                key={item.value}
+                type="button"
+                aria-pressed={format === item.value}
+                onClick={() => setFormat(item.value)}
+                className={`min-h-11 rounded-lg px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${format === item.value ? "bg-primary text-white" : "text-dark-gray hover:bg-primary/5 hover:text-primary"}`}
+              >
                 {item.label}
               </button>
             ))}
           </div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="روز برگزاری">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="روز برگزاری"
+          >
             {[["ALL", "همه روزها"], ...days].map(([value, label]) => (
-              <button key={value} type="button" aria-pressed={day === value} onClick={() => setDay(value)}
-                className={`min-h-11 border-b-2 px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${day === value ? "border-secondary font-bold text-orange-ink" : "border-transparent text-dark-gray hover:text-primary"}`}>
+              <button
+                key={value}
+                type="button"
+                aria-pressed={day === value}
+                onClick={() => setDay(value)}
+                className={`min-h-11 border-b-2 px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${day === value ? "border-secondary font-bold text-orange-ink" : "border-transparent text-dark-gray hover:text-primary"}`}
+              >
                 {label}
               </button>
             ))}
@@ -152,12 +165,12 @@ const WorkshopsList = () => {
         </div>
         {loading ? (
           <p role="status" className="py-16 text-center text-dark-gray">
-            در حال دریافت برنامه‌ها…
+            در حال دریافت ارائه‌ها…
           </p>
         ) : loadError ? (
           <div role="alert" className="py-16 text-center">
             <h3 className="text-xl font-extrabold">
-              دریافت برنامه‌ها انجام نشد.
+              دریافت ارائه‌ها انجام نشد.
             </h3>
             <p className="mt-3 text-sm text-dark-gray">
               اتصال اینترنت را بررسی کن و دوباره تلاش کن.
@@ -178,10 +191,7 @@ const WorkshopsList = () => {
         ) : visible.length ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((item) => (
-              <WorkshopCard
-                key={item.id}
-                item={item}
-              />
+              <WorkshopCard key={item.id} item={item} />
             ))}
           </div>
         ) : (
@@ -192,13 +202,13 @@ const WorkshopsList = () => {
             />
             <h3 className="text-xl font-extrabold">
               {isFiltered
-                ? "برنامه‌ای با این انتخاب پیدا نشد."
-                : "برنامه‌ها به‌زودی اینجا هستند."}
+                ? "ارائه‌ای با این انتخاب پیدا نشد."
+                : "ارائه‌ها به‌زودی اینجا هستند."}
             </h3>
             <p className="mt-3 text-sm leading-7 text-dark-gray">
               {isFiltered
                 ? "یک عبارت دیگر جست‌وجو کن یا فیلترها را بردار."
-                : "برای دیدن برنامه‌های تازه، کمی بعد دوباره سر بزن."}
+                : "برای دیدن ارائه‌های تازه، کمی بعد دوباره سر بزن."}
             </p>
             <button
               type="button"
@@ -207,7 +217,7 @@ const WorkshopsList = () => {
               }
               className="mt-6 rounded-lg bg-primary px-6 py-3 font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray"
             >
-              {isFiltered ? "پاک کردن فیلترها" : "دریافت دوباره برنامه‌ها"}
+              {isFiltered ? "پاک کردن فیلترها" : "دریافت دوباره ارائه‌ها"}
             </button>
           </div>
         )}

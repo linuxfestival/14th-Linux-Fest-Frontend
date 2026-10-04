@@ -1,70 +1,65 @@
-import React from "react";
-import { IoCopy, IoTimeOutline, IoClose, IoIdCard } from "react-icons/io5";
-import Button from "../../../Common/Button/Button.tsx";
-import { PaymentDto } from "../../../../core/payment/payment.dto.ts";
-
-interface BillingModalProps {
-  payment: PaymentDto;
-  onClose: () => void;
-  onCopy: (id: string) => void;
-}
-
-const BillingModal: React.FC<BillingModalProps> = ({
+import { HiClipboardDocument } from "react-icons/hi2";
+import type { PaymentDto } from "../../../../core/payment/payment.dto";
+import { DashboardDialog, PaymentBadge } from "../../DashboardUI";
+import {
+  dateText,
+  priceText,
+  secondaryActionClass,
+} from "../../dashboard.styles";
+const BillingModal = ({
   payment,
   onClose,
   onCopy,
-}) => {
-  return (
-    <div className="fixed inset-0 flex justify-center items-center z-50">
-      <div
-        className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-      <div className="relative bg-[#1E1E1E] w-[90%] max-w-lg px-8 py-6 rounded-xl shadow-2xl transform transition-transform scale-100">
-        <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors cursor-pointer"
-          onClick={onClose}
-        >
-          <IoClose size={24} />
-        </button>
-        <h2 className="text-2xl font-bold mb-6 text-center">رسید پرداخت</h2>
-        <div className="flex flex-col gap-4">
-          <p className="text-lg flex items-center gap-2">
-            <span className="font-bold">مبلغ:</span> {payment.total_price}
-          </p>
-          <p className="text-lg flex items-center gap-2">
-            <IoTimeOutline size={20} />
-            <span className="font-bold">زمان:</span>{" "}
-            {new Date(payment.created_date).toLocaleDateString("fa")}
-          </p>
-          <p className="text-lg flex items-center gap-2">
-            <IoIdCard size={20} />
-            <span className="font-bold">شناسه تراکنش:</span>{" "}
-            <span
-              className="text-indigo cursor-pointer hover:underline max-w-1/2 overflow-hidden overflow-ellipsis"
-              onClick={() => onCopy(payment.authority)}
-            >
-              {payment.authority}
-            </span>
-          </p>
-        </div>
-        <h3 className="text-lg font-bold mt-6">موارد خریداری شده:</h3>
-        <ul className="list-disc list-inside text-sm mt-2 space-y-1">
-          {payment.participations.map((item, index) => (
-            <li key={index}>{item.presentation.en_title}</li>
-          ))}
-        </ul>
-        <div className="mt-8 flex justify-center">
-          <Button
-            className="px-8 py-2 bg-indigo text-white rounded-lg hover:bg-indigo-dark transition-all"
-            onClick={onClose}
-          >
-            بستن
-          </Button>
-        </div>
-      </div>
+}: {
+  payment: PaymentDto;
+  onClose: () => void;
+  onCopy: (id: string) => void;
+}) => (
+  <DashboardDialog title="رسید پرداخت" onClose={onClose}>
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-primary/15 pb-5">
+      <p className="text-2xl font-black">
+        {priceText(payment.total_price)}{" "}
+        <span className="text-sm font-normal">تومان</span>
+      </p>
+      <PaymentBadge state={payment.payment_state} />
     </div>
-  );
-};
-
+    <dl className="mt-5 space-y-4 text-sm">
+      <div>
+        <dt className="text-xs text-dark-gray">زمان پرداخت</dt>
+        <dd className="mt-1 leading-7">{dateText(payment.created_date)}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-dark-gray">شناسه تراکنش</dt>
+        <dd
+          className="mt-2 break-all rounded-lg bg-text-white p-3 text-xs leading-6"
+          dir="ltr"
+        >
+          {payment.authority || "—"}
+        </dd>
+      </div>
+    </dl>
+    <button
+      type="button"
+      disabled={!payment.authority}
+      onClick={() => onCopy(payment.authority)}
+      className={`${secondaryActionClass} mt-3`}
+    >
+      <HiClipboardDocument aria-hidden="true" className="size-4" />
+      کپی شناسه
+    </button>
+    <h3 className="mt-6 border-t border-primary/15 pt-5 text-sm font-bold">
+      ارائه‌های این پرداخت
+    </h3>
+    <ul className="mt-3 space-y-2 text-sm leading-7">
+      {payment.participations.map((item) => (
+        <li key={item.id}>
+          {item.presentation.fa_title || item.presentation.en_title}
+        </li>
+      ))}
+      {!payment.participations.length && (
+        <li className="text-dark-gray">ارائه‌ای در این رسید ثبت نشده است.</li>
+      )}
+    </ul>
+  </DashboardDialog>
+);
 export default BillingModal;

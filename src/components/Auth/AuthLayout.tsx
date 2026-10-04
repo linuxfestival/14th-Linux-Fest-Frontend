@@ -49,14 +49,17 @@ const AuthLayout = ({
             {title}
           </h1>
           <p className="mt-3 text-sm leading-7 text-dark-gray">
-            {description ?? <>{signup ? "حساب کاربری داری؟" : "هنوز حساب کاربری نداری؟"}{" "}
-            <Link
-              to={signup ? "/login" : "/signup"}
-              className="rounded-sm font-bold text-orange-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              {signup ? "وارد شو" : "ثبت‌نام کن"}
-            </Link>
-            </>}
+            {description ?? (
+              <>
+                {signup ? "حساب کاربری داری؟" : "هنوز حساب کاربری نداری؟"}{" "}
+                <Link
+                  to={signup ? "/login" : "/signup"}
+                  className="rounded-sm font-bold text-orange-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  {signup ? "وارد شو" : "ثبت‌نام کن"}
+                </Link>
+              </>
+            )}
           </p>
           <div className="mt-7">{children}</div>
         </section>
@@ -76,7 +79,7 @@ const AuthLayout = ({
             to="/workshops"
             className="inline-flex min-h-11 w-fit items-center gap-3 rounded-lg py-3 text-sm font-bold text-indigo underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary"
           >
-            اول برنامه‌ها را ببین
+            اول ارائه‌ها را ببین
             <HiArrowLeft aria-hidden="true" className="size-4" />
           </Link>
         </aside>

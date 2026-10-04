@@ -41,7 +41,7 @@ const Presenters = () => {
         <title>لینوکس‌فست | ارائه‌دهندگان</title>
         <meta
           name="description"
-          content="با ارائه‌دهندگان برنامه‌های لینوکس‌فست آشنا شوید."
+          content="با ارائه‌دهندگان ارائه‌های لینوکس‌فست آشنا شوید."
         />
       </Helmet>
       <Header />

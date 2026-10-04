@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import React, { Suspense } from "react";
 import Fallback from "./components/Fallback/Fallback.tsx";
+import { DashboardLoading } from "./components/Dashboard/DashboardUI";
 
 const ProfileLayout = React.lazy(() => import("./layout/ProfileLayout.tsx"));
 const Home = React.lazy(() => import("./components/Home/Home"));
@@ -141,7 +142,7 @@ const router = createBrowserRouter([
           {
             path: "cart",
             element: (
-              <Suspense fallback={<Fallback />}>
+              <Suspense fallback={<DashboardLoading />}>
                 <CartLayout />
               </Suspense>
             ),
@@ -149,7 +150,7 @@ const router = createBrowserRouter([
               {
                 path: "list",
                 element: (
-                  <Suspense fallback={<Fallback />}>
+                  <Suspense fallback={<DashboardLoading />}>
                     <CartsList />
                   </Suspense>
                 ),
@@ -157,7 +158,7 @@ const router = createBrowserRouter([
               {
                 path: "checkout",
                 element: (
-                  <Suspense fallback={<Fallback />}>
+                  <Suspense fallback={<DashboardLoading />}>
                     <CartPayment />
                   </Suspense>
                 ),

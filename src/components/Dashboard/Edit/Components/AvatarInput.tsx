@@ -1,57 +1,59 @@
-import React, {useEffect, useState} from "react";
+import { useEffect, useId, useState } from "react";
+import { HiCamera } from "react-icons/hi2";
 import defaultAvatar from "../../../../assets/images/pinguin.png";
-import Camera from "../../../Common/icons/Camera";
-import clsx from "clsx";
-import {toast} from "react-toastify";
-
-interface Props {
-  className?: string;
+const AvatarInput = ({
+  url,
+  onChange,
+  disabled = false,
+}: {
+  url: string;
   onChange: (file: File) => void;
-  url: string
-}
-
-const AvatarInput = ({ className, url, onChange }: Props) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const imageUrl = URL.createObjectURL(event.target.files[0]);
-      setSelectedImage(imageUrl);
-      onChange(event.target.files[0]);
-    }
-  };
-
+  disabled?: boolean;
+}) => {
+  const id = useId();
+  const [file, setFile] = useState<File>();
+  const [preview, setPreview] = useState("");
   useEffect(() => {
-    setSelectedImage(url);
-  }, [url]);
-
+    if (!file) return;
+    const value = URL.createObjectURL(file);
+    setPreview(value);
+    return () => URL.revokeObjectURL(value);
+  }, [file]);
   return (
-    <div
-      className={clsx(
-        "relative flex items-center justify-center w-full max-w-xl",
-        className
-      )}
-    >
+    <div className="flex flex-wrap items-center gap-4">
       <img
-        src={selectedImage || defaultAvatar}
-        alt="User Avatar"
-        className="size-32 rounded-full"
+        src={preview || url || defaultAvatar}
+        alt="تصویر پروفایل"
+        className="size-20 rounded-full border border-primary/10 bg-indigo/15 object-cover"
       />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="hidden"
-        id="avatarInput"
-      />
-      <label
-        htmlFor="avatarInput"
-        className="absolute flex justify-center items-center right-[calc(50%-64px)] bottom-0 size-10 rounded-full bg-gray-800 cursor-pointer"
-      >
-        <Camera />
-      </label>
+      <div className="min-w-0">
+        <input
+          id={id}
+          type="file"
+          accept="image/*"
+          disabled={disabled}
+          aria-label="انتخاب تصویر پروفایل"
+          className="peer sr-only"
+          onChange={(event) => {
+            const selected = event.target.files?.[0];
+            if (selected) {
+              setFile(selected);
+              onChange(selected);
+            }
+          }}
+        />
+        <label
+          htmlFor={id}
+          className={`inline-flex min-h-11 items-center gap-2 rounded-lg border border-primary/20 px-4 text-sm font-bold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-indigo/15"}`}
+        >
+          <HiCamera aria-hidden="true" className="size-5" />
+          تغییر تصویر
+        </label>
+        <p className="mt-2 max-w-60 break-all text-xs leading-6 text-dark-gray">
+          {file?.name || "تصویر دلخواهتان را انتخاب کنید."}
+        </p>
+      </div>
     </div>
   );
 };
-
 export default AvatarInput;

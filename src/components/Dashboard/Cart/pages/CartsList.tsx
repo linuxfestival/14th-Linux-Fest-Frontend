@@ -1,56 +1,86 @@
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { HiArrowLeft } from "react-icons/hi2";
 import CartItem from "../components/CartItem";
-import Button from "../../../Common/Button/Button";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch } from "../../../../store";
 import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
-import { useNavigate } from "react-router-dom";
-import { selectCartItems } from "../../../../core/cart/cart.selector";
-import Lottie from "lottie-react";
-import shoppingCartLottie from "../../../../assets/lottie/shoppingCart.json";
-
+import { selectCartState } from "../../../../core/cart/cart.selector";
+import {
+  DashboardEmpty,
+  DashboardPage,
+  DashboardPanel,
+} from "../../DashboardUI";
+import { actionClass, dateText, priceText } from "../../dashboard.styles";
 const CartsList = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const itemsList = useSelector(selectCartItems).filter((item) => item.payment_state !== "COMPLETED");
-
+  const dispatch = useAppDispatch();
+  const { items, totalAmount, loading } = useSelector(selectCartState);
+  const pending = items.filter((item) => item.payment_state !== "COMPLETED");
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Cart));
-  });
-
-  const nextLevel = () => {
-    navigate("/profile/cart/checkout");
-  };
-
+  }, [dispatch]);
   return (
-    <>
-      <h1 className="text-4xl md:text-3xl sm:text-2xl font-bold mb-6">
-        سبد خرید
-      </h1>
-      <div className="flex flex-col gap-4 items-center justify-start overflow-auto h-full w-full px-4">
-        {itemsList.length > 0 ? (
-          itemsList.map(({ presentation }, index) => (
-            <CartItem
-              id={presentation.id}
-              title={presentation?.en_title}
-              price={presentation.cost}
-              instructor={presentation.presenters
-                .map((el) => `${el.first_name} ${el.last_name}`)
-                .join(" و ")}
-              currency="تومان"
-              dateTime={new Date(presentation.start).toLocaleString("fa")}
-              key={index}
-            />
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center">
-            <Lottie animationData={shoppingCartLottie} className="max-h-80" />
-            <p className="font-bold text-2xl mt-4">سبد خرید شما خالی است</p>
+    <DashboardPage
+      title="سبد خرید"
+      description="ارائه‌های انتخاب‌شده را بررسی کنید و سپس برای تکمیل خرید ادامه دهید."
+    >
+      {pending.length ? (
+        <div className="grid items-start gap-6 xl:grid-cols-[1fr_20rem]">
+          <div className="min-w-0 space-y-4">
+            {pending.map(({ id, presentation }) => (
+              <CartItem
+                key={id}
+                id={presentation.id}
+                title={presentation.fa_title || presentation.en_title}
+                image={presentation.morkopoloyor}
+                price={presentation.cost}
+                currency="تومان"
+                instructor={presentation.presenters
+                  .map(
+                    (presenter) =>
+                      `${presenter.first_name} ${presenter.last_name}`,
+                  )
+                  .join(" و ")}
+                dateTime={dateText(presentation.start)}
+              />
+            ))}
           </div>
-        )}
-      </div>
-      {itemsList.length > 0 && <Button onClick={nextLevel}>مرحله بعد</Button>}
-    </>
+          <DashboardPanel className="xl:sticky xl:top-28">
+            <h2 className="text-lg font-bold">خلاصه خرید</h2>
+            <div className="mt-5 flex justify-between gap-3 text-sm text-dark-gray">
+              <span>ارائه‌های انتخاب‌شده</span>
+              <span>{priceText(pending.length)}</span>
+            </div>
+            <div className="mt-5 border-t border-primary/15 pt-5">
+              <p className="text-sm text-dark-gray">مبلغ فعلی قابل پرداخت</p>
+              <p className="mt-2 text-2xl font-black">
+                {priceText(totalAmount)}{" "}
+                <span className="text-xs font-normal">تومان</span>
+              </p>
+            </div>
+            <Link
+              aria-disabled={loading}
+              tabIndex={loading ? -1 : undefined}
+              onClick={(event) => {
+                if (loading) event.preventDefault();
+              }}
+              to="/profile/cart/checkout"
+              className={`${actionClass} mt-6 w-full ${loading ? "opacity-60" : ""}`}
+            >
+              تکمیل خرید
+              <HiArrowLeft aria-hidden="true" className="size-4" />
+            </Link>
+          </DashboardPanel>
+        </div>
+      ) : (
+        <DashboardPanel>
+          <DashboardEmpty
+            title="سبد خرید شما خالی است"
+            description="کارگاه‌ها و ارائه‌های جشنواره را ببینید و ارائه دلخواهتان را به سبد اضافه کنید."
+          />
+        </DashboardPanel>
+      )}
+    </DashboardPage>
   );
 };
-
 export default CartsList;

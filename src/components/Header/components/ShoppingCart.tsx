@@ -23,7 +23,7 @@ const ShoppingCart = ({ className }: Props) => {
   return (
     <Link
       to="/profile/cart/list"
-      aria-label={`سبد خرید، ${digitsToPersian(String(cartCount))} برنامه`}
+      aria-label={`سبد خرید، ${digitsToPersian(String(cartCount))} ارائه`}
       className={clsx(
         "relative inline-flex size-11 items-center justify-center rounded-lg hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary",
         className,

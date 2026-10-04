@@ -44,14 +44,14 @@ const ProgramsSection = () => {
         alt="تصویرسازی برنامه‌نویسی"
       />
       <div className="relative mx-auto w-full max-w-7xl">
-        <p className="mb-2 text-sm font-bold text-indigo">برنامه‌ها</p>
+        <p className="mb-2 text-sm font-bold text-indigo">ارائه‌ها</p>
         <h2 className="max-w-4xl text-4xl font-black leading-[.95] tracking-[-.06em] sm:text-5xl lg:text-[clamp(3rem,6vw,6rem)]">
           مسیر بعدی کنجکاوی‌ات را{" "}
           <em className="not-italic text-secondary">پیدا کن.</em>
         </h2>
         <nav
           className="mt-10 flex gap-2 overflow-x-auto border-b border-[#b5cff1] sm:gap-4"
-          aria-label="دسته‌بندی برنامه‌ها"
+          aria-label="دسته‌بندی ارائه‌ها"
         >
           {programTabs.map((tab) => (
             <button
@@ -86,7 +86,7 @@ const ProgramsSection = () => {
             })
           ) : (
             <p className="py-10 text-sm text-text-gray">
-              برنامه‌ای در این دسته ثبت نشده است.
+              ارائه‌ای در این دسته ثبت نشده است.
             </p>
           )}
         </div>

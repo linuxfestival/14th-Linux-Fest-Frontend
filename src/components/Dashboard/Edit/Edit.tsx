@@ -1,269 +1,322 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import Button, { ButtonSizes } from "../../Common/Button/Button";
-import InputField from "../../Common/Button/Input";
-import AvatarInput from "./Components/AvatarInput";
-import { RootState, useAppDispatch } from "../../../store.ts";
-import {
-  changePasswordThunk,
-  updateUserThunk,
-} from "../../../core/users/users.thunk.ts";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { ChangePasswordResponse } from "../../../core/users/users.dto.ts";
-import { displayCommonErrorToast } from "../../../utils/toastUtils.ts";
-import { digitsToLatin } from "../../../utils/digitsToPersian.ts";
+import { type RootState, useAppDispatch } from "../../../store";
+import {
+  changePasswordThunk,
+  getUserByPhoneThunk,
+  updateUserThunk,
+} from "../../../core/users/users.thunk";
 import useInputHandler, {
   GeneralErrors,
   GeneralValidators as GV,
-} from "../../../hooks/useInputHandler.tsx";
-import Loading from "../../Common/icons/Loading.tsx";
+} from "../../../hooks/useInputHandler";
+import AuthField from "../../Auth/AuthField";
+import AvatarInput from "./Components/AvatarInput";
+import {
+  DashboardButton,
+  DashboardLoading,
+  DashboardPage,
+  DashboardPanel,
+} from "../DashboardUI";
+import { secondaryActionClass } from "../dashboard.styles";
 
-const Edit: React.FC = () => {
+const errorMessage = (payload: unknown) => {
+  if (typeof payload === "string") return payload;
+  if (payload && typeof payload === "object")
+    return (
+      Object.values(payload)
+        .flat()
+        .find((value) => typeof value === "string") ||
+      "درخواست ناموفق بود. دوباره تلاش کنید."
+    );
+  return "درخواست ناموفق بود. دوباره تلاش کنید.";
+};
+const Edit = () => {
   const dispatch = useAppDispatch();
   const [avatar, setAvatar] = useState<File>();
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const { changePasswordLoading, user, loading } = useSelector(
-    (state: RootState) => state.users
-  );
+  const [infoError, setInfoError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const infoForm = useRef<HTMLFormElement>(null);
+  const passwordForm = useRef<HTMLFormElement>(null);
+  const { user, loading, updateUserLoading, changePasswordLoading } =
+    useSelector((state: RootState) => state.users);
   const { userPhoneNumber } = useSelector((state: RootState) => state.auth);
-
-  // Change Info Fields
-
-  const emailInput = useInputHandler({
+  const firstName = useInputHandler({
+    validators: [GV.required],
+    errorMessages: { [GeneralErrors.Required]: "نام را وارد کنید." },
+  });
+  const lastName = useInputHandler({
+    validators: [GV.required],
+    errorMessages: { [GeneralErrors.Required]: "نام خانوادگی را وارد کنید." },
+  });
+  const email = useInputHandler({
     validators: [
       GV.required,
       GV.regexMatch(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
     ],
     errorMessages: {
-      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
-      [GeneralErrors.RegexMatch]: "ایمیل وارد شده معتبر نیست!",
+      [GeneralErrors.Required]: "ایمیل را وارد کنید.",
+      [GeneralErrors.RegexMatch]: "ایمیل معتبر نیست.",
     },
   });
-
-  const firstNameInput = useInputHandler({
+  const oldPassword = useInputHandler({
     validators: [GV.required],
-    errorMessages: {
-      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
-    },
+    errorMessages: { [GeneralErrors.Required]: "رمز عبور فعلی را وارد کنید." },
   });
-
-  const lastNameInput = useInputHandler({
-    validators: [GV.required],
-    errorMessages: {
-      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
-    },
-  });
-
-  const { rawValue: email, valid: isEmailValid } = emailInput;
-  const { rawValue: firstName, valid: isFirstNameValid } = firstNameInput;
-  const { rawValue: lastName, valid: isLastNameValid } = lastNameInput;
-
-  const isInfoFormValid = useMemo(() => {
-    return (
-      isEmailValid &&
-      isFirstNameValid &&
-      isLastNameValid &&
-      (email !== user?.email ||
-        firstName !== user?.first_name ||
-        lastName !== user?.last_name)
-    );
-  }, [emailInput, firstNameInput, lastNameInput, user]);
-
-  // Change Password Fields
-
-  const oldPasswordInput = useInputHandler({
-    validators: [GV.required],
-    errorMessages: {
-      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
-    },
-  });
-
-  const newPasswordInput = useInputHandler({
+  const newPassword = useInputHandler({
     validators: [
       GV.required,
       GV.minLength(8),
       GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/),
     ],
     errorMessages: {
-      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
-      [GeneralErrors.MinimumLength]: "رمز عبور باید حداقل ۸ کاراکتر باشد!",
+      [GeneralErrors.Required]: "رمز عبور جدید را وارد کنید.",
+      [GeneralErrors.MinimumLength]: "رمز عبور باید حداقل ۸ کاراکتر باشد.",
       [GeneralErrors.RegexMatch]:
-        "رمز عبور باید شامل حروف انگلیسی و اعداد باشد!",
-    },
-    beforeBlur: (value: string) => {
-      repeatPasswordInput.validate();
+        "رمز عبور باید شامل حروف انگلیسی و اعداد باشد.",
     },
   });
-
-  const repeatPasswordInput = useInputHandler({
+  const repeatPassword = useInputHandler({
     validators: [
-      (value: string) => (value !== newPassword ? "NOT-SAME" : undefined),
       GV.required,
+      (value) => (value === newPassword.rawValue ? undefined : "NOT-SAME"),
     ],
     errorMessages: {
-      ["NOT-SAME"]: "رمز عبور با تکرار آن همخوانی ندارد!",
-      [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
+      [GeneralErrors.Required]: "رمز جدید را دوباره وارد کنید.",
+      "NOT-SAME": "تکرار رمز با رمز جدید یکسان نیست.",
     },
   });
-
-  const { rawValue: oldPassword, valid: isOldPasswordValid } = oldPasswordInput;
-  const { rawValue: newPassword, valid: isNewPasswordValid } = newPasswordInput;
-  const { valid: isRepeatPassValid } = repeatPasswordInput;
-
-  const isChangePasswordFormValid = useMemo(() => {
-    return (
-      isOldPasswordValid &&
-      isNewPasswordValid &&
-      isRepeatPassValid &&
-      newPassword !== ""
-    );
-  }, [isOldPasswordValid, isNewPasswordValid, isRepeatPassValid, newPassword]);
-
-  // Form Logic
-
-  const changePasswordOnClick = useCallback(async () => {
-    if (!isChangePasswordFormValid) {
-      return;
-    }
-
-    const result = await dispatch(
-      changePasswordThunk({
-        new_password: newPassword,
-        old_password: oldPassword,
-      })
-    );
-
-    if (changePasswordThunk.fulfilled.match(result)) {
-      toast.success("پسورد با موفقیت تغییر یافت.");
-    } else {
-      const payload = result.payload as ChangePasswordResponse;
-      if (payload.detail) toast.error(payload.detail);
-      else {
-        const errorKey = Object.keys(payload)[0];
-        const errorMessages = (payload[errorKey]?.slice(0, 1) as string[]).join(
-          " "
-        );
-        toast.error(errorMessages || "An unexpected error occurred.");
-      }
-    }
-  }, [dispatch, newPassword, oldPassword]);
-
-  const editProfileOnClick = useCallback(() => {
-    if (!userPhoneNumber) return;
-
-    dispatch(
-      updateUserThunk({
-        phone_number: userPhoneNumber,
-        avatar: avatar ? avatar : undefined,
-        email,
-        first_name: firstName,
-        last_name: lastName,
-      })
-    ).then((result) => {
-      if (updateUserThunk.fulfilled.match(result)) {
-        toast.success("اطلاعات با موفقیت آپدیت شد!");
-      } else {
-        displayCommonErrorToast(result);
-      }
-    });
-  }, [avatar, dispatch, email, firstName, lastName, userPhoneNumber]);
-
+  const { setValue: setEmail } = email;
+  const { setValue: setFirstName } = firstName;
+  const { setValue: setLastName } = lastName;
   useEffect(() => {
     if (user) {
-      emailInput.setValue(user.email);
-      firstNameInput.setValue(user.first_name);
-      lastNameInput.setValue(user.last_name);
-      setAvatarUrl(user.avatar ?? "");
+      setEmail(user.email);
+      setFirstName(user.first_name);
+      setLastName(user.last_name);
     }
-  }, [user]);
-
+  }, [user, setEmail, setFirstName, setLastName]);
+  const dirty =
+    !!avatar ||
+    email.rawValue !== user?.email ||
+    firstName.rawValue !== user?.first_name ||
+    lastName.rawValue !== user?.last_name;
+  const focusError = (form: HTMLFormElement | null) =>
+    requestAnimationFrame(() =>
+      form
+        ?.querySelector<HTMLInputElement>('input[aria-invalid="true"]')
+        ?.focus(),
+    );
+  const saveProfile = async () => {
+    if (updateUserLoading || !userPhoneNumber || !user) return;
+    if (
+      ![firstName.validate(), lastName.validate(), email.validate()].every(
+        Boolean,
+      )
+    ) {
+      focusError(infoForm.current);
+      return;
+    }
+    setInfoError("");
+    const result = await dispatch(
+      updateUserThunk({
+        phone_number: userPhoneNumber,
+        avatar,
+        email: email.rawValue,
+        first_name: firstName.rawValue,
+        last_name: lastName.rawValue,
+      }),
+    );
+    if (updateUserThunk.fulfilled.match(result)) {
+      setAvatar(undefined);
+      toast.success("اطلاعات شما ذخیره شد.");
+    } else setInfoError(errorMessage(result.payload));
+  };
+  const savePassword = async () => {
+    if (changePasswordLoading) return;
+    if (
+      ![
+        oldPassword.validate(),
+        newPassword.validate(),
+        repeatPassword.validate(),
+      ].every(Boolean)
+    ) {
+      focusError(passwordForm.current);
+      return;
+    }
+    setPasswordError("");
+    const result = await dispatch(
+      changePasswordThunk({
+        old_password: oldPassword.rawValue,
+        new_password: newPassword.rawValue,
+      }),
+    );
+    if (changePasswordThunk.fulfilled.match(result)) {
+      for (const input of [oldPassword, newPassword, repeatPassword]) {
+        input.setValue("");
+        input.setErrorText(undefined);
+      }
+      toast.success("رمز عبور با موفقیت تغییر کرد.");
+    } else setPasswordError(errorMessage(result.payload));
+  };
   return (
-    <div className="relative w-full flex flex-col items-center">
-      <AvatarInput
-        url={avatarUrl}
-        onChange={(file: File) => {
-          setAvatar(file);
-        }}
-        className="mt-12 md:mt-24"
-      />
-      <h2 className="text-3xl gap-2 flex mt-6">
-        <span>تغییر اطلاعات</span>
-        <span>{digitsToLatin(userPhoneNumber + "")}</span>
-      </h2>
-      <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">
-        <div className="flex items-center space-x-4">
-          <InputField
-            type="text"
-            label="نام"
-            placeholder=""
-            loading={loading}
-            {...firstNameInput}
-          />
-          <InputField
-            type="text"
-            label="نام خانوادگی"
-            placeholder=""
-            loading={loading}
-            {...lastNameInput}
-          />
+    <DashboardPage
+      title="اطلاعات شخصی"
+      description="اطلاعات حساب و رمز عبورتان را از اینجا مدیریت کنید."
+    >
+      {!user ? (
+        <DashboardPanel>
+          {loading ? (
+            <DashboardLoading />
+          ) : (
+            <div role="alert">
+              <p className="text-sm leading-7 text-ubuntu-red">
+                اطلاعات حساب دریافت نشد. دوباره تلاش کنید.
+              </p>
+              <button
+                type="button"
+                className={`${secondaryActionClass} mt-4`}
+                onClick={() => {
+                  if (userPhoneNumber)
+                    void dispatch(getUserByPhoneThunk(userPhoneNumber));
+                }}
+              >
+                تلاش دوباره
+              </button>
+            </div>
+          )}
+        </DashboardPanel>
+      ) : (
+        <div className="grid items-start gap-6 xl:grid-cols-[1.2fr_1fr]">
+          <DashboardPanel>
+            <h2 className="mb-6 text-lg font-bold">پروفایل شما</h2>
+            <form
+              ref={infoForm}
+              noValidate
+              onSubmit={(event) => {
+                event.preventDefault();
+                void saveProfile();
+              }}
+            >
+              <fieldset
+                disabled={updateUserLoading || loading}
+                className="space-y-6"
+              >
+                <AvatarInput
+                  key={user.avatar}
+                  url={user.avatar || ""}
+                  onChange={setAvatar}
+                  disabled={updateUserLoading || loading}
+                />
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <AuthField
+                    label="نام"
+                    name="first_name"
+                    autoComplete="given-name"
+                    {...firstName}
+                  />
+                  <AuthField
+                    label="نام خانوادگی"
+                    name="last_name"
+                    autoComplete="family-name"
+                    {...lastName}
+                  />
+                </div>
+                <AuthField
+                  label="ایمیل"
+                  name="email"
+                  type="email"
+                  direction="ltr"
+                  autoComplete="email"
+                  {...email}
+                />
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-primary/10 pt-4 text-sm">
+                  <span className="text-dark-gray">شماره موبایل</span>
+                  <bdi dir="ltr" className="font-bold">
+                    {userPhoneNumber}
+                  </bdi>
+                </div>
+              </fieldset>
+              {infoError && (
+                <p
+                  role="alert"
+                  className="mt-4 text-sm leading-7 text-ubuntu-red"
+                >
+                  {infoError}
+                </p>
+              )}
+              <DashboardButton
+                type="submit"
+                loading={updateUserLoading}
+                disabled={!dirty || loading}
+                className="mt-6 w-full sm:w-auto"
+              >
+                ذخیره تغییرات
+              </DashboardButton>
+            </form>
+          </DashboardPanel>
+          <DashboardPanel>
+            <h2 className="text-lg font-bold">امنیت حساب</h2>
+            <p className="mt-2 text-sm leading-7 text-dark-gray">
+              برای تغییر رمز، ابتدا رمز عبور فعلی را وارد کنید.
+            </p>
+            <form
+              ref={passwordForm}
+              noValidate
+              className="mt-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void savePassword();
+              }}
+            >
+              <fieldset disabled={changePasswordLoading} className="space-y-5">
+                <AuthField
+                  label="رمز عبور فعلی"
+                  name="old_password"
+                  type="password"
+                  direction="ltr"
+                  autoComplete="current-password"
+                  {...oldPassword}
+                />
+                <AuthField
+                  label="رمز عبور جدید"
+                  name="new_password"
+                  type="password"
+                  direction="ltr"
+                  autoComplete="new-password"
+                  hint="حداقل ۸ کاراکتر، شامل حروف انگلیسی و اعداد"
+                  {...newPassword}
+                />
+                <AuthField
+                  label="تکرار رمز عبور جدید"
+                  name="repeat_password"
+                  type="password"
+                  direction="ltr"
+                  autoComplete="new-password"
+                  {...repeatPassword}
+                />
+              </fieldset>
+              {passwordError && (
+                <p
+                  role="alert"
+                  className="mt-4 text-sm leading-7 text-ubuntu-red"
+                >
+                  {passwordError}
+                </p>
+              )}
+              <DashboardButton
+                type="submit"
+                loading={changePasswordLoading}
+                className="mt-6 w-full sm:w-auto"
+              >
+                تغییر رمز عبور
+              </DashboardButton>
+            </form>
+          </DashboardPanel>
         </div>
-        <div className="flex items-center space-x-4">
-          <InputField
-            type="email"
-            label="ایمیل"
-            placeholder=""
-            textDirection="ltr"
-            loading={loading}
-            {...emailInput}
-          />
-        </div>
-        <div className="mb-6">
-          <Button
-            onClick={editProfileOnClick}
-            size={ButtonSizes.SMALL}
-            disabled={!isInfoFormValid}
-          >
-            ثبت
-          </Button>
-        </div>
-      </div>
-      <div className="flex flex-col space-y-4 max-w-xl w-full mt-8">
-        <h2 className="text-3xl">تغییر پسورد</h2>
-        <div className="flex items-center space-x-4">
-          <InputField
-            type="text"
-            label="پسورد قبلی"
-            placeholder="WowSoSecret"
-            {...oldPasswordInput}
-          />
-        </div>
-        <div className="flex items-center space-x-4">
-          <InputField
-            type="text"
-            label="پسورد جدید"
-            placeholder="WowSoSuperSecret"
-            {...newPasswordInput}
-          />
-          <InputField
-            type="text"
-            label="تکرار پسورد جدید"
-            placeholder="WowSoSuperSecret"
-            {...repeatPasswordInput}
-          />
-        </div>
-        <div className="mb-6">
-          <Button
-            disabled={!isChangePasswordFormValid}
-            loading={changePasswordLoading}
-            onClick={changePasswordOnClick}
-            size={ButtonSizes.SMALL}
-          >
-            تغییر رمز
-          </Button>
-        </div>
-      </div>
-    </div>
+      )}
+    </DashboardPage>
   );
 };
-
 export default Edit;
