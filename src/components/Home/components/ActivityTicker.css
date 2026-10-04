@@ -1,0 +1,30 @@
+@keyframes hero-ticker-scroll {
+  from {
+    transform: translate3d(-66.666667%, 0, 0);
+  }
+  to {
+    transform: translate3d(-33.333333%, 0, 0);
+  }
+}
+
+.hero-ticker__track {
+  display: flex;
+  width: max-content;
+  animation: hero-ticker-scroll 20s linear infinite;
+  will-change: transform;
+}
+
+.hero-ticker__group {
+  display: flex;
+  flex: none;
+  gap: clamp(2rem, 4vw, 4rem);
+  min-width: 100vw;
+  justify-content: space-evenly;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ticker__track {
+    animation: none;
+    transform: translate3d(-33.333333%, 0, 0);
+  }
+}

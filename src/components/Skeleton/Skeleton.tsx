@@ -1,3 +1,4 @@
+import "./Skeleton.css";
 import React from "react";
 
 export enum SkeletonVariants {

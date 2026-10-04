@@ -35,7 +35,8 @@ const ProgramsSection = () => {
 
   return (
     <section
-      className="relative overflow-hidden bg-primary px-6 py-16 text-text-white sm:px-8 md:py-20 lg:px-10"
+      id="programs"
+      className="relative scroll-mt-24 overflow-hidden bg-primary px-6 py-16 text-text-white sm:px-8 md:py-20 lg:px-10"
       dir="rtl"
     >
       <img

@@ -1,3 +1,4 @@
+import "./HeroSection.css";
 import { Link } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi2";
 import Header from "../../Header/Header";

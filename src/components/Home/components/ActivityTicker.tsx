@@ -1,3 +1,4 @@
+import "./ActivityTicker.css";
 const activities = [
   "Community day",
   "Install Fest",

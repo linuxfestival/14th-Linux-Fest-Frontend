@@ -1,0 +1,22 @@
+.experience-wash {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+
+.experience-wash > div {
+  position: relative;
+  z-index: 1;
+}
+
+.experience-wash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  background-image:
+    radial-gradient(ellipse 500px 500px at 100% 8%, var(--color-indigo), transparent 75%),
+    radial-gradient(ellipse 500px 550px at 0% 52%, color-mix(in srgb, var(--color-secondary) 50%, transparent), transparent 75%),
+    radial-gradient(ellipse 500px 500px at 100% 95%, var(--color-indigo), transparent 75%);
+}

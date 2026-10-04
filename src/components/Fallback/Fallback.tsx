@@ -1,3 +1,4 @@
+import "./Fallback.css";
 import React from "react";
 
 const Fallback = () => {

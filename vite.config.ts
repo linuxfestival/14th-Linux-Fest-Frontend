@@ -9,6 +9,10 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 5173,
     strictPort: true,
+    watch: {
+      // Live preview checkpoints must not trigger another page reload.
+      ignored: ["**/.impeccable/**"],
+    },
     proxy: {
       "/api": {
         target: "https://linuxfest.ceit-ssc.ir",
