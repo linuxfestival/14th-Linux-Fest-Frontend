@@ -2,7 +2,7 @@ import "./HeroSection.css";
 import { Link } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi2";
 import Header from "../../Header/Header";
-import Penguin from "../../../assets/images/pinguin.png";
+import Penguin from "../../../assets/images/pinguin.webp";
 import HeroDots from "./HeroDots";
 
 const HeroSection = () => (

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi2";
 import Logo from "../../assets/logo.png";
-import Terminal from "../../assets/images/pinguin.png";
+import Terminal from "../../assets/images/pinguin.webp";
 
 const AuthLayout = ({
   title,

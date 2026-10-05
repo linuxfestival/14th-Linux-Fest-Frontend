@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { HiCamera } from "react-icons/hi2";
-import defaultAvatar from "../../../../assets/images/pinguin.png";
+import defaultAvatar from "../../../../assets/images/pinguin.webp";
 const AvatarInput = ({
   url,
   onChange,
