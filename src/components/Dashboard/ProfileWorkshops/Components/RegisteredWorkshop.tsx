@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { HiArrowLeft, HiCalendarDays } from "react-icons/hi2";
 import fallback from "../../../../assets/images/terminal.png";
 
-import { dateText } from "../../dashboard.styles";
+import { dateText, secondaryActionClass } from "../../dashboard.styles";
+import { createGoogleCalendarUrl } from "../../../../utils/presentationCalendar";
 const RegisteredWorkshop = ({
   id,
   title,
@@ -19,6 +20,10 @@ const RegisteredWorkshop = ({
   const now = Date.now();
   const upcoming = now < time.getTime();
   const live = !upcoming && now <= end.getTime();
+  const hasSchedule = Number.isFinite(time.getTime()) && Number.isFinite(end.getTime()) && end > time;
+  const calendarUrl = hasSchedule
+    ? createGoogleCalendarUrl({ id, title, start: time, end })
+    : undefined;
   return (
     <article className="flex min-w-0 flex-col gap-5 rounded-xl border border-primary/15 bg-white p-5 sm:flex-row sm:items-center">
       <img
@@ -41,13 +46,27 @@ const RegisteredWorkshop = ({
           {dateText(time)}
         </p>
       </div>
-      <Link
-        to={`/workshop/${id}`}
-        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold text-orange-ink hover:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-primary"
-      >
-        جزئیات ارائه
-        <HiArrowLeft aria-hidden="true" className="size-4" />
-      </Link>
+      <div className="flex shrink-0 flex-col gap-2">
+        <Link
+          to={`/workshop/${id}`}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold text-orange-ink hover:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          جزئیات ارائه
+          <HiArrowLeft aria-hidden="true" className="size-4" />
+        </Link>
+        <a
+          href={calendarUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${secondaryActionClass} aria-disabled:cursor-not-allowed aria-disabled:opacity-50`}
+          aria-disabled={!hasSchedule || undefined}
+          tabIndex={hasSchedule ? undefined : -1}
+          aria-label={`افزودن ${title} به تقویم گوگل (در پنجره جدید)`}
+        >
+          <HiCalendarDays aria-hidden="true" className="size-4 shrink-0" />
+          افزودن به تقویم گوگل
+        </a>
+      </div>
     </article>
   );
 };

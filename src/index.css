@@ -9,6 +9,7 @@
     --color-light-gray: #0A3D77;
     --color-text-gray: #C9DCF0;
     --color-ubuntu-red: #C94B3B;
+    --color-success: #146C43;
     --color-indigo: #7EC8F3;
     --color-bg-sidebar: #0B0D31;
     --color-text-white: #F3F6F8;
@@ -98,12 +99,58 @@ html {
     }
   }
 
-:root {
-    --toastify-color-dark: #202020;
-    --toastify-color-info: #7386E7;
+:root,
+.Toastify {
+    --toastify-color-light: var(--color-text-white);
+    --toastify-text-color-light: var(--color-primary);
+    --toastify-color-dark: var(--color-primary);
+    --toastify-text-color-dark: var(--color-text-white);
+    --toastify-color-info: var(--color-dark-gray);
     --toastify-color-error: var(--color-ubuntu-red);
-    --toastify-color-success: #00B74A;
-    --toastify-color-warning: #FFA900;
+    --toastify-color-success: var(--color-success);
+    --toastify-color-warning: var(--color-secondary);
+    --toastify-text-color-info: var(--color-text-white);
+    --toastify-text-color-success: var(--color-text-white);
+    --toastify-text-color-error: #fff;
+    --toastify-text-color-warning: var(--color-primary);
+}
+
+.Toastify__toast .Toastify__close-button {
+    color: inherit;
+    opacity: 1;
+}
+
+.presentation-cart-action {
+    background-color: var(--cart-action-bg, var(--color-secondary));
+    color: var(--cart-action-text, var(--color-primary));
+}
+
+.presentation-cart-action:hover:enabled {
+    background-color: var(--cart-action-hover, #e58210);
+}
+
+.presentation-cart-action[data-featured="false"] {
+    --cart-action-bg: var(--color-primary);
+    --cart-action-text: #fff;
+    --cart-action-hover: var(--color-dark-gray);
+}
+
+.presentation-cart-action[data-state="in-cart"] {
+    background-color: color-mix(in srgb, var(--color-ubuntu-red) 12%, var(--color-text-white));
+    color: #A83226;
+}
+
+.presentation-cart-action[data-state="in-cart"]:hover:enabled {
+    background-color: color-mix(in srgb, var(--color-ubuntu-red) 20%, var(--color-text-white));
+}
+
+.presentation-cart-action[data-state="purchased"] {
+    background-color: color-mix(in srgb, var(--color-success) 12%, var(--color-text-white));
+    color: var(--color-success);
+}
+
+.presentation-cart-action:disabled:not([data-state="purchased"]) {
+    opacity: .6;
 }
 
 ::-webkit-scrollbar {

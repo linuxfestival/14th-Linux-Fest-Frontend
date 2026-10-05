@@ -11,6 +11,7 @@
     "test:api": "node tests/makeCall.test.cjs",
     "test:password": "node tests/passwordValidation.test.cjs",
     "test:purchase": "node tests/purchasedPresentation.test.cjs",
+    "test:calendar": "node tests/presentationCalendar.test.cjs",
     "preview": "vite preview"
   },
   "dependencies": {

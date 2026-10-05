@@ -223,7 +223,8 @@ const WorkshopDetails = ({
               onClick={onUpdateCart}
               disabled={purchased || pending || (unavailable && !inCart)}
               aria-busy={pending}
-              className={`mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 ${inCart ? "bg-primary text-white hover:bg-dark-gray" : "bg-secondary text-primary hover:bg-[#e58210]"}`}
+              data-state={purchased ? "purchased" : inCart ? "in-cart" : unavailable ? "unavailable" : "available"}
+              className="presentation-cart-action mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed"
             >
               <HiShoppingBag aria-hidden="true" className="size-5" />
               {purchased

@@ -14,7 +14,7 @@ const TICKER_COPIES = [0, 1, 2];
 
 const ActivityTicker = () => (
   <div
-    className="hero-ticker flex min-h-11 items-center overflow-hidden whitespace-nowrap bg-secondary py-2 text-sm font-black text-primary"
+    className="hero-ticker relative flex min-h-11 items-center overflow-hidden whitespace-nowrap bg-secondary py-2 text-sm font-black text-primary"
     aria-label="موضوعات جشنواره"
     dir="ltr"
   >

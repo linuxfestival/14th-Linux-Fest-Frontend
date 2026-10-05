@@ -49,7 +49,9 @@ const WorkshopCartAction = ({
       onClick={updateCart}
       disabled={purchased || pending || (unavailable && !cartItem)}
       aria-busy={pending}
-      className={`mt-4 w-full rounded-lg px-4 py-3 text-sm font-extrabold transition-colors disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray ${featured ? "bg-secondary text-primary hover:bg-[#e58210]" : "bg-primary text-white hover:bg-dark-gray"}`}
+      data-featured={featured}
+      data-state={purchased ? "purchased" : cartItem ? "in-cart" : unavailable ? "unavailable" : "available"}
+      className="presentation-cart-action mt-4 w-full rounded-lg px-4 py-3 text-sm font-extrabold transition-colors disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray"
     >
       {purchased
         ? "خریداری شده"
