@@ -55,16 +55,10 @@ const Signup = () => {
   });
 
   const passwordInput = useInputHandler({
-    validators: [
-      GV.required,
-      GV.minLength(8),
-      GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@+!#$%^&*]{8,}$/),
-    ],
+    validators: [GV.required, GV.minLength(8)],
     errorMessages: {
       [GeneralErrors.Required]: "لطفا این فیلد را پر کنید!",
       [GeneralErrors.MinimumLength]: "رمز عبور باید حداقل ۸ کاراکتر باشد!",
-      [GeneralErrors.RegexMatch]:
-        "رمز عبور باید شامل حروف انگلیسی و اعداد باشد!",
     },
     beforeBlur: () => {
       repeatPasswordInput.validate();
@@ -158,7 +152,7 @@ const Signup = () => {
           </div>
           <AuthField type="email" name="email" label="ایمیل" placeholder="you@example.com" autoComplete="email" direction="ltr" {...emailInput} />
           <AuthField type="tel" name="phone_number" label="شماره موبایل" placeholder="۰۹۱۲۳۴۵۶۷۸۹" autoComplete="tel" inputMode="tel" direction="ltr" maxLength={11} {...phoneNumberInput} />
-          <AuthField type="password" name="password" label="رمز عبور" placeholder="رمز عبور جدید" autoComplete="new-password" direction="ltr" hint="حداقل ۸ کاراکتر؛ شامل حروف انگلیسی و عدد." {...passwordInput} />
+          <AuthField type="password" name="password" label="رمز عبور" placeholder="رمز عبور جدید" autoComplete="new-password" direction="ltr" hint="حداقل ۸ کاراکتر" {...passwordInput} />
           <AuthField type="password" name="password_repeat" label="تکرار رمز عبور" placeholder="رمز عبور را دوباره وارد کن" autoComplete="new-password" direction="ltr" {...repeatPasswordInput} />
         </fieldset>
         <div className="mt-7"><AuthSubmit loading={loading}>ساخت حساب کاربری</AuthSubmit></div>

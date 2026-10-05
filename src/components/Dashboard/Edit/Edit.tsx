@@ -65,16 +65,10 @@ const Edit = () => {
     errorMessages: { [GeneralErrors.Required]: "رمز عبور فعلی را وارد کنید." },
   });
   const newPassword = useInputHandler({
-    validators: [
-      GV.required,
-      GV.minLength(8),
-      GV.regexMatch(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/),
-    ],
+    validators: [GV.required, GV.minLength(8)],
     errorMessages: {
       [GeneralErrors.Required]: "رمز عبور جدید را وارد کنید.",
       [GeneralErrors.MinimumLength]: "رمز عبور باید حداقل ۸ کاراکتر باشد.",
-      [GeneralErrors.RegexMatch]:
-        "رمز عبور باید شامل حروف انگلیسی و اعداد باشد.",
     },
   });
   const repeatPassword = useInputHandler({
@@ -282,7 +276,7 @@ const Edit = () => {
                   type="password"
                   direction="ltr"
                   autoComplete="new-password"
-                  hint="حداقل ۸ کاراکتر، شامل حروف انگلیسی و اعداد"
+                  hint="حداقل ۸ کاراکتر"
                   {...newPassword}
                 />
                 <AuthField

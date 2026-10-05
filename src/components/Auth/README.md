@@ -16,7 +16,10 @@ all fields with the existing input handlers, and focus the first invalid field.
 Fields and submission are disabled while their form's loading state is active:
 login/signup use Redux auth state, and recovery uses local request state. The
 submit control announces loading and prevents repeat submissions.
-Signup retains the existing password rule and Persian-to-Latin phone conversion.
+Signup passwords require at least eight characters with no character composition
+requirements, so password-manager suggestions are accepted. Password changes
+and recovery use the same minimum length. Signup retains
+Persian-to-Latin phone conversion.
 
 Email verification uses the same native form and responsive shell. Its code field
 offers a numeric keyboard, one-time-code autocomplete, and a six-character limit.
