@@ -161,10 +161,7 @@ const Edit = () => {
     } else setPasswordError(errorMessage(result.payload));
   };
   return (
-    <DashboardPage
-      title="اطلاعات شخصی"
-      description="اطلاعات حساب و رمز عبورتان را از اینجا مدیریت کنید."
-    >
+    <DashboardPage title="اطلاعات شخصی">
       {!user ? (
         <DashboardPanel>
           {loading ? (

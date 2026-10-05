@@ -34,5 +34,5 @@ createRoot(document.getElementById("root")!).render(
         </AuthContainer>
       </Provider>
     </HelmetProvider>
-  </StrictMode>
+  </StrictMode>,
 );

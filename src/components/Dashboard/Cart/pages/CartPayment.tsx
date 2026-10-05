@@ -116,22 +116,22 @@ const CartPayment = () => {
   return (
     <DashboardPage
       title="تکمیل خرید"
-      description="محصولات اختیاری، کد تخفیف و مبلغ نهایی را پیش از پرداخت بررسی کنید."
+      description="مرچ، کد تخفیف و مبلغ نهایی را پیش از پرداخت بررسی کنید."
     >
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-6">
           <DashboardPanel>
-            <h2 className="text-lg font-bold">محصولات اختیاری</h2>
+            <h2 className="text-lg font-bold">مرچ</h2>
             <p className="mt-2 text-sm leading-7 text-dark-gray">
-              در صورت تمایل، محصولات زیر را به خریدتان اضافه کنید.
+              با خرید محصولات این بخش، از تیم برگزاری رویداد حمایت می‌کنید.
             </p>
             <fieldset disabled={paymentLoading} className="mt-5 space-y-3">
               {accessoryLoading ? (
-                <DashboardLoading text="در حال دریافت محصولات…" />
+                <DashboardLoading text="در حال دریافت مرچ…" />
               ) : accessoryError ? (
                 <>
                   <p role="alert" className="text-sm text-ubuntu-red">
-                    دریافت محصولات ناموفق بود.
+                    دریافت مرچ ناموفق بود.
                   </p>
                   <button
                     type="button"
@@ -161,7 +161,7 @@ const CartPayment = () => {
                 ))
               ) : (
                 <p className="text-sm leading-7 text-dark-gray">
-                  محصول اضافه‌ای برای انتخاب در دسترس نیست.
+                  در حال حاضر مرچی برای انتخاب در دسترس نیست.
                 </p>
               )}
             </fieldset>
@@ -187,7 +187,7 @@ const CartPayment = () => {
               <dd>{priceText(pending.length)}</dd>
             </div>
             <div className="flex justify-between gap-3">
-              <dt>محصولات اضافه</dt>
+              <dt>مرچ</dt>
               <dd>{priceText(selectedAccessories.length)}</dd>
             </div>
           </dl>

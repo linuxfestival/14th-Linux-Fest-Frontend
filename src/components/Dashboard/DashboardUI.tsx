@@ -17,7 +17,7 @@ export const DashboardPage = ({
   action,
 }: {
   title: string;
-  description: string;
+  description?: string;
   children: ReactNode;
   action?: ReactNode;
 }) => (
@@ -27,9 +27,11 @@ export const DashboardPage = ({
         <h1 className="text-2xl font-black leading-snug sm:text-3xl">
           {title}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-7 text-dark-gray">
-          {description}
-        </p>
+        {description && (
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-dark-gray">
+            {description}
+          </p>
+        )}
       </div>
       {action}
     </div>

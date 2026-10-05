@@ -18,7 +18,7 @@ export const makeCall = <T, K>(
 ): ((
   body?: T,
   params?: Record<string, string | number>,
-) => Promise<AxiosResponse<K, any>>) => {
+) => Promise<AxiosResponse<K>>) => {
   return (body?: T, params?: Record<string, string | number>) => {
     const resolvedPath = typeof path === "function" ? path(params || {}) : path;
 
@@ -62,6 +62,8 @@ axiosRetry(api, {
   shouldResetTimeout: true,
 });
 
+const finalizedErrors = new WeakSet<object>();
+
 api.interceptors.response.use(
   (response) => {
     logger.debug(
@@ -70,6 +72,13 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
+    // axios-retry settles first. Its nested requests can pass the same final
+    // error through this interceptor again while their promises unwind.
+    if (error && typeof error === "object") {
+      if (finalizedErrors.has(error)) return Promise.reject(error);
+      finalizedErrors.add(error);
+    }
+
     const originalRequest = error.config;
     if (error.response?.status === 401) {
       // API factories are created while the store's modules initialize. Load
@@ -128,12 +137,12 @@ axios.interceptors.request.use(
 export default api;
 
 export const getErrorCode = <Errors extends number>(
-  error: any,
+  error: unknown,
 ): Errors | undefined => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError;
-    const errorCode = (axiosError.response?.data as { error_code: number })
-      .error_code;
+    const errorCode = (axiosError.response?.data as { error_code?: number } | undefined)
+      ?.error_code;
     if (errorCode) {
       return errorCode as Errors;
     }
