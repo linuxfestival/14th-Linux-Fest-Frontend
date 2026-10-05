@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "test:api": "node tests/makeCall.test.cjs",
     "test:password": "node tests/passwordValidation.test.cjs",
+    "test:purchase": "node tests/purchasedPresentation.test.cjs",
     "preview": "vite preview"
   },
   "dependencies": {

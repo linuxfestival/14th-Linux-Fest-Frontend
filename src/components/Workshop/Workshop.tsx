@@ -8,7 +8,7 @@ import Footer from "../Footer/Footer";
 import { useAppDispatch } from "../../store";
 import { selectCurrentPresentation } from "../../core/presentations/presentations.selector";
 import { getPresentationByIDThunk } from "../../core/presentations/presentations.thunk";
-import { selectItemInCartById } from "../../core/cart/cart.selector";
+import { selectIsItemPurchased, selectItemInCartById } from "../../core/cart/cart.selector";
 import {
   addItemToCartThunk,
   getCartThunk,
@@ -25,6 +25,7 @@ const Workshop = () => {
   const dispatch = useAppDispatch();
   const presentation = useSelector(selectCurrentPresentation);
   const cartItem = useSelector(selectItemInCartById(Number(id)));
+  const purchased = useSelector(selectIsItemPurchased(Number(id)));
   const authenticated = useSelector(selectIsAuthenticated);
   const [pending, setPending] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -53,6 +54,7 @@ const Workshop = () => {
   }, [dispatch, authenticated]);
 
   const updateCart = async () => {
+    if (purchased || pending) return;
     if (!authenticated) {
       toast.info("برای افزودن به سبد خرید باید وارد شوید");
       return;
@@ -156,7 +158,8 @@ const Workshop = () => {
           <WorkshopDetails
             key={current.id}
             presentation={current}
-            inCart={!!cartItem}
+            inCart={!!cartItem && !purchased}
+            purchased={purchased}
             authenticated={authenticated}
             pending={pending}
             onUpdateCart={updateCart}

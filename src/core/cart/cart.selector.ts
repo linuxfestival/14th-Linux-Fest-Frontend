@@ -26,8 +26,15 @@ export const selectIsItemExistInCart = (itemId: number) =>
 export const selectItemInCartById = (itemId: number) =>
   createSelector(selectCartItems, (items) =>
     items.find((item) => {
-      return item.presentation.id === itemId;
+      return item.presentation.id === itemId && item.payment_state !== "COMPLETED";
     })
+  );
+
+export const selectIsItemPurchased = (itemId: number) =>
+  createSelector(selectCartItems, (items) =>
+    items.some(
+      (item) => item.presentation.id === itemId && item.payment_state === "COMPLETED"
+    )
   );
 
 export const selectIsLoadingCart = createSelector(

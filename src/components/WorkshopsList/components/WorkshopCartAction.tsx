@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../../store";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector";
-import { selectItemInCartById } from "../../../core/cart/cart.selector";
+import { selectIsItemPurchased, selectItemInCartById } from "../../../core/cart/cart.selector";
 import {
   addItemToCartThunk,
   getCartThunk,
@@ -22,9 +22,11 @@ const WorkshopCartAction = ({
   const dispatch = useAppDispatch();
   const authenticated = useSelector(selectIsAuthenticated);
   const cartItem = useSelector(selectItemInCartById(id));
+  const purchased = useSelector(selectIsItemPurchased(id));
   const [pending, setPending] = useState(false);
 
   const updateCart = async () => {
+    if (purchased || pending) return;
     if (!authenticated) {
       toast.info("برای افزودن به سبد خرید باید وارد شوید");
       return;
@@ -45,11 +47,13 @@ const WorkshopCartAction = ({
     <button
       type="button"
       onClick={updateCart}
-      disabled={pending || (unavailable && !cartItem)}
+      disabled={purchased || pending || (unavailable && !cartItem)}
       aria-busy={pending}
       className={`mt-4 w-full rounded-lg px-4 py-3 text-sm font-extrabold transition-colors disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray ${featured ? "bg-secondary text-primary hover:bg-[#e58210]" : "bg-primary text-white hover:bg-dark-gray"}`}
     >
-      {pending
+      {purchased
+        ? "خریداری شده"
+        : pending
         ? "در حال به‌روزرسانی…"
         : cartItem
           ? "حذف از سبد خرید"
