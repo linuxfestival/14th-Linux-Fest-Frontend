@@ -188,7 +188,7 @@ const Edit = () => {
           )}
         </DashboardPanel>
       ) : (
-        <div className="grid items-start gap-6 xl:grid-cols-[1.2fr_1fr]">
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
           <DashboardPanel>
             <h2 className="mb-6 text-lg font-bold">پروفایل شما</h2>
             <form

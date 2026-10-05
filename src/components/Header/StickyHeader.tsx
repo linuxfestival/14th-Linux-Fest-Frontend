@@ -79,7 +79,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
       className={`${sticky ? "fixed" : "absolute"} inset-x-0 top-0 z-50 text-text-white sm:inset-x-6 sm:top-4 lg:inset-x-8`}
     >
       <div className="mx-auto max-w-7xl bg-primary shadow-[0_8px_28px_rgba(11,13,49,0.16)] sm:rounded-xl">
-        <div className="flex min-h-20 items-center justify-between gap-4 px-5 sm:px-6 lg:gap-6">
+        <div className="flex min-h-20 items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:gap-6">
           <Link
             to="/"
             aria-label="صفحه اصلی لینوکس‌فست"
@@ -111,7 +111,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
               </NavLink>
             ))}
           </nav>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             {authenticated ? (
               <>
                 <ShoppingCart className="mx-1" />
@@ -160,7 +160,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
           <div
             ref={menu}
             id="sticky-mobile-navigation"
-            className="max-h-[calc(100dvh-7rem)] overflow-y-auto border-t border-indigo/20 px-5 pb-5 pt-3 lg:hidden"
+            className="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-indigo/20 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 sm:max-h-[calc(100dvh-7rem)] sm:px-5 lg:hidden"
           >
             <nav aria-label="ناوبری موبایل" className="flex flex-col gap-1">
               {navigation.map((item) => (

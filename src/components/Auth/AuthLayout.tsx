@@ -20,11 +20,11 @@ const AuthLayout = ({
     <Helmet>
       <title>لینوکس‌فست | {title}</title>
     </Helmet>
-    <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-6 sm:px-8">
+    <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-5 sm:px-8 sm:py-6">
       <Link
         to="/"
         aria-label="صفحه اصلی لینوکس‌فست"
-        className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        className="flex min-h-11 items-center gap-2 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:gap-3"
       >
         <span className="flex size-11 items-center justify-center rounded-lg bg-primary">
           <img src={Logo} alt="" className="size-9 object-contain" />
@@ -39,11 +39,11 @@ const AuthLayout = ({
         <HiArrowRight aria-hidden="true" className="size-4" />
       </Link>
     </header>
-    <main className="mx-auto flex w-full max-w-6xl flex-1 items-center px-6 pb-8 sm:px-8 sm:pb-10">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 items-center px-4 pb-8 sm:px-8 sm:pb-10">
       <div className="grid w-full overflow-hidden rounded-xl border border-primary/15 bg-white lg:grid-cols-[1.15fr_1fr]">
         <section
           aria-labelledby="auth-title"
-          className="min-w-0 px-6 py-8 sm:px-10 sm:py-10 lg:px-12"
+          className="min-w-0 px-5 py-7 sm:px-10 sm:py-10 lg:px-12"
         >
           <h1 id="auth-title" className="text-3xl font-black leading-snug">
             {title}

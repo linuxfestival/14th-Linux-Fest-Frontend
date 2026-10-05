@@ -118,7 +118,7 @@ const CartPayment = () => {
       title="تکمیل خرید"
       description="محصولات اختیاری، کد تخفیف و مبلغ نهایی را پیش از پرداخت بررسی کنید."
     >
-      <div className="grid items-start gap-6 xl:grid-cols-[1fr_22rem]">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-6">
           <DashboardPanel>
             <h2 className="text-lg font-bold">محصولات اختیاری</h2>

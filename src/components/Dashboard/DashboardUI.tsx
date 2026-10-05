@@ -135,12 +135,22 @@ export const DashboardDialog = ({
   const titleId = useId();
   useEffect(() => {
     const dialog = ref.current;
-    const overflow = document.body.style.overflow;
+    const elements = [document.documentElement, document.body];
+    const overflow = elements.map((element) => element.style.overflow);
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     dialog?.showModal();
-    document.body.style.overflow = "hidden";
+    elements.forEach((element) => {
+      element.style.overflow = "hidden";
+    });
     return () => {
       dialog?.close();
-      document.body.style.overflow = overflow;
+      elements.forEach((element, index) => {
+        element.style.overflow = overflow[index];
+      });
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
   return createPortal(

@@ -22,6 +22,35 @@ body {
     height: 100%;
     width: 100%;
     direction: rtl;
+    padding-inline-start: env(safe-area-inset-right);
+    padding-inline-end: env(safe-area-inset-left);
+}
+
+/* Keep keyboard focus and long mixed-language content usable at every width. */
+html {
+    scroll-padding-top: 7rem;
+}
+
+:where(h1, h2, h3, p, dd) {
+    overflow-wrap: anywhere;
+}
+
+:where(input, select, textarea) {
+    scroll-margin-block: 7rem 2rem;
+}
+
+@media (pointer: coarse) {
+    :where(button, a, input, select, textarea) {
+        touch-action: manipulation;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bg-pattern,
+    .bg-pattern-with-fadeout,
+    .animate-marquee {
+        animation: none;
+    }
 }
 
 ::selection { background: #F7941D; color: #0B0D31; }

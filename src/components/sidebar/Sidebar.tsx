@@ -23,16 +23,26 @@ const Sidebar = ({
       dialog?.close();
       return;
     }
-    const overflow = document.body.style.overflow;
+    const elements = [document.documentElement, document.body];
+    const overflow = elements.map((element) => element.style.overflow);
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     dialog?.showModal();
-    document.body.style.overflow = "hidden";
+    elements.forEach((element) => {
+      element.style.overflow = "hidden";
+    });
     return () => {
       dialog?.close();
-      document.body.style.overflow = overflow;
+      elements.forEach((element, index) => {
+        element.style.overflow = overflow[index];
+      });
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, [isOpen]);
   const content = (mobile: boolean) => (
-    <div className="flex min-h-dvh flex-col p-5">
+    <div className="flex min-h-dvh flex-col p-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div className="mb-9 flex items-center justify-between gap-3">
         <Link
           to="/"
@@ -69,7 +79,7 @@ const Sidebar = ({
       </nav>
       <div className="mt-auto pt-10">
         <div className="mb-4 border-b border-white/15 pb-5">
-          <p className="text-sm font-bold">
+          <p className="break-words text-sm font-bold">
             {[user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
               "حساب کاربری"}
           </p>
@@ -108,7 +118,7 @@ const Sidebar = ({
         id="dashboard-navigation"
         aria-label="منوی حساب کاربری"
         onCancel={toggleSidebar}
-        className="fixed inset-y-0 right-0 left-auto m-0 max-h-dvh min-h-dvh w-[85vw] max-w-80 border-0 bg-primary p-0 text-white backdrop:bg-primary/60 lg:hidden"
+        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-[85vw] max-w-80 overflow-y-auto overscroll-contain border-0 bg-primary p-0 text-white backdrop:bg-primary/60 lg:hidden"
       >
         {content(true)}
       </dialog>

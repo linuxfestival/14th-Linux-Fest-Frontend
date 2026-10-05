@@ -1,6 +1,6 @@
 # Authentication UI
 
-Login, signup, password recovery, and first-login onboarding share `AuthLayout`, `AuthField`, and
+Login, signup, email verification, password recovery, and first-login onboarding share `AuthLayout`, `AuthField`, and
 `AuthSubmit`. Their layout
 inherits the existing navy/orange palette, Vazirmatn, pale blue illustration, and
 rounded controls. The white form sits beside the navy illustration panel on
@@ -17,6 +17,17 @@ Fields and submission are disabled while their form's loading state is active:
 login/signup use Redux auth state, and recovery uses local request state. The
 submit control announces loading and prevents repeat submissions.
 Signup retains the existing password rule and Persian-to-Latin phone conversion.
+
+Email verification uses the same native form and responsive shell. Its code field
+offers a numeric keyboard, one-time-code autocomplete, and a six-character limit.
+Invalid submission validates both fields and focuses the first error; verification
+and resend share a loading lock. Existing activation endpoints and token/redirect
+behavior are preserved.
+
+The auth shell uses smaller gutters on phones and wraps its header when needed.
+Inputs remain 16px to avoid automatic mobile browser zoom; password toggles have
+44px tap targets. The illustration appears at 1024px and above, while long forms
+remain vertically scrollable on short or landscape viewports.
 
 Recovery first requests a code for the email, then presents the six-digit code,
 new password (at least eight characters), and matching password confirmation.

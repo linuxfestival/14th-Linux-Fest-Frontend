@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Button from "../Common/Button/Button";
-import InputField from "../Common/Button/Input";
+import AuthLayout from "../Auth/AuthLayout";
+import AuthField from "../Auth/AuthField";
+import AuthSubmit from "../Auth/AuthSubmit";
 import { resendActivation, verifyEmail } from "../../core/auth/auth.api";
 import { initializeUser } from "../../core/auth/auth.slice";
 import useInputHandler, {
@@ -18,6 +19,7 @@ import { useAppDispatch } from "../../store";
 const VerifyEmail = () => {
   const [params] = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const dispatch = useAppDispatch();
   const emailInput = useInputHandler({
     initialValue: params.get("email") ?? "",
@@ -38,7 +40,15 @@ const VerifyEmail = () => {
   });
 
   const submit = async () => {
-    if (!emailInput.validate() || !codeInput.validate()) return;
+    if (loading) return;
+    if (![emailInput.validate(), codeInput.validate()].every(Boolean)) {
+      requestAnimationFrame(() =>
+        formRef.current
+          ?.querySelector<HTMLInputElement>('input[aria-invalid="true"]')
+          ?.focus(),
+      );
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await verifyEmail({
@@ -57,14 +67,17 @@ const VerifyEmail = () => {
         secure: true,
         sameSite: "Strict",
       });
-      dispatch(initializeUser({
-        ...data.tokens,
-        phone_number: data.phone_number,
-      }));
+      dispatch(
+        initializeUser({
+          ...data.tokens,
+          phone_number: data.phone_number,
+        }),
+      );
       toast.success("ایمیل شما تأیید شد.");
       await router.navigate(data.is_first_login ? "/onboarding" : "/");
     } catch (error: unknown) {
-      const detail = (error as AxiosError<{ detail?: string }>).response?.data?.detail;
+      const detail = (error as AxiosError<{ detail?: string }>).response?.data
+        ?.detail;
       toast.error(detail || "تأیید ایمیل ناموفق بود.");
     } finally {
       setLoading(false);
@@ -72,13 +85,15 @@ const VerifyEmail = () => {
   };
 
   const resend = async () => {
+    if (loading) return;
     if (!emailInput.validate()) return;
     setLoading(true);
     try {
       const { data } = await resendActivation({ email: emailInput.rawValue });
       toast.success(data.detail);
     } catch (error: unknown) {
-      const detail = (error as AxiosError<{ detail?: string }>).response?.data?.detail;
+      const detail = (error as AxiosError<{ detail?: string }>).response?.data
+        ?.detail;
       toast.error(detail || "ارسال دوباره کد ناموفق بود.");
     } finally {
       setLoading(false);
@@ -86,44 +101,61 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-pattern flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-lg rounded-4xl bg-[#101010ee] p-8 shadow-2xl">
-        <h1 className="text-3xl font-bold text-white">تأیید ایمیل</h1>
-        <p className="mt-3 mb-8 text-gray-300">
-          کد ۶ رقمی ارسال‌شده به ایمیل خود را وارد کنید.
-        </p>
-        <div className="flex flex-col gap-5">
-          <InputField
+    <AuthLayout
+      title="تأیید ایمیل"
+      description="کد ۶ رقمی ارسال‌شده به ایمیل خود را وارد کنید."
+    >
+      <form
+        ref={formRef}
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
+        }}
+      >
+        <fieldset disabled={loading} className="space-y-5">
+          <AuthField
+            name="email"
             type="email"
+            direction="ltr"
             placeholder="example@linux-fest.ir"
             label="ایمیل"
-            autocomplete="email"
+            autoComplete="email"
             {...emailInput}
           />
-          <InputField
+          <AuthField
+            name="code"
             type="text"
+            direction="ltr"
+            inputMode="numeric"
+            maxLength={6}
             placeholder="۱۲۳۴۵۶"
             label="کد تأیید"
-            autocomplete="one-time-code"
+            autoComplete="one-time-code"
             {...codeInput}
           />
-          <Button loading={loading} onClick={submit} className="w-full">
-            تأیید و ورود
-          </Button>
+        </fieldset>
+        <div className="mt-6">
+          <AuthSubmit loading={loading}>تأیید و ورود</AuthSubmit>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <button
             type="button"
             disabled={loading}
             onClick={resend}
-            className="text-indigo disabled:text-gray-500 cursor-pointer"
+            className="min-h-11 cursor-pointer rounded-lg px-2 text-sm font-bold text-orange-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
             ارسال دوباره کد
           </button>
-          <Link to="/login" className="text-center text-gray-300">
+          <Link
+            to="/login"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-bold text-dark-gray underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+          >
             بازگشت به ورود
           </Link>
         </div>
-      </div>
-    </div>
+      </form>
+    </AuthLayout>
   );
 };
 

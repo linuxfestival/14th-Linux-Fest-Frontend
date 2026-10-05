@@ -4,8 +4,12 @@ import notFoundImage from "../../assets/404.png";
 
 const NotFound = () => {
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-[#151515] text-white px-6">
-      <img src={notFoundImage} className="h-1/3 mb-6" alt="404 Not Found" />
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-[#151515] px-5 py-10 text-center text-white">
+      <img
+        src={notFoundImage}
+        className="mb-6 h-auto max-h-64 w-full max-w-sm object-contain"
+        alt="404 Not Found"
+      />
       <h1 className="text-6xl font-bold text-indigo mb-4">404</h1>
       <p className="text-xl text-text-gray mb-6">
         صفحه‌ای که به دنبال آن هستید یافت نشد!
@@ -13,7 +17,7 @@ const NotFound = () => {
       <div className="flex flex-col items-center gap-4">
         <Link
           to="/"
-          className="px-6 py-3 bg-indigo text-white rounded-lg hover:bg-indigo-dark transition-all"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-indigo px-6 py-3 text-primary transition-colors hover:bg-indigo/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo"
         >
           بازگشت به صفحه اصلی
         </Link>

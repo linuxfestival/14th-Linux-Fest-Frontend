@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Button, { ButtonSizes, ButtonVariants } from "../Common/Button/Button";
 import { IoClose, IoMenu, IoPerson } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -20,7 +20,6 @@ const LegacyHeader = ({
   contestStyle = false,
   landing = false,
 }: Props) => {
-  const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
   const menu = useRef<HTMLDialogElement>(null);
@@ -81,11 +80,13 @@ const LegacyHeader = ({
         {isAuthenticated ? (
           <>
             <ShoppingCart className="mx-2" />
-            <IoPerson
-              size={30}
-              className="cursor-pointer"
-              onClick={() => navigate("/profile/edit")}
-            />
+            <Link
+              to="/profile/edit"
+              aria-label="حساب کاربری"
+              className="flex size-11 items-center justify-center rounded-lg hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-secondary"
+            >
+              <IoPerson size={30} aria-hidden="true" />
+            </Link>
           </>
         ) : (
           !contestStyle && (
@@ -168,7 +169,11 @@ const LegacyHeader = ({
         >
           <div className="mx-auto flex min-h-full w-full max-w-md flex-col pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
             <div className="mb-8 flex items-center justify-between border-b border-indigo/20 pb-5">
-              <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-xl font-black">
+              <Link
+                to="/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 text-xl font-black"
+              >
                 <img src={logo} width={40} height={40} alt="نشان لینوکس‌فست" />
                 <span>لینوکس‌فست</span>
               </Link>
@@ -206,7 +211,11 @@ const LegacyHeader = ({
               {isAuthenticated ? (
                 <>
                   <ShoppingCart className="mx-2" />
-                  <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center justify-center gap-2 rounded-lg text-indigo hover:bg-white/5">
+                  <Link
+                    to="/profile/edit"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-lg text-indigo hover:bg-white/5"
+                  >
                     <IoPerson size={24} aria-hidden="true" />
                     حساب کاربری
                   </Link>
@@ -232,7 +241,6 @@ const LegacyHeader = ({
                 )
               )}
             </div>
-
           </div>
         </dialog>
       )}

@@ -25,7 +25,7 @@ const CartsList = () => {
       description="ارائه‌های انتخاب‌شده را بررسی کنید و سپس برای تکمیل خرید ادامه دهید."
     >
       {pending.length ? (
-        <div className="grid items-start gap-6 xl:grid-cols-[1fr_20rem]">
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="min-w-0 space-y-4">
             {pending.map(({ id, presentation }) => (
               <CartItem

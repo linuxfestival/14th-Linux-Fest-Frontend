@@ -39,7 +39,7 @@ const WorkshopsFilter = ({
         placeholder="جست‌وجوی ارائه، موضوع یا مدرس…"
         value={search}
         onChange={(event) => onSearch(event.target.value)}
-        className="h-11 w-full rounded-lg border border-primary/15 bg-text-white pr-11 pl-4 text-sm text-primary placeholder:text-dark-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className="h-12 w-full min-w-0 rounded-lg border border-primary/15 bg-text-white pr-11 pl-4 text-base text-primary placeholder:text-dark-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       />
     </div>
     <div className="flex flex-wrap items-center gap-4">
@@ -48,7 +48,7 @@ const WorkshopsFilter = ({
           aria-label="مرتب‌سازی"
           value={sort}
           onChange={(event) => onSortSelect(event.target.value as Sort)}
-          className="h-11 rounded-lg border border-primary/15 bg-white px-3 text-sm text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="h-12 max-w-full rounded-lg border border-primary/15 bg-white px-3 text-base text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <option value="SORT_BY_DATE">نزدیک‌ترین زمان</option>
           <option value="SORT_BY_PRICE">کمترین قیمت</option>

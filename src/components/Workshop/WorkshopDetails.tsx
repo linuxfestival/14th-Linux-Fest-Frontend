@@ -284,7 +284,7 @@ const WorkshopDetails = ({
                   lang={value}
                   aria-pressed={language === value}
                   onClick={() => setLanguage(value)}
-                  className={`min-h-10 rounded-md px-4 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${language === value ? "bg-primary text-white" : "text-dark-gray hover:bg-indigo/20"}`}
+                  className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${language === value ? "bg-primary text-white" : "text-dark-gray hover:bg-indigo/20"}`}
                 >
                   {label}
                 </button>
