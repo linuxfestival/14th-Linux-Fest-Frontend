@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import React, { Suspense } from "react";
 import Fallback from "./components/Fallback/Fallback.tsx";
 import { DashboardLoading } from "./components/Dashboard/DashboardUI";
+import RouteErrorBoundary from "./components/ErrorBoundary/RouteErrorBoundary";
 
 const ProfileLayout = React.lazy(() => import("./layout/ProfileLayout.tsx"));
 const Home = React.lazy(() => import("./components/Home/Home"));
@@ -55,6 +56,7 @@ const MainLayout = React.lazy(() => import("./layout/MainLayout.tsx"));
 
 const router = createBrowserRouter([
   {
+    errorElement: <RouteErrorBoundary />,
     element: (
       <Suspense fallback={<Fallback />}>
         <MainLayout />
