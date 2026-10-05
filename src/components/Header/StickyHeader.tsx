@@ -5,14 +5,8 @@ import { HiArrowLeft, HiBars3, HiXMark, HiUser } from "react-icons/hi2";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import ShoppingCart from "./components/ShoppingCart";
 import logo from "../../assets/logo.png";
+import { siteNavigation } from "./navigation";
 
-const navigation = [
-  { to: "/", label: "خانه" },
-  { to: "/workshops", label: "ارائه‌ها" },
-  { to: "/presenters", label: "ارائه‌دهندگان" },
-  { to: "/faq", label: "سوالات متداول" },
-  { to: "/staff", label: "دست‌اندرکاران" },
-];
 const focus =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
 const signupClass = `min-h-11 items-center justify-center rounded-lg bg-secondary px-5 text-sm font-extrabold text-primary transition-colors hover:bg-[#e58210] ${focus}`;
@@ -98,7 +92,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
             aria-label="ناوبری اصلی"
             className="hidden items-center gap-1 lg:flex xl:gap-3"
           >
-            {navigation.map((item) => (
+            {siteNavigation.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -163,7 +157,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
             className="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-indigo/20 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 sm:max-h-[calc(100dvh-7rem)] sm:px-5 lg:hidden"
           >
             <nav aria-label="ناوبری موبایل" className="flex flex-col gap-1">
-              {navigation.map((item) => (
+              {siteNavigation.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

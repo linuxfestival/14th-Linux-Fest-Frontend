@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import logo from "../../assets/logo.png";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import Button, { ButtonSizes, ButtonVariants } from "../Common/Button/Button";
 import { IoClose, IoMenu, IoPerson } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -8,6 +8,7 @@ import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import ShoppingCart from "./components/ShoppingCart";
 import clsx from "clsx";
 import StickyHeader from "./StickyHeader";
+import { siteNavigation } from "./navigation";
 
 interface Props {
   sticky?: boolean;
@@ -70,7 +71,7 @@ const LegacyHeader = ({
         { ["fixed"]: sticky && !landing, ["absolute"]: !sticky && !landing },
         {
           ["!w-full !bg-transparent !shadow-none px-16"]: contestStyle,
-          ["[&>nav]:!gap-8 [&>nav]:!text-[.92rem] [&>nav_a:first-child]:hidden [&_.bg-secondary]:!bg-secondary [&_.bg-secondary]:!font-extrabold [&_.bg-secondary]:!text-primary [&_img]:!size-10 [&_img]:!object-contain [&_p]:!text-2xl [&_p]:!font-black"]:
+          ["[&>nav]:!gap-3 xl:[&>nav]:!gap-6 [&>nav]:!text-[.92rem] [&_.bg-secondary]:!bg-secondary [&_.bg-secondary]:!font-extrabold [&_.bg-secondary]:!text-primary [&_img]:!size-10 [&_img]:!object-contain [&_p]:!text-2xl [&_p]:!font-black"]:
             landing,
           ["shadow-md"]: !contestStyle,
         },
@@ -112,36 +113,18 @@ const LegacyHeader = ({
         className="hidden items-center gap-4 text-lg font-medium lg:flex"
         aria-label="ناوبری اصلی"
       >
-        <Link
-          className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
-          to={"/"}
-        >
-          خانه
-        </Link>
-        <Link
-          className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
-          to={"/workshops"}
-        >
-          ارائه‌ها
-        </Link>
-        <Link
-          className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
-          to={"/faq"}
-        >
-          سوالات متداول
-        </Link>
-        <Link
-          className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
-          to={"/presenters"}
-        >
-          ارائه‌دهندگان
-        </Link>
-        <Link
-          className="border-b-2 border-transparent py-1 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary"
-          to={"/staff"}
-        >
-          دست‌اندرکاران
-        </Link>
+        {siteNavigation.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === "/"}
+            className={({ isActive }) =>
+              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isActive ? "border-secondary text-secondary" : "border-transparent"}`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
 
       <button
@@ -191,26 +174,24 @@ const LegacyHeader = ({
               className="mb-8 flex flex-col gap-1 text-lg font-bold"
               aria-label="ناوبری موبایل"
             >
-              <Link to={"/"} onClick={toggleMenu}>
-                خانه
-              </Link>
-              <Link to={"/workshops"} onClick={toggleMenu}>
-                ارائه‌ها
-              </Link>
-              <Link to={"/faq"} onClick={toggleMenu}>
-                سوالات متداول
-              </Link>
-              <Link to={"/presenters"} onClick={toggleMenu}>
-                ارائه‌دهندگان
-              </Link>
-              <Link to={"/staff"} onClick={toggleMenu}>
-                دست اندرکاران
-              </Link>
+              {siteNavigation.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/"}
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) =>
+                    isActive ? "bg-white/5 text-secondary" : undefined
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
             </nav>
             <div className="mt-auto flex w-full items-center gap-4 border-t border-indigo/20 pt-6 [&>a]:flex-1">
               {isAuthenticated ? (
                 <>
-                  <ShoppingCart className="mx-2" />
+                  <ShoppingCart className="mx-2 bg-white/5" />
                   <Link
                     to="/profile/edit"
                     onClick={() => setMenuOpen(false)}

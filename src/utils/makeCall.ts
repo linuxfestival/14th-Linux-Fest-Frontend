@@ -14,10 +14,10 @@ type methods = "GET" | "POST" | "DELETE" | "UPDATE" | "PUT";
 export const makeCall = <T, K>(
   path: string | ((params: Record<string, string | number>) => string),
   method: methods = "GET",
-  useAuth = false
+  useAuth = false,
 ): ((
   body?: T,
-  params?: Record<string, string | number>
+  params?: Record<string, string | number>,
 ) => Promise<AxiosResponse<K, any>>) => {
   return (body?: T, params?: Record<string, string | number>) => {
     const resolvedPath = typeof path === "function" ? path(params || {}) : path;
@@ -58,14 +58,14 @@ const api = axios.create({
     "",
 });
 axiosRetry(api, {
-  retries: 10,
+  retries: 2,
   shouldResetTimeout: true,
 });
 
 api.interceptors.response.use(
   (response) => {
     logger.debug(
-      `response for ${response.config.url} ${JSON.stringify(response)}`
+      `response for ${response.config.url} ${JSON.stringify(response)}`,
     );
     return response;
   },
@@ -75,11 +75,12 @@ api.interceptors.response.use(
       // API factories are created while the store's modules initialize. Load
       // their authentication dependencies only when a request needs recovery
       // to avoid the makeCall -> store -> cart/auth API initialization cycle.
-      const [{ default: store }, { refreshThunk }, { logout }] = await Promise.all([
-        import("../store.ts"),
-        import("../core/auth/auth.thunk.ts"),
-        import("../core/auth/auth.slice.ts"),
-      ]);
+      const [{ default: store }, { refreshThunk }, { logout }] =
+        await Promise.all([
+          import("../store.ts"),
+          import("../core/auth/auth.thunk.ts"),
+          import("../core/auth/auth.slice.ts"),
+        ]);
       try {
         if (originalRequest.url?.includes("api/token/")) {
           throw error;
@@ -88,7 +89,7 @@ api.interceptors.response.use(
         const result = await store.dispatch(
           refreshThunk({
             refresh: Cookies.get("refresh_token") ?? "asdf",
-          })
+          }),
         );
 
         const { access } = result.payload as RefreshTokenResponse;
@@ -115,19 +116,19 @@ api.interceptors.response.use(
 
     logger.error(error.response);
     return Promise.reject(error);
-  }
+  },
 );
 axios.interceptors.request.use(
   (config) => {
     logger.debug(`request for ${config.url}`);
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 export default api;
 
 export const getErrorCode = <Errors extends number>(
-  error: any
+  error: any,
 ): Errors | undefined => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError;

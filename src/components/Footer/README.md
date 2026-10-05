@@ -1,12 +1,12 @@
 # Footer
 
-The shared footer preserves the existing topic groups, labels, session destinations, social destinations. Its purpose is to close public pages with clear organizer/sponsor attribution and usable topic browsing.
+The shared footer closes public pages with organizer/sponsor attribution, social links, and a link to `/event-format` labelled «قالب رویداد». The owner requested replacing the old topic groups and individual session links with this event guide, rather than adding it to the header.
 
 ## Attribution and layout
 
 The organizer is the Computer Engineering Scientific Association of Amirkabir University of Technology. The current sponsor is System Group (همکاران سیستم). The footer displays the official System Group logo at `src/assets/systemgroup.svg`, sourced from https://www.systemgroup.net/wp-content/themes/sg/dist/images/logo.svg. The old project notes misidentified the original sponsor artwork as Divar; the official logo confirms it is System Group’s mark. The trust-seal link and its image file were removed at the owner’s request. Organizer marks have a light backing for visibility.
 
-On phones, organizer information precedes two topic columns, with the third topic spanning both columns. At the small breakpoint, all three topics share a row. On desktop, organizer information and the topic row sit beside each other. DOM and keyboard order preserve the original sequence. All footer links have at least 44px target height, and social controls are 44px square. Mixed-language link labels use bidirectional isolation.
+On phones, organizer information precedes the event-guide link. On desktop, the attribution and event navigation sit in two columns. The guide link has a 44px minimum target height, and social controls are 44px square.
 
 Home and WorkshopsList render Footer after their main landmark; other active public-page mounts already did so. Footer has a named navigation region. Images reserve their rendered dimensions and load lazily. Social feedback uses color rather than translation.
 
@@ -39,6 +39,6 @@ Measured with headless Chromium and fallback fonts after external Google Fonts r
 
 - **P3 / Theming — `src/components/Icons/`:** Social artwork contains literal gradient colors. This is acceptable inherited branding for the existing theme, but an alternate theme would need deliberate icon treatment. Suggested follow-up, if another theme is introduced: `$impeccable colorize footer`.
 
-The request explicitly excluded navigation improvements, so existing duplicated session destinations remain. The separate home sponsor section retains its existing asset; that image was misidentified as Divar in the initial critique.
+The earlier audit excluded navigation improvements. The subsequent owner-requested change replaces those duplicated session destinations with the event-guide link. The separate home sponsor section retains its existing asset; that image was misidentified as Divar in the initial critique.
 
 Production build, scoped ESLint, whitespace validation and the Impeccable detector passed. Vite emitted existing mixed static/dynamic-import warnings. Temporary headless browser was closed; the existing development server was retained.

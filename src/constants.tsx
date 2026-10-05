@@ -48,7 +48,7 @@ export interface PageInformationOptions {
 export const PageMetaInformation: Record<string, PageInformationOptions> = {
   ["/"]: {
     title: "خانه",
-    description: "چهاردهمین جشنواره جامعه لینوکس و متن‌باز",
+    description: "چهاردهمین جشنواره علاقه‌مندان لینوکس و متن‌باز",
     keywords: [
       "لینوکس فست",
       "خانه",
@@ -62,7 +62,8 @@ export const PageMetaInformation: Record<string, PageInformationOptions> = {
   },
   ["/sponsor"]: {
     title: "پیام همکاران سیستم",
-    description: "پیام همکاران سیستم، حامی لینوکس‌فست، و آشنایی با تیم توسعه نرم‌افزار آن‌ها.",
+    description:
+      "پیام همکاران سیستم، حامی لینوکس‌فست، و آشنایی با تیم توسعه نرم‌افزار آن‌ها.",
   },
   ["/workshops"]: {
     title: "ارائه ها",
@@ -76,6 +77,11 @@ export const PageMetaInformation: Record<string, PageInformationOptions> = {
       "کارگاه آموزشی",
       "ارائه آموزشی",
     ],
+  },
+  ["/event-format"]: {
+    title: "قالب رویداد",
+    description:
+      "با ارائه‌های آنلاین چهارشنبه، جشن نصب لینوکس، ارائه‌های فنی و کارگاه‌های پنج‌شنبه و دورهمی جمعه لینوکس‌فست آشنا شوید.",
   },
   ["/faq"]: {
     title: "سوالات متداول",

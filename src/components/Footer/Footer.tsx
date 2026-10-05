@@ -7,35 +7,10 @@ import Telegram from "../Icons/Telegram";
 import Instagram from "../Icons/Instagram";
 import Twitter from "../Icons/Twitter";
 
-const footerGroups = [
-  {
-    title: "شروع لینوکس!",
-    links: [
-      { label: "کارگاه مقدماتی", to: "/workshop/17" },
-      { label: "Docker & Kubernetes", to: "/workshop/15" },
-    ],
-  },
-  {
-    title: "DevOps",
-    links: [
-      { label: "کارگاه مقدماتی", to: "/workshop/17" },
-      { label: "The GitOps Journey", to: "/workshop/4" },
-      { label: "Cloud-Native Monitoring", to: "/workshop/11" },
-    ],
-  },
-  {
-    title: "Containerization",
-    links: [
-      { label: "Docker & Kubernetes", to: "/workshop/15" },
-      { label: "Kubernetes Controllers", to: "/workshop/13" },
-    ],
-  },
-];
-
 const Footer = () => (
   <footer className="bg-dark-gray text-text-white" dir="rtl">
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-8 lg:px-10 lg:py-12">
-      <div className="grid gap-8 border-b border-indigo/35 pb-6 lg:grid-cols-[minmax(15rem,1.35fr)_minmax(0,3fr)] lg:gap-10 lg:pb-8">
+      <div className="grid gap-8 border-b border-indigo/35 pb-6 lg:grid-cols-2 lg:gap-10 lg:pb-8">
         <div className="flex flex-col items-center text-center lg:items-start lg:text-right">
           <div className="flex items-center gap-4">
             <Link
@@ -126,31 +101,18 @@ const Footer = () => (
         </div>
 
         <nav
-          className="grid min-w-0 grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 sm:gap-x-6"
-          aria-label="موضوع‌های ارائه‌ها"
+          className="min-w-0 text-center lg:text-right"
+          aria-label="درباره رویداد"
         >
-          {footerGroups.map((group, index) => (
-            <section
-              key={group.title}
-              className={`min-w-0 text-center lg:text-right ${index === footerGroups.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}
-            >
-              <h2 className="m-0 break-words text-lg font-black text-text-white sm:text-xl">
-                {group.title}
-              </h2>
-              <ul className="mb-0 mt-2 p-0 text-sm text-text-gray" role="list">
-                {group.links.map((link) => (
-                  <li key={link.to}>
-                    <Link
-                      className="flex min-h-11 items-center justify-center rounded-sm px-1 py-2 underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary lg:justify-start"
-                      to={link.to}
-                    >
-                      <bdi>{link.label}</bdi>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          <h2 className="m-0 text-lg font-black text-text-white sm:text-xl">
+            درباره رویداد
+          </h2>
+          <Link
+            className="mt-2 inline-flex min-h-11 items-center rounded-sm px-1 py-2 text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            to="/event-format"
+          >
+            قالب رویداد
+          </Link>
         </nav>
       </div>
 

@@ -15,7 +15,7 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "https://linuxfest.ceit-ssc.ir",
+        target: "https://linuxfest.ir",
         changeOrigin: true,
       },
     },

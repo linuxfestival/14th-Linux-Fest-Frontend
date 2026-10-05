@@ -7,7 +7,7 @@ const experiences = [
     title: "۱۵ سال کنار هم، با لینوکس",
     copy: "از روزهایی که لینوکس رو روی سی‌دی دست‌به‌دست می‌کردیم تا امروز که بیشتر از همیشه، همه‌جا می‌بینیمش؛ امسال برای پانزدهمین سال لینوکس‌فست رو برگزار می‌کنیم. دور هم جمع می‌شیم تا از هم یاد بگیریم، تجربه‌هامون رو به اشتراک بذاریم و دوست‌های تازه پیدا کنیم.",
     image: "/assets/event.png",
-    imageAlt: "ارائه‌دهندگان روی صحنهٔ لینوکس‌فست در کنار نمایشگر کد",
+    imageAlt: "ارائه‌دهندگان روی صحنه لینوکس‌فست در کنار نمایشگر کد",
     width: 1280,
     height: 853,
     links: [
@@ -48,7 +48,9 @@ const ExperienceSection = () => (
           key={experience.title}
           className="grid grid-cols-1 items-center gap-8 border-b border-primary/15 py-12 first:pt-0 last:border-b-0 last:pb-0 sm:gap-10 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:py-20 xl:gap-20"
         >
-          <div className={`min-w-0 montage-photo ${index % 2 === 1 ? "lg:order-2" : ""}`}>
+          <div
+            className={`min-w-0 montage-photo ${index % 2 === 1 ? "lg:order-2" : ""}`}
+          >
             <img
               className="h-auto w-full rounded-xl"
               src={experience.image}

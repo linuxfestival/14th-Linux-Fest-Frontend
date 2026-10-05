@@ -25,6 +25,7 @@ const Onboarding = React.lazy(
   () => import("./components/Onboarding/Onboarding"),
 );
 const FAQ = React.lazy(() => import("./components/FAQ/FAQ.tsx"));
+const EventFormat = React.lazy(() => import("./components/EventFormat/EventFormat.tsx"));
 const PaymentStatus = React.lazy(
   () => import("./components/PaymentStatus/PaymentStatus.tsx"),
 );
@@ -205,6 +206,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Fallback />}>
             <Presenters />
+          </Suspense>
+        ),
+      },
+      {
+        path: "event-format",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <EventFormat />
           </Suspense>
         ),
       },

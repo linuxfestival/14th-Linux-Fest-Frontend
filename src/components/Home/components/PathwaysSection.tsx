@@ -7,7 +7,7 @@ import UsbIllustration from "../../../assets/images/usb.png";
 const pathways = [
   {
     title: "ارائه‌ و گفت‌وگو",
-    copy: "ارائه های تخصصی و گفت‌وگو با متخصصین و علاقه‌مندان جامعه متن‌باز.",
+    copy: "ارائه‌های تخصصی و گفت‌وگو با متخصصان و علاقه‌مندان متن‌باز.",
     image: Microphone,
     imageAlt: "تصویر میکروفون",
   },
