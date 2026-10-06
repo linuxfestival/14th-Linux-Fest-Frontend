@@ -1,0 +1,11 @@
+/* The site sets `* { font-family: Vazirmatn !important }`; the terminal grid
+   needs a monospace font, and `.xterm *` is more specific than `*`. */
+.xterm,
+.xterm * {
+  font-family: "DejaVu Sans Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace !important;
+}
+
+/* The Goftino chat button would cover the terminal and its touch keys. */
+body.linux-terminal-open #goftino_w {
+  display: none !important;
+}
