@@ -57,8 +57,8 @@ const WorkshopCard = ({ item }: Props) => {
         featured
           ? "bg-primary text-white md:col-span-2 md:grid md:grid-cols-[.75fr_1.25fr] xl:col-span-3"
           : workshop
-          ? "border border-secondary/40 bg-white text-primary"
-          : "border border-primary/15 bg-white text-primary"
+            ? "border border-secondary/40 bg-white text-primary"
+            : "border border-primary/15 bg-white text-primary"
       }`}
     >
       <div
@@ -66,8 +66,8 @@ const WorkshopCard = ({ item }: Props) => {
           featured
             ? "bg-dark-gray md:h-full md:min-h-72"
             : workshop
-            ? "bg-secondary/15"
-            : item.imageTone
+              ? "bg-secondary/15"
+              : item.imageTone
         }`}
       >
         <img
@@ -116,7 +116,7 @@ const WorkshopCard = ({ item }: Props) => {
             <span
               key={tag}
               className={`inline-flex items-center justify-center rounded-full px-4 py-1 pt-1.5 font-bold ${getTagClass(
-                tag
+                tag,
               )}`}
             >
               {tag}
@@ -175,11 +175,7 @@ const WorkshopCard = ({ item }: Props) => {
                 <HiMapPin className="size-4" aria-label="نوع برگزاری" />
               )}
             </dt>
-            <dd>
-              {item.tags.includes("Online")
-                ? "آنلاین"
-                : "حضوری · دانشگاه امیرکبیر"}
-            </dd>
+            <dd>{isOnline() ? "آنلاین" : "حضوری · دانشگاه امیرکبیر"}</dd>
           </div>
         </dl>
         <div
@@ -215,8 +211,8 @@ const WorkshopCard = ({ item }: Props) => {
                 {full
                   ? "ظرفیت تکمیل شده"
                   : !item.registrationActive
-                  ? "ثبت‌نام بسته است"
-                  : `${digitsToPersian(item.remaining.toString())} جای خالی`}
+                    ? "ثبت‌نام بسته است"
+                    : `${digitsToPersian(item.remaining.toString())} جای خالی`}
               </p>
             </div>
             <Link
