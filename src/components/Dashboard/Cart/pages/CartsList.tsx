@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { HiArrowLeft, HiExclamationTriangle } from "react-icons/hi2";
@@ -15,6 +15,7 @@ import {
 import { actionClass, dateText, priceText } from "../../dashboard.styles";
 const CartsList = () => {
   const dispatch = useAppDispatch();
+  const [showConflicts, setShowConflicts] = useState(false);
   const { items, totalAmount, loading } = useSelector(selectCartState);
   const pending = items.filter((item) => item.payment_state !== "COMPLETED");
   const conflicts = findCartTimingConflicts(items);
@@ -28,12 +29,24 @@ const CartsList = () => {
     >
       {conflicts.length > 0 && (
         <section role="alert" aria-labelledby="cart-timing-conflicts" className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-800 sm:p-6">
-          <div className="flex items-center gap-3">
-            <HiExclamationTriangle aria-hidden="true" className="size-6 shrink-0" />
-            <h2 id="cart-timing-conflicts" className="text-lg font-bold">تداخل زمانی ارائه‌ها</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <HiExclamationTriangle aria-hidden="true" className="size-6 shrink-0" />
+              <h2 id="cart-timing-conflicts" className="text-lg font-bold">تداخل زمانی ارائه‌ها</h2>
+            </div>
+            <button
+              type="button"
+              aria-expanded={showConflicts}
+              aria-controls="cart-timing-conflict-details"
+              onClick={() => setShowConflicts((shown) => !shown)}
+              className="min-h-11 rounded-lg px-3 py-2 text-sm font-bold underline underline-offset-4 transition-colors hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+            >
+              {showConflicts ? "بستن تداخل‌ها" : "نمایش تداخل‌ها"}
+            </button>
           </div>
-          <p className="mt-3 text-sm leading-7">زمان بعضی از ارائه‌های انتخاب‌شده با هم یا با ارائه‌های خریداری‌شده‌تان تداخل دارد. پیش از تکمیل خرید، زمان آن‌ها را بررسی کنید.</p>
-          <ul className="mt-4 space-y-4">
+          <div id="cart-timing-conflict-details" hidden={!showConflicts}>
+            <p className="mt-3 text-sm leading-7">زمان بعضی از ارائه‌های انتخاب‌شده با هم یا با ارائه‌های خریداری‌شده‌تان تداخل دارد. پیش از تکمیل خرید، زمان آن‌ها را بررسی کنید.</p>
+            <ul className="mt-4 space-y-4">
             {conflicts.map(({ selected, other, start, end }) => (
               <li key={`${selected.presentation.id}-${other.presentation.id}`} className="text-sm leading-7">
                 <p>
@@ -45,7 +58,8 @@ const CartsList = () => {
                 <p className="mt-1">زمان مشترک: {dateText(start)} تا {dateText(end)}</p>
               </li>
             ))}
-          </ul>
+            </ul>
+          </div>
         </section>
       )}
       {pending.length ? (
