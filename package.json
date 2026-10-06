@@ -12,11 +12,14 @@
     "test:password": "node tests/passwordValidation.test.cjs",
     "test:purchase": "node tests/purchasedPresentation.test.cjs",
     "test:calendar": "node tests/presentationCalendar.test.cjs",
+    "test:linux": "node tests/linux.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.0",
     "@tailwindcss/vite": "^4.0.8",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
     "axios": "^1.7.9",
     "axios-retry": "^4.5.0",
     "clsx": "^2.1.1",

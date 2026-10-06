@@ -1,0 +1,23 @@
+--- a/shell/hush.c	2026-10-06 03:24:27.833492806 +0330
++++ b/shell/hush.c	2026-10-06 03:24:27.847465770 +0330
+@@ -9778,6 +9778,12 @@
+ 
+ /* NB: called by pseudo_exec, and therefore must not modify any
+  * global data until exec/_exit (we can be a child after vfork!) */
++#ifdef __EMSCRIPTEN__
++/* busybox-wasm: lets the browser kernel preempt shell loops and deliver ^C. */
++void bbw_yield(void) __attribute__((import_module("bbw"), import_name("yield")));
++#else
++# define bbw_yield() ((void)0)
++#endif
+ static int run_list(struct pipe *pi)
+ {
+ #if ENABLE_HUSH_CASE
+@@ -9855,6 +9861,7 @@
+ 		int r;
+ 		int sv_errexit_depth;
+ 
++		bbw_yield();
+ 		if (G.flag_SIGINT)
+ 			break;
+ 		if (G_flag_return_in_progress == 1)

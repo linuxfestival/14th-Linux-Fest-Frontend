@@ -1,0 +1,5 @@
+busybox-*/
+busybox-*.tar.bz2
+out/
+cfg/.fragment.resolved
+shim/*.o

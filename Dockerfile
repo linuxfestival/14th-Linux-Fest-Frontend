@@ -8,7 +8,8 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm build
+RUN pnpm build \
+    && find dist/assets -name '*.wasm' -exec gzip -9 -k {} +
 
 FROM nginx:1.27-alpine AS runtime
 
