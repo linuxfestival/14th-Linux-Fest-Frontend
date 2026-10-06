@@ -161,9 +161,7 @@ const WorkshopDetails = ({
               <div>
                 <dt className="text-dark-gray">نوع برگزاری</dt>
                 <dd className="mt-1 font-bold">
-                  {item.service === PresentationService.TALK
-                    ? "آنلاین"
-                    : "حضوری"}
+                  {item.tags.includes("Online") ? "آنلاین" : "حضوری"}
                 </dd>
               </div>
             </div>

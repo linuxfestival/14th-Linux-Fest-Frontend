@@ -47,7 +47,10 @@ const WorkshopCard = ({ item }: Props) => {
           className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-extrabold ${featured || workshop ? "bg-secondary text-primary" : "bg-white text-primary"}`}
         >
           {workshop && (
-            <HiWrenchScrewdriver className="size-4 shrink-0" aria-hidden="true" />
+            <HiWrenchScrewdriver
+              className="size-4 shrink-0"
+              aria-hidden="true"
+            />
           )}
           {label}
         </span>
@@ -118,7 +121,7 @@ const WorkshopCard = ({ item }: Props) => {
               )}
             </dt>
             <dd>
-              {item.service === PresentationService.TALK
+              {item.tags.includes("Online")
                 ? "آنلاین"
                 : "حضوری · دانشگاه امیرکبیر"}
             </dd>
