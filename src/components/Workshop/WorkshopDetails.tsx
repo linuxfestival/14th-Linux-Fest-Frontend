@@ -5,6 +5,7 @@ import {
   HiCalendarDays,
   HiClock,
   HiMapPin,
+  HiVideoCamera,
   HiUser,
   HiUsers,
   HiCheckCircle,
@@ -16,6 +17,7 @@ import {
   type PresentationDto,
 } from "../../core/presentations/presentations.dto";
 import { toWorkshopItem } from "../WorkshopsList/workshops.adapter";
+import PresentationTags from "../WorkshopsList/components/PresentationTags";
 import { digitsToPersian } from "../../utils/digitsToPersian";
 
 interface Props {
@@ -39,6 +41,7 @@ const WorkshopDetails = ({
   onUpdateCart,
 }: Props) => {
   const item = toWorkshopItem(presentation);
+  const AttendanceIcon = item.tags.includes("Online") ? HiVideoCamera : HiMapPin;
   const [language, setLanguage] = useState<"fa" | "en">(
     presentation.fa_description ? "fa" : "en"
   );
@@ -99,10 +102,8 @@ const WorkshopDetails = ({
           </span>
         </div>
         {item.tags.length > 0 && (
-          <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-t border-indigo/25 pt-5 text-sm font-bold text-indigo">
-            {item.tags.map((tag) => (
-              <span key={tag}>{tag}</span>
-            ))}
+          <div className="mt-6 border-t border-indigo/25 pt-5">
+            <PresentationTags tags={item.tags} featured />
           </div>
         )}
       </section>
@@ -154,7 +155,7 @@ const WorkshopDetails = ({
               </p>
             )}
             <div className="flex items-start gap-3">
-              <HiMapPin
+              <AttendanceIcon
                 aria-hidden="true"
                 className="mt-1 size-5 shrink-0 text-dark-gray"
               />

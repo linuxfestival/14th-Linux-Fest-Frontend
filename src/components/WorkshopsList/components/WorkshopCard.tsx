@@ -12,6 +12,7 @@ import { PresentationService } from "../../../core/presentations/presentations.d
 import { digitsToPersian } from "../../../utils/digitsToPersian";
 import type { WorkshopItem } from "../workshops.adapter";
 import WorkshopCartAction from "./WorkshopCartAction";
+import PresentationTags from "./PresentationTags";
 
 interface Props {
   item: WorkshopItem;
@@ -27,26 +28,7 @@ const WorkshopCard = ({ item }: Props) => {
     label = item.service === PresentationService.TALK ? "ارائه" : "کارگاه عملی";
   }
 
-  const isOnline = () => {
-    return item.tags.find((tag) => tag === "Online");
-  };
-
-  const getTagClass = (tag: string) => {
-    switch (tag) {
-      case "Online":
-        return "bg-dark-gray text-white";
-      case "In-Person":
-        return "bg-secondary text-primary";
-      case "Beginner":
-        return "bg-green-800 text-green-100";
-      case "Intermediate":
-        return "bg-blue-800 text-blue-100";
-      case "Advanced":
-        return "bg-red-800 text-red-100";
-      default:
-        return "bg-dark-gray text-white";
-    }
-  };
+  const online = item.tags.includes("Online");
 
   const actionClass =
     "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray";
@@ -100,29 +82,11 @@ const WorkshopCard = ({ item }: Props) => {
         )}
       </div>
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
-          {/* {item.level && (
-            <>
-              <span className={featured ? "text-indigo" : "text-dark-gray"}>
-                {item.level}
-              </span>
-              <span aria-hidden="true">·</span>
-            </>
-          )}
-          <span className={featured ? "text-indigo" : "text-dark-gray"}>
-            {item.tags.join(" / ")}
-          </span> */}
-          {item.tags.map((tag) => (
-            <span
-              key={tag}
-              className={`inline-flex items-center justify-center rounded-full px-4 py-1 pt-1.5 font-bold ${getTagClass(
-                tag,
-              )}`}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        {item.tags.length > 0 && (
+          <div className="mb-4">
+            <PresentationTags tags={item.tags} featured={featured} />
+          </div>
+        )}
         <h3 className="text-2xl font-black leading-9" dir="auto">
           {item.title}
         </h3>
@@ -169,13 +133,13 @@ const WorkshopCard = ({ item }: Props) => {
           </div>
           <div className="col-span-2 flex items-center gap-2">
             <dt>
-              {item.service === PresentationService.TALK ? (
+              {online ? (
                 <HiVideoCamera className="size-4" aria-label="نوع برگزاری" />
               ) : (
                 <HiMapPin className="size-4" aria-label="نوع برگزاری" />
               )}
             </dt>
-            <dd>{isOnline() ? "آنلاین" : "حضوری · دانشگاه امیرکبیر"}</dd>
+            <dd className="font-bold">{online ? "آنلاین" : "حضوری · دانشگاه امیرکبیر"}</dd>
           </div>
         </dl>
         <div
