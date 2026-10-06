@@ -7,7 +7,7 @@ import SponsorsSection from "./components/SponsorsSection";
 
 const Home = () => (
   <>
-    <main className="overflow-clip bg-text-white text-primary">
+    <main className="overflow-scroll bg-text-white text-primary">
       <HeroSection />
       <ActivityTicker />
       <ExperienceSection />

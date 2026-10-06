@@ -11,7 +11,7 @@ const experiences = [
     width: 1280,
     height: 853,
     links: [
-      { label: "قالب رویداد", to: "/event-format" },
+      { label: "مراحل رویداد", to: "/event-format" },
       { label: "زمان‌بندی رویداد", to: "#programs" },
     ],
   },
@@ -49,7 +49,9 @@ const ExperienceSection = () => (
           className="grid grid-cols-1 items-center gap-8 border-b border-primary/15 py-12 first:pt-0 last:border-b-0 last:pb-0 sm:gap-10 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:py-20 xl:gap-20"
         >
           <div
-            className={`min-w-0 montage-photo ${index % 2 === 1 ? "lg:order-2" : ""}`}
+            className={`min-w-0 montage-photo ${
+              index % 2 === 1 ? "lg:order-2" : ""
+            }`}
           >
             <img
               className="h-auto w-full rounded-xl"
@@ -82,7 +84,11 @@ const ExperienceSection = () => (
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
               {experience.links.map((link, linkIndex) => {
-                const className = `inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-5 py-3 text-base font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${linkIndex === 0 ? "border-transparent bg-secondary text-primary hover:bg-secondary/85 active:bg-secondary/75" : "border-primary text-primary hover:bg-primary hover:text-text-white active:bg-dark-gray active:text-text-white"}`;
+                const className = `inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-5 py-3 text-base font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${
+                  linkIndex === 0
+                    ? "border-transparent bg-secondary text-primary hover:bg-secondary/85 active:bg-secondary/75"
+                    : "border-primary text-primary hover:bg-primary hover:text-text-white active:bg-dark-gray active:text-text-white"
+                }`;
 
                 return link.to.startsWith("#") ? (
                   <a key={link.to} href={link.to} className={className}>

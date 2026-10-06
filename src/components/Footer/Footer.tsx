@@ -111,7 +111,7 @@ const Footer = () => (
             className="mt-2 inline-flex min-h-11 items-center rounded-sm px-1 py-2 text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
             to="/event-format"
           >
-            قالب رویداد
+            مراحل برگزاری رویداد
           </Link>
         </nav>
       </div>

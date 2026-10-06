@@ -36,7 +36,7 @@ const AuthLayout = ({
         className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-xs font-bold text-dark-gray hover:bg-indigo/15 focus-visible:outline-2 focus-visible:outline-primary sm:text-sm"
       >
         بازگشت به خانه
-        <HiArrowRight aria-hidden="true" className="size-4" />
+        <HiArrowLeft aria-hidden="true" className="size-4" />
       </Link>
     </header>
     <main className="mx-auto flex w-full max-w-6xl flex-1 items-center px-4 pb-8 sm:px-8 sm:pb-10">
