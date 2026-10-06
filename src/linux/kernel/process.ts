@@ -47,6 +47,7 @@ export class Process implements TtyCaller {
   fds: (FdEntry | undefined)[] = [];
   cwd: Inode;
   umask = 0o022;
+  /** argv and environment as byte strings (see bytesToBin in image.ts). */
   argv: string[] = [];
   env: string[] = [];
   comm = "";

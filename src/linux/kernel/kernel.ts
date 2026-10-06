@@ -4,7 +4,7 @@
 // at a yield point (bbw.yield, fd_write, poll).
 import { E, S, SIG, SIGNAL_NAMES } from "./constants.ts";
 import { OpenFile, openInode } from "./files.ts";
-import { ExecSignal, ExitSignal, Image, VforkDone } from "./image.ts";
+import { ExecSignal, ExitSignal, Image, VforkDone, utf8ToBin } from "./image.ts";
 import {
   CONTINUED_STATUS,
   DISP,
@@ -20,6 +20,8 @@ import { BLOCK, Tty } from "./tty.ts";
 import { Inode, KError, Vfs } from "./vfs.ts";
 
 export const MAX_PROCS = 64;
+/** Nested vforks per image (a vfork child that vforks, e.g. to daemonize). */
+const MAX_VFORK_DEPTH = 4;
 const SLICE_MS = 10;
 const TICK_MS = 12;
 const KILLABLE = ~(sigbit(SIG.KILL) | sigbit(SIG.STOP)) & 0xffffffffffffffffn;
@@ -77,7 +79,7 @@ export class Kernel {
     this.vfs = vfs;
     this.host = host;
     this.opts = opts;
-    this.env = opts.env ?? [];
+    this.env = (opts.env ?? []).map(utf8ToBin);
     this.tty = new Tty({
       signalGroup: (pgid, sig) => this.killGroup(pgid, sig),
       output: (b) => host.output(b),
@@ -453,7 +455,7 @@ export class Kernel {
   /** vfork(): the child shares the image until it execs or exits. */
   vfork(img: Image): number {
     const parent = img.current;
-    if (img.inVforkChild) return -E.EAGAIN;
+    if (img.vforkDepth >= MAX_VFORK_DEPTH) return -E.EAGAIN;
     let live = 0;
     for (const p of this.procs.values()) if (p.state !== "zombie") live++;
     if (live >= MAX_PROCS) return -E.EAGAIN;
@@ -483,7 +485,8 @@ export class Kernel {
   private endVfork(child: Process) {
     const parent = child.vforkParent!;
     child.vforkParent = undefined;
-    parent.state = "runnable";
+    // The parent may itself be a vfork child that is running again.
+    parent.state = parent.vforkParent ? "vfork" : "runnable";
   }
 
   /** exit/_exit/proc_exit. Never returns. */
@@ -576,6 +579,7 @@ export class Kernel {
    * Resolves an executable and builds its new image without touching the
    * process. Returns the image or -errno.
    */
+  /** `path` is text (resolved in the Vfs); `argv` are byte strings. */
   loadProgram(p: Process, path: string, argv: string[], depth = 0): Image | number {
     let inode: Inode;
     try {
@@ -595,10 +599,11 @@ export class Kernel {
         const interp = sp < 0 ? line : line.slice(0, sp);
         const arg = sp < 0 ? "" : line.slice(sp).trim();
         if (!interp) return -E.ENOEXEC;
-        return this.loadProgram(p, interp, [interp, ...(arg ? [arg] : []), path, ...argv.slice(1)], depth + 1);
+        const extra = [interp, ...(arg ? [arg] : []), path].map(utf8ToBin);
+        return this.loadProgram(p, interp, [...extra, ...argv.slice(1)], depth + 1);
       }
       // No #!: run it with the shell, as execvp does on ENOEXEC.
-      return this.loadProgram(p, "/bin/sh", ["sh", path, ...argv.slice(1)], depth + 1);
+      return this.loadProgram(p, "/bin/sh", ["sh", utf8ToBin(path), ...argv.slice(1)], depth + 1);
     }
     const img = new Image(p, argv);
     try {

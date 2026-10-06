@@ -128,6 +128,17 @@ const CASES = [
   ["sudo echo hi 2>/dev/null", eq("hi\n")],
   ["apt install vim; echo $?", match(/no network[\s\S]*\n1\n$/)],
   ["/bin/busybox | head -1", match(/^BusyBox v1\.37/)],
+  // system() and popen() (awk, watch and vi use them)
+  ["awk 'BEGIN { system(\"echo from-system\") }'", eq("from-system\n")],
+  ["awk 'BEGIN { print system(\"exit 3\") }'", eq("3\n")],
+  ["awk 'BEGIN { \"echo piped\" | getline x; print x }'", eq("piped\n")],
+  ["awk 'BEGIN { print \"z\" | \"sort\"; print \"a\" | \"sort\" }'", eq("a\nz\n")],
+  ["timeout 2 watch -n 0.5 -t 'fortune | cowsay' | grep -c '(oo)'", match(/^[1-9]\d*\n$/)],
+  ["timeout 1 sleep 5; echo $?", match(/\n?143\n$/)],
+  // libc functions that Emscripten stubs out (see tools/busybox-wasm/analyze.mjs)
+  // second line of `times` is the children's CPU time: must not be zero
+  ["seq 1 200000 | md5sum >/dev/null; times", match(/^\S+ \S+\n(?!0m0\.000s )\S+ \S+\n$/)],
+  ["hostname -i", eq("127.0.1.1\n")],
 ];
 
 async function interactive(sys) {

@@ -62,11 +62,23 @@ export type StepResult =
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
+// argv and environment strings are bytes, not text: BusyBox, for one, marks a
+// re-exec by setting the high bit of argv[0][0]. The kernel keeps them as
+// "byte strings" (one char per byte) and converts only at the edges.
+export const bytesToBin = (b: Uint8Array) => {
+  let s = "";
+  for (let i = 0; i < b.length; i += 8192) s += String.fromCharCode(...b.subarray(i, i + 8192));
+  return s;
+};
+export const binToBytes = (s: string) => Uint8Array.from(s, (c) => c.charCodeAt(0));
+export const utf8ToBin = (s: string) => bytesToBin(enc.encode(s));
+
 export class Image {
   exports!: BusyboxExports;
   owner: Process;
   /** The process syscalls act for: the vfork child while it runs. */
   current: Process;
+  /** Byte strings (see bytesToBin). */
   argv: string[];
   /** The path that was exec'd (for comm and /proc/<pid>/exe). */
   exePath?: string;
@@ -78,7 +90,8 @@ export class Image {
   rewindValue: number | bigint = 0;
   /** Set by the vfork import before it unwinds. */
   pendingVfork?: Process;
-  private vforkSnap?: { bytes: Uint8Array; sp: number; child: Process };
+  /** One saved stack per active vfork, innermost last (a vfork child may vfork). */
+  private vforkSnaps: { bytes: Uint8Array; sp: number; parent: Process; child: Process }[] = [];
   /** The kernel's handler for a trap in a vfork child (the parent survives). */
   onChildFault?: (child: Process, err: unknown) => void;
   private buf?: ArrayBuffer;
@@ -116,11 +129,17 @@ export class Image {
     while (m[end] && end - ptr < max) end++;
     return dec.decode(m.subarray(ptr, end));
   }
+  /** A NULL-terminated char*[] (argv, envp) as byte strings. */
   strArray(ptr: number): string[] {
     const out: string[] = [];
     if (!ptr) return out;
     const dv = this.dv();
-    for (let p; (p = dv.getUint32(ptr, true)); ptr += 4) out.push(this.str(p));
+    const m = this.u8();
+    for (let p; (p = dv.getUint32(ptr, true)); ptr += 4) {
+      let end = p;
+      while (m[end]) end++;
+      out.push(bytesToBin(m.subarray(p, end)));
+    }
     return out;
   }
   /** Writes a NUL-terminated string, truncated to fit `size`. Returns bytes written without the NUL. */
@@ -161,7 +180,7 @@ export class Image {
     for (let s = 1; s <= 64; s++) if (this.owner.disp[s] === 1) ignored |= 1n << BigInt(s - 1);
     x.bbw_setup(this.owner.mask, ignored);
     this.asyncBuf = x.malloc(ASYNC_SIZE);
-    const strs = this.argv.map((a) => enc.encode(a + "\0"));
+    const strs = this.argv.map((a) => binToBytes(a + "\0"));
     const total = strs.reduce((n, s) => n + s.length, 0);
     let p = x._emscripten_stack_alloc((total + 3) & ~3);
     this.argvPtr = x._emscripten_stack_alloc((strs.length + 1) * 4);
@@ -209,11 +228,12 @@ export class Image {
           this.pendingVfork = undefined;
           x.bbw_sigsave();
           const used = this.dv().getUint32(this.asyncBuf, true) - this.asyncBuf;
-          this.vforkSnap = {
+          this.vforkSnaps.push({
             bytes: this.u8().slice(this.asyncBuf, this.asyncBuf + used),
             sp: x.emscripten_stack_get_current(),
+            parent: this.current,
             child,
-          };
+          });
           this.current = child;
           this.rewinding = true;
           this.rewindValue = 0;
@@ -230,13 +250,17 @@ export class Image {
     return this.current !== this.owner;
   }
 
+  /** Depth of nested vforks currently running in this image. */
+  get vforkDepth() {
+    return this.vforkSnaps.length;
+  }
+
   private resumeVforkParent() {
-    const snap = this.vforkSnap!;
-    this.vforkSnap = undefined;
+    const snap = this.vforkSnaps.pop()!;
     this.u8().set(snap.bytes, this.asyncBuf);
     this.exports._emscripten_stack_restore(snap.sp);
     this.exports.bbw_sigrestore();
-    this.current = this.owner;
+    this.current = snap.parent;
     this.rewinding = true;
     this.rewindValue = snap.child.pid;
   }

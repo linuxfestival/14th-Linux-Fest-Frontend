@@ -122,6 +122,25 @@ export function startTerminal(container: HTMLElement, opts: SessionOptions = {})
   });
   term.onResize(({ rows, cols }) => post({ type: "resize", rows, cols }));
 
+  // Ctrl+Shift+C / Ctrl+Shift+V copy and paste, as in Linux terminals.
+  // preventDefault keeps the browser from opening its inspector on Ctrl+Shift+C.
+  term.attachCustomKeyEventHandler((e) => {
+    if (!e.ctrlKey || !e.shiftKey || e.altKey || e.metaKey) return true;
+    if (e.code !== "KeyC" && e.code !== "KeyV") return true;
+    e.preventDefault();
+    if (e.type !== "keydown") return false;
+    if (e.code === "KeyC") {
+      const selection = term.getSelection();
+      if (selection) navigator.clipboard?.writeText(selection).catch(() => {});
+    } else {
+      navigator.clipboard
+        ?.readText()
+        .then((text) => text && term.paste(text))
+        .catch(() => {});
+    }
+    return false;
+  });
+
   const ro = new ResizeObserver(() => {
     // Closing the window hides it (display: none). Fitting then would shrink
     // the terminal to a few columns and the shell would redraw its prompt

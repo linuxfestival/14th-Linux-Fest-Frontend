@@ -39,11 +39,16 @@ mkdir -p "$OUT"
 emcc -Oz -o "$OUT/busybox.js" \
   "$HERE/shim/bbwasm.o" applets/built-in.o \
   -Wl,--start-group $LIBS -Wl,--end-group -lm \
+  -Wl,--wrap=times \
   -sASYNCIFY=1 -sASYNCIFY_IMPORTS="[$ASYNC_IMPORTS]" \
   -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=4MB -sSTACK_SIZE=256KB \
   -sEXIT_RUNTIME=1 -sSUPPORT_LONGJMP=emscripten \
   -sEXPORTED_FUNCTIONS=_main,_malloc,_free \
   -sENVIRONMENT=worker -sFILESYSTEM=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -Wno-undefined -g3
+# Keep a copy with function names for tools/busybox-wasm/analyze.mjs.
+cp "$OUT/busybox.wasm" "$OUT/busybox.symbols.wasm"
 "$EMSDK/upstream/bin/wasm-opt" --strip-debug --strip-producers --enable-bulk-memory --enable-bulk-memory-opt --enable-nontrapping-float-to-int --enable-sign-ext --enable-mutable-globals --enable-multivalue --enable-reference-types "$OUT/busybox.wasm" -o "$OUT/busybox.wasm"
 [ "${KEEP_GLUE:-0}" = 1 ] || rm -f "$OUT/busybox.js"   # KEEP_GLUE=1 keeps it as an ABI reference
+# Fails if an applet can reach an Emscripten stub nobody has reviewed.
+node "$HERE/analyze.mjs" "$OUT/busybox.symbols.wasm" --report "$HERE/stub-report.md"
 ls -la "$OUT/busybox.wasm"

@@ -6,7 +6,7 @@
 // they go through kernel.blocking() or kernel.finish(.., true).
 import { AT, E, F, FILETYPE, IOCTL, O, PAGE, S, SIG } from "./constants.ts";
 import { OpenFile, Pipe } from "./files.ts";
-import { Image, LongjmpSignal } from "./image.ts";
+import { Image, LongjmpSignal, binToBytes } from "./image.ts";
 import type { Kernel } from "./kernel.ts";
 import { Kernel as K } from "./kernel.ts";
 import { DISP, sigbit } from "./process.ts";
@@ -321,7 +321,7 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
       return 0;
     }),
     _emscripten_system: (cmd: number) => (cmd ? -E.ENOSYS : 0),
-    _emscripten_lookup_name: () => 0,
+    _emscripten_lookup_name: (name: number) => lookupHost(k, str(name)),
     _emscripten_throw_longjmp: () => {
       throw new LongjmpSignal();
     },
@@ -704,14 +704,14 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
     environ_sizes_get: (count: number, size: number) => {
       const e = P().env;
       dv().setUint32(count, e.length, true);
-      dv().setUint32(size, e.reduce((n, s) => n + enc.encode(s).length + 1, 0), true);
+      dv().setUint32(size, e.reduce((n, s) => n + s.length + 1, 0), true);
       return 0;
     },
     environ_get: (environ: number, buf: number) => {
       const d = dv();
       P().env.forEach((s, i) => {
         d.setUint32(environ + i * 4, buf, true);
-        const b = enc.encode(s);
+        const b = binToBytes(s);
         img.u8().set(b, buf);
         img.u8()[buf + b.length] = 0;
         buf += b.length + 1;
@@ -837,6 +837,18 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
       k.hostname = img.str(name, len);
       return 0;
     }),
+    times: (buf: number) => {
+      const p = P();
+      const ticks = (ms: number) => Math.floor(ms / 10); // sysconf(_SC_CLK_TCK) is 100
+      if (buf) {
+        const d = dv();
+        d.setInt32(buf, ticks(p.cpuMs), true);
+        d.setInt32(buf + 4, 0, true);
+        d.setInt32(buf + 8, ticks(p.childCpuMs), true);
+        d.setInt32(buf + 12, 0, true);
+      }
+      return ticks(k.uptime() * 1000) | 0;
+    },
     alarm: (sec: number) => {
       const p = P();
       const now = Date.now();
@@ -848,6 +860,30 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
   };
 
   return { env, wasi_snapshot_preview1: wasiImports, bbw } as WebAssembly.Imports;
+}
+
+/**
+ * Resolves a host name from /etc/hosts (there is no DNS). Returns the IPv4
+ * address in network byte order, or 0 (0.0.0.0) if the name is unknown:
+ * Emscripten's getaddrinfo can't report failure for this import.
+ */
+function lookupHost(k: Kernel, name: string): number {
+  let hosts = "";
+  try {
+    const inode = k.vfs.resolve(k.vfs.root, "/etc/hosts").inode;
+    hosts = new TextDecoder().decode(inode.data.subarray(0, inode.size));
+  } catch {
+    // no /etc/hosts
+  }
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(name)) hosts += `\n${name} ${name}`;
+  for (const line of hosts.split("\n")) {
+    const [addr, ...names] = line.replace(/#.*/, "").trim().split(/\s+/);
+    if (!names.includes(name)) continue;
+    const parts = addr.split(".").map(Number);
+    if (parts.length !== 4 || parts.some((x) => !(x >= 0 && x <= 255))) continue;
+    return (parts[0] | (parts[1] << 8) | (parts[2] << 16) | (parts[3] << 24)) >>> 0;
+  }
+  return 0;
 }
 
 /** Memory in use: every live wasm instance plus file contents. */

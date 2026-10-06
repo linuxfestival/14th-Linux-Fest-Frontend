@@ -4,6 +4,7 @@ import { S } from "./constants.ts";
 import type { OpenFile } from "./files.ts";
 import type { Kernel } from "./kernel.ts";
 import type { Process } from "./process.ts";
+import { binToBytes } from "./image.ts";
 import { MEM_TOTAL, UTS, memoryUse } from "./syscalls.ts";
 import { Inode, type DynamicDir } from "./vfs.ts";
 
@@ -104,9 +105,9 @@ export function mountProc(k: Kernel) {
             `SigPnd:\t${hex(p.pending)}\nSigBlk:\t${hex(p.mask)}\n`
           );
         }),
-      cmdline: () => file(() => (p.state === "zombie" ? "" : p.argv.join("\0") + "\0")),
+      cmdline: () => file(() => (p.state === "zombie" ? "" : binToBytes(p.argv.join("\0") + "\0"))),
       comm: () => file(() => p.comm + "\n"),
-      environ: () => file(() => p.env.join("\0") + (p.env.length ? "\0" : "")),
+      environ: () => file(() => binToBytes(p.env.join("\0") + (p.env.length ? "\0" : ""))),
       cwd: () => link(() => vfs.pathOf(p.cwd)),
       exe: () => link(() => "/bin/busybox"),
       root: () => link(() => "/"),

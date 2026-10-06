@@ -64,7 +64,8 @@ main thread                              Web Worker
 | `src/linux/client.ts`, `load.ts`, `terminal.css` | xterm.js setup, worker glue, watchdog; loaded on demand |
 | `src/linux/busybox.wasm` | The compiled BusyBox binary (built from `tools/busybox-wasm/`) |
 | `src/components/Home/components/LinuxTerminal.tsx` | The terminal window |
-| `tools/busybox-wasm/` | Build script, BusyBox config, patch and C shim |
+| `tools/busybox-wasm/` | Build script, BusyBox config, patches and C shim |
+| `tools/busybox-wasm/analyze.mjs`, `stub-report.md` | Static check for stubbed libc functions, and its latest report |
 | `tests/linux.test.mjs` | Headless test harness and test cases |
 
 ## How it works
@@ -113,12 +114,21 @@ hush also re-executes itself through `/proc/self/exe` for subshells.
   snapshotted. The stack is rewound first as the child (`vfork` returns 0); the
   child runs in the parent's memory, as with a real vfork. When the child calls
   `execve` or `_exit`, the snapshot is restored and the stack is rewound again
-  as the parent (`vfork` returns the child's pid).
+  as the parent (`vfork` returns the child's pid). A vfork child may itself
+  vfork (daemonizing does), so snapshots form a stack, up to 4 deep. A vfork
+  child cannot block, so a `sleep` between `vfork` and `exec` returns at once.
+- **system() and popen()**: Emscripten's versions cannot start processes. The
+  shim implements them with vfork, exec of `/bin/sh -c` and `waitpid`, with
+  POSIX signal handling (used by `watch`, `awk`'s `system()` and pipes, `vi`'s
+  `:!`).
 - **execve**: creates a new instance for the same pid. It handles the BusyBox
   binary and its applet links, `/proc/self/exe`, `#!` scripts, and executable
   files without `#!` (run with `/bin/sh`). Descriptors marked close-on-exec are
   closed, handled signals are reset to their defaults, and ignored signals and
   the blocked mask are kept.
+- Arguments and environment strings are treated as bytes, not text. BusyBox
+  marks a re-exec by setting the high bit of `argv[0][0]`, which is not valid
+  UTF-8.
 
 ### Scheduling
 
@@ -185,6 +195,8 @@ blocked.
 - The site's global stylesheet forces the Vazirmatn font on every element;
   `terminal.css` overrides it for the terminal. The Goftino chat button is
   hidden while the terminal is open, because it covers the terminal on mobile.
+- `Ctrl+Shift+C` copies the selection and `Ctrl+Shift+V` pastes, as in Linux
+  terminals; the browser's default action for these keys is cancelled.
 - Touch devices get a key bar (Esc, Tab, `^C`, `^D`, arrows). Narrow screens get
   a compact welcome message (`/etc/motd.small`).
 
@@ -199,7 +211,8 @@ wording there.
 
 Notes for editing `/etc/profile`:
 
-- hush has no `alias`; define shell functions instead (`ll() { ls -alF "$@"; }`).
+- hush has no `alias` and no tilde expansion (`~` stays literal); define shell
+  functions instead of aliases (`ll() { ls -alF "$@"; }`) and use `$HOME`.
 - The login shell is started as `sh -l`, not with argv[0] `-sh`. hush re-executes
   itself with its own argv[0] for subshells, so `-sh` would make every subshell
   read `/etc/profile` again.
@@ -220,14 +233,15 @@ configuration tools), `python3`, `curl`.
 git clone https://github.com/emscripten-core/emsdk && cd emsdk
 ./emsdk install 6.0.11 && ./emsdk activate 6.0.11 && source ./emsdk_env.sh
 cd /path/to/this/repo
-tools/busybox-wasm/build.sh            # → tools/busybox-wasm/out/busybox.wasm
+tools/busybox-wasm/build.sh            # → tools/busybox-wasm/out/busybox.wasm, stub-report.md
 cp tools/busybox-wasm/out/busybox.wasm src/linux/busybox.wasm
 pnpm test:linux
 ```
 
 What `build.sh` does:
 
-- Downloads BusyBox 1.37.0, applies `patches/*.patch`, and generates the
+- Downloads BusyBox 1.37.0, applies `patches/*.patch` (a yield point in hush's
+  command loop, and a fix for `timeout`'s NOMMU re-exec), and generates the
   configuration from `cfg/fragment.config` (`cfg/apply.py` merges it into
   `allnoconfig`; several `oldconfig` passes let dependent options appear).
 - Compiles with `emcc`. BusyBox's own link step cannot drive `wasm-ld`, so the
@@ -236,7 +250,11 @@ What `build.sh` does:
   `shim/include/sys/prctl.h` stubs a missing header. `FEATURE_VI_REGEX_SEARCH`
   is off because musl has no GNU regex.
 - Builds with `-g3` so import and export names stay readable (the kernel binds
-  by name), then strips the debug info with `wasm-opt`.
+  by name), keeps that version as `out/busybox.symbols.wasm`, then strips the
+  debug info with `wasm-opt`.
+- Links with `--wrap=times`: Emscripten's `times()` is not a weak symbol, so the
+  shim's replacement is `__wrap_times`.
+- Runs `analyze.mjs` (see below) and fails if it finds an unreviewed stub.
 - `KEEP_GLUE=1` keeps Emscripten's `busybox.js`, the reference implementation
   of each `env.*` import (argument order, varargs, BigInt for i64), when
   updating `syscalls.ts`.
@@ -272,14 +290,51 @@ shim replaces those weak definitions with calls to imports in the `bbw` module:
 | `sysinfo(struct*)`, `sethostname(name, len)` | |
 | `uname(struct utsname*)` | Replaces Emscripten's `uname`, which reports "Emscripten" |
 | `alarm(sec)` | |
+| `times(struct tms*)` | CPU times of the process and its children (Emscripten's `times()` reports zeros) |
 
 Exports used by the kernel:
 
 | Export | Purpose |
 |---|---|
 | `bbw_deliver(sig)` | Runs a handler, applying `sa_mask`, `SA_NODEFER` and `SA_RESETHAND` |
-| `bbw_sigsave()`, `bbw_sigrestore()` | A vfork child shares its parent's memory, so a `sigaction()` in the child would overwrite the parent's handlers. The kernel saves this state when vfork starts and restores it before the parent resumes. |
+| `bbw_sigsave()`, `bbw_sigrestore()` | A vfork child shares its parent's memory, so a `sigaction()` in the child would overwrite the parent's handlers. The kernel saves this state when vfork starts and restores it before the parent resumes (a stack, for nested vforks). |
 | `bbw_setup(mask, ignored)` | Called before `main`: the blocked mask and ignored signals survive `execve` |
+
+The shim also replaces `system()`, `popen()` and `pclose()` (see *Processes*).
+
+### Checking for stubbed libc functions (`analyze.mjs`)
+
+Emscripten's libc is written for a single process in a browser. Many functions
+are stubs: some return `ENOSYS` (`system()` used to), others fake an answer
+(`getpid()` returns 42, `times()` returns zeros). These calls never reach the
+kernel, so nothing fails loudly; the applet just misbehaves.
+
+`tools/busybox-wasm/analyze.mjs` finds them statically. It disassembles
+`out/busybox.symbols.wasm` and:
+
+1. marks as stubs every function from Emscripten's
+   `emscripten_syscall_stubs.c` and `emscripten_libc_stubs.c` that the shim
+   does not replace, every small function that returns `ENOSYS`, every import
+   the kernel answers with `ENOSYS` (read from `syscalls.ts`), and imports with
+   documented limits;
+2. builds the call graph, following direct calls and, for calls through
+   function pointers (hush builtins, stdio callbacks), every address-taken
+   function with the same signature;
+3. lists, for each stub, the applets that reach it and an example call path.
+
+Every reachable stub must have an entry in `REVIEWED` in `analyze.mjs` that
+explains why it is harmless; otherwise `build.sh` fails. Fix new findings in the
+shim or the kernel instead of reviewing them away when they affect behavior.
+The latest result is committed as `tools/busybox-wasm/stub-report.md`, so a
+rebuild that changes it shows up in review.
+
+```sh
+node tools/busybox-wasm/analyze.mjs                         # print the report
+node tools/busybox-wasm/analyze.mjs --report stub-report.md # write it
+```
+
+It needs `$EMSDK` (for `wasm-dis` and the libc sources) and a built tree
+(`include/applet_tables.h` maps applets to their `main` functions).
 
 ## ABI reference (wasm32, Emscripten musl)
 
@@ -349,8 +404,9 @@ pnpm test:linux tar        # only cases whose command contains "tar"
 `tests/linux.test.mjs` boots the system in Node with a fake terminal and runs
 real commands: pipes, redirections, subshells, command substitution, scripts
 with and without `#!`, `kill` and `wait`, FIFOs, `tar`/`gzip` round trips, `ps`,
-`top`, `free`, `df`, signal traps, and interactive cases (`^C` during `sleep`,
-`^Z` then `fg`, editing and saving a file in `vi`). Its `boot()` helper is also
+`top`, `free`, `df`, signal traps, `system()` and `popen()` through `awk` and
+`watch`, `timeout`, and interactive cases (`^C` during `sleep`, `^Z` then
+`fg`, editing and saving a file in `vi`). Its `boot()` helper is also
 useful for debugging.
 
 In a browser, check that:
@@ -358,7 +414,8 @@ In a browser, check that:
 - nothing terminal-related is requested before the launcher is hovered or opened;
 - commands run on desktop and mobile viewports;
 - closing and reopening the window keeps the session and the prompt intact;
-- `awk 'BEGIN { while (1); }'` followed by `^C` restarts the terminal.
+- `awk 'BEGIN { while (1); }'` followed by `^C` restarts the terminal;
+- `Ctrl+Shift+C` copies a selection and does not open the browser's inspector.
 
 ## Deployment
 
@@ -386,6 +443,9 @@ Sizes:
 
 - No network: there are no sockets, and `curl`, `ping` and package managers are
   stubs that say so.
+- Host names resolve only from `/etc/hosts`; there is no DNS.
+- hush has no tilde expansion or aliases (upstream limitation). BusyBox's
+  `ash` has both but needs `fork()`, which WebAssembly cannot provide.
 - Single user (root) and a single terminal.
 - The filesystem is not persisted between visits.
 - A process that loops without reaching a yield point can only be stopped by
@@ -398,7 +458,7 @@ Sizes:
 
 - **BusyBox** is licensed under GPL-2.0. `src/linux/busybox.wasm` is built from
   the unmodified BusyBox 1.37.0 release
-  (<https://busybox.net/downloads/busybox-1.37.0.tar.bz2>) plus the patch,
+  (<https://busybox.net/downloads/busybox-1.37.0.tar.bz2>) plus the patches,
   configuration and shim in `tools/busybox-wasm/`, which together are the
   complete corresponding source.
 - `src/linux/kernel/time.ts` ports the local-time imports from Emscripten's

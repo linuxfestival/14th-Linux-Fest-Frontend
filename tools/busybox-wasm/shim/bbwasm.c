@@ -12,15 +12,18 @@
  */
 #define _GNU_SOURCE
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <sched.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/resource.h>
 #include <sys/sysinfo.h>
+#include <sys/times.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
@@ -51,6 +54,8 @@ BBW(sysinfo) int bbw_sysinfo(struct sysinfo *info);
 BBW(sethostname) int bbw_sethostname(const char *name, size_t len);
 BBW(alarm) unsigned bbw_alarm(unsigned seconds);
 BBW(uname) int bbw_uname(struct utsname *buf);
+/* Fills *buf (if not NULL) with CPU times in 1/100 s; returns elapsed ticks. */
+BBW(times) int bbw_times(struct tms *buf);
 
 static int ret(int r)
 {
@@ -71,6 +76,139 @@ int execve(const char *path, char *const argv[], char *const envp[])
 	return ret(bbw_execve(path, argv, envp));
 }
 
+/* Emscripten's system() and popen() can't start processes. These run
+ * "/bin/sh -c cmd" with vfork + exec, which the kernel implements. */
+
+int system(const char *cmd)
+{
+	struct sigaction ign, oldint, oldquit;
+	sigset_t chld, oldmask;
+	pid_t pid;
+	int status = -1;
+
+	if (!cmd)
+		return 1; /* a shell is available */
+	memset(&ign, 0, sizeof(ign));
+	ign.sa_handler = SIG_IGN;
+	sigaction(SIGINT, &ign, &oldint);
+	sigaction(SIGQUIT, &ign, &oldquit);
+	sigemptyset(&chld);
+	sigaddset(&chld, SIGCHLD);
+	sigprocmask(SIG_BLOCK, &chld, &oldmask);
+
+	pid = vfork();
+	if (pid == 0) {
+		sigaction(SIGINT, &oldint, NULL);
+		sigaction(SIGQUIT, &oldquit, NULL);
+		sigprocmask(SIG_SETMASK, &oldmask, NULL);
+		execl("/bin/sh", "sh", "-c", cmd, (char *)NULL);
+		_exit(127);
+	}
+	if (pid > 0) {
+		while (waitpid(pid, &status, 0) < 0) {
+			if (errno != EINTR) {
+				status = -1;
+				break;
+			}
+		}
+	}
+	sigaction(SIGINT, &oldint, NULL);
+	sigaction(SIGQUIT, &oldquit, NULL);
+	sigprocmask(SIG_SETMASK, &oldmask, NULL);
+	return status;
+}
+
+#define MAX_POPEN 16
+static struct {
+	FILE *f;
+	pid_t pid;
+} popen_children[MAX_POPEN];
+
+FILE *popen(const char *cmd, const char *mode)
+{
+	int fds[2], i, slot = -1;
+	int reading = mode[0] == 'r';
+	pid_t pid;
+	FILE *f;
+
+	if ((mode[0] != 'r' && mode[0] != 'w') || (mode[1] && mode[1] != 'e')) {
+		errno = EINVAL;
+		return NULL;
+	}
+	for (i = 0; i < MAX_POPEN; i++) {
+		if (!popen_children[i].f) {
+			slot = i;
+			break;
+		}
+	}
+	if (slot < 0) {
+		errno = EMFILE;
+		return NULL;
+	}
+	if (pipe2(fds, O_CLOEXEC) < 0)
+		return NULL;
+
+	pid = vfork();
+	if (pid == 0) {
+		/* The child's end becomes stdin or stdout; both ends are
+		 * close-on-exec, and dup2 clears that flag on the copy. */
+		int end = reading ? fds[1] : fds[0];
+		int target = reading ? 1 : 0;
+		/* POSIX: streams from earlier popen() calls are closed in the
+		 * child, or their readers would never see end of file. */
+		for (i = 0; i < MAX_POPEN; i++)
+			if (popen_children[i].f)
+				close(fileno(popen_children[i].f));
+		if (end == target)
+			fcntl(end, F_SETFD, 0);
+		else
+			dup2(end, target);
+		execl("/bin/sh", "sh", "-c", cmd, (char *)NULL);
+		_exit(127);
+	}
+	if (pid < 0) {
+		close(fds[0]);
+		close(fds[1]);
+		return NULL;
+	}
+	close(reading ? fds[1] : fds[0]);
+	f = fdopen(reading ? fds[0] : fds[1], reading ? "r" : "w");
+	if (!f) {
+		close(reading ? fds[0] : fds[1]);
+		waitpid(pid, NULL, 0);
+		return NULL;
+	}
+	if (mode[1] != 'e')
+		fcntl(fileno(f), F_SETFD, 0);
+	popen_children[slot].f = f;
+	popen_children[slot].pid = pid;
+	return f;
+}
+
+int pclose(FILE *f)
+{
+	int i, status;
+	pid_t pid = -1;
+
+	for (i = 0; i < MAX_POPEN; i++) {
+		if (popen_children[i].f == f) {
+			pid = popen_children[i].pid;
+			popen_children[i].f = NULL;
+			break;
+		}
+	}
+	if (pid < 0) {
+		errno = ECHILD;
+		return -1;
+	}
+	fclose(f);
+	while (waitpid(pid, &status, 0) < 0) {
+		if (errno != EINTR)
+			return -1;
+	}
+	return status;
+}
+
 pid_t wait4(pid_t pid, int *status, int options, struct rusage *ru)
 {
 	return ret(bbw_wait4(pid, status, options, ru));
@@ -88,6 +226,11 @@ pid_t getsid(pid_t pid) { return ret(bbw_getsid(pid)); }
 pid_t setsid(void) { return ret(bbw_setsid()); }
 
 int sysinfo(struct sysinfo *info) { return ret(bbw_sysinfo(info)); }
+/* Emscripten's times() reports all zeros (hush's "times" builtin uses it).
+ * Its definition is not weak, so build.sh links with --wrap=times and every
+ * call comes here instead. */
+clock_t __wrap_times(struct tms *buf) { return bbw_times(buf); }
+
 /* Emscripten's weak stub reports "Emscripten"; uname(), gethostname() use this. */
 int __syscall_uname(intptr_t buf) { return bbw_uname((struct utsname *)buf); }
 int sethostname(const char *name, size_t len) { return ret(bbw_sethostname(name, len)); }
@@ -256,22 +399,31 @@ int sigsuspend(const sigset_t *mask)
 
 /* A vfork child runs in its parent's memory, so a sigaction() in the child
  * would overwrite the parent's handlers. The kernel saves this state when
- * vfork starts and restores it before the parent resumes. */
-static struct sigaction saved_actions[_NSIG];
-static uint64_t saved_mask;
+ * vfork starts and restores it before the parent resumes. A vfork child may
+ * vfork again (daemonizing does), so the saved states form a stack. */
+#define MAX_VFORK_DEPTH 4
+static struct sigaction saved_actions[MAX_VFORK_DEPTH][_NSIG];
+static uint64_t saved_mask[MAX_VFORK_DEPTH];
+static int saved_depth;
 
 __attribute__((export_name("bbw_sigsave")))
 void bbw_sigsave(void)
 {
-	memcpy(saved_actions, __sig_actions, sizeof(saved_actions));
-	saved_mask = sig_mask;
+	if (saved_depth >= MAX_VFORK_DEPTH)
+		return; /* the kernel refuses deeper vforks */
+	memcpy(saved_actions[saved_depth], __sig_actions, sizeof(saved_actions[0]));
+	saved_mask[saved_depth] = sig_mask;
+	saved_depth++;
 }
 
 __attribute__((export_name("bbw_sigrestore")))
 void bbw_sigrestore(void)
 {
-	memcpy(__sig_actions, saved_actions, sizeof(saved_actions));
-	sig_mask = saved_mask;
+	if (saved_depth <= 0)
+		return;
+	saved_depth--;
+	memcpy(__sig_actions, saved_actions[saved_depth], sizeof(saved_actions[0]));
+	sig_mask = saved_mask[saved_depth];
 }
 
 /* Called by the kernel before main(): the blocked mask and ignored signals
