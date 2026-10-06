@@ -6,6 +6,7 @@ import {
   HiUser,
   HiVideoCamera,
   HiMapPin,
+  HiWrenchScrewdriver,
 } from "react-icons/hi2";
 import { PresentationService } from "../../../core/presentations/presentations.dto";
 import { digitsToPersian } from "../../../utils/digitsToPersian";
@@ -19,6 +20,7 @@ interface Props {
 const WorkshopCard = ({ item }: Props) => {
   const full = item.remaining === 0;
   const featured = item.service === PresentationService.PACKAGE;
+  const workshop = item.service === PresentationService.WORKSHOP;
 
   let label = "پکیج";
   if (!featured) {
@@ -30,10 +32,10 @@ const WorkshopCard = ({ item }: Props) => {
 
   return (
     <article
-      className={`group flex min-w-0 flex-col overflow-hidden rounded-xl ${featured ? "bg-primary text-white md:col-span-2 md:grid md:grid-cols-[.75fr_1.25fr] xl:col-span-3" : "border border-primary/15 bg-white text-primary"}`}
+      className={`group flex min-w-0 flex-col overflow-hidden rounded-xl ${featured ? "bg-primary text-white md:col-span-2 md:grid md:grid-cols-[.75fr_1.25fr] xl:col-span-3" : workshop ? "border border-secondary/40 bg-white text-primary" : "border border-primary/15 bg-white text-primary"}`}
     >
       <div
-        className={`relative flex h-44 items-center justify-center overflow-hidden ${featured ? "bg-dark-gray md:h-full md:min-h-72" : item.imageTone}`}
+        className={`relative flex h-44 items-center justify-center overflow-hidden ${featured ? "bg-dark-gray md:h-full md:min-h-72" : workshop ? "bg-secondary/15" : item.imageTone}`}
       >
         <img
           src={item.image}
@@ -42,8 +44,11 @@ const WorkshopCard = ({ item }: Props) => {
           className={`w-4/5 object-contain transition-transform duration-300 motion-safe:group-hover:scale-105 ${featured ? "h-36 md:h-64" : "h-36"}`}
         />
         <span
-          className={`absolute right-4 top-4 rounded-md px-3 py-1.5 text-xs font-extrabold ${featured ? "bg-secondary text-primary" : "bg-white text-primary"}`}
+          className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-extrabold ${featured || workshop ? "bg-secondary text-primary" : "bg-white text-primary"}`}
         >
+          {workshop && (
+            <HiWrenchScrewdriver className="size-4 shrink-0" aria-hidden="true" />
+          )}
           {label}
         </span>
         {full && (
@@ -154,7 +159,7 @@ const WorkshopCard = ({ item }: Props) => {
               to={`/workshop/${item.id}`}
               className={`${actionClass} ${featured ? "bg-secondary text-primary hover:bg-[#e58210]" : "bg-text-white text-primary hover:bg-indigo/25"}`}
             >
-              جزئیات ارائه
+              {workshop ? "جزئیات کارگاه" : "جزئیات ارائه"}
               <HiArrowLeft aria-hidden="true" />
             </Link>
           </div>
