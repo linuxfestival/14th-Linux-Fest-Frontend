@@ -101,17 +101,35 @@ const Footer = () => (
         </div>
 
         <nav
-          className="min-w-0 text-center lg:text-right"
+          className="min-w-0 flex flex-col text-center lg:text-right"
           aria-label="درباره رویداد"
         >
-          <h2 className="m-0 text-lg font-black text-text-white sm:text-xl">
+          <h2 className="mb-2 text-lg font-black text-text-white sm:text-xl">
             درباره رویداد
           </h2>
           <Link
-            className="mt-2 inline-flex min-h-11 items-center rounded-sm px-1 py-2 text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
             to="/event-format"
           >
             قالب رویداد
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            to="/faq"
+          >
+            سوالات متداول
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            to="/presenters"
+          >
+            ارائه دهندگان
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-sm px-1 py-2 text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            to="/staff"
+          >
+            دست‌اندرکاران
           </Link>
         </nav>
       </div>

@@ -40,7 +40,7 @@ const WorkshopDetails = ({
 }: Props) => {
   const item = toWorkshopItem(presentation);
   const [language, setLanguage] = useState<"fa" | "en">(
-    presentation.fa_description ? "fa" : "en",
+    presentation.fa_description ? "fa" : "en"
   );
   const full = item.remaining <= 0;
   const unavailable = full || !item.registrationActive;
@@ -48,8 +48,8 @@ const WorkshopDetails = ({
     item.service === PresentationService.TALK
       ? "ارائه"
       : item.service === PresentationService.PACKAGE
-        ? "پکیج"
-        : "کارگاه عملی";
+      ? "پکیج"
+      : "کارگاه عملی";
   const dateTime = (date: Date) =>
     new Intl.DateTimeFormat("fa-IR", {
       timeZone: "Asia/Tehran",
@@ -99,7 +99,7 @@ const WorkshopDetails = ({
           </span>
         </div>
         {item.tags.length > 0 && (
-          <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-t border-indigo/25 pt-5 text-xs text-indigo">
+          <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-t border-indigo/25 pt-5 text-sm font-bold text-indigo">
             {item.tags.map((tag) => (
               <span key={tag}>{tag}</span>
             ))}
@@ -204,8 +204,8 @@ const WorkshopDetails = ({
               {full
                 ? "ظرفیت این ارائه تکمیل شده است."
                 : !item.registrationActive
-                  ? "ثبت‌نام این ارائه بسته است."
-                  : "ثبت‌نام این ارائه باز است."}
+                ? "ثبت‌نام این ارائه بسته است."
+                : "ثبت‌نام این ارائه باز است."}
             </p>
             {inCart && (
               <p
@@ -225,10 +225,10 @@ const WorkshopDetails = ({
                 purchased
                   ? "purchased"
                   : inCart
-                    ? "in-cart"
-                    : unavailable
-                      ? "unavailable"
-                      : "available"
+                  ? "in-cart"
+                  : unavailable
+                  ? "unavailable"
+                  : "available"
               }
               className="presentation-cart-action mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed"
             >
@@ -236,12 +236,12 @@ const WorkshopDetails = ({
               {purchased
                 ? "خریداری شده"
                 : pending
-                  ? "در حال به‌روزرسانی…"
-                  : inCart
-                    ? "حذف از سبد خرید"
-                    : unavailable
-                      ? "ثبت‌نام در دسترس نیست"
-                      : "اضافه به سبد خرید"}
+                ? "در حال به‌روزرسانی…"
+                : inCart
+                ? "حذف از سبد خرید"
+                : unavailable
+                ? "ثبت‌نام در دسترس نیست"
+                : "اضافه به سبد خرید"}
             </button>
             {inCart ? (
               <Link
@@ -295,7 +295,11 @@ const WorkshopDetails = ({
                   lang={value}
                   aria-pressed={language === value}
                   onClick={() => setLanguage(value)}
-                  className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${language === value ? "bg-primary text-white" : "text-dark-gray hover:bg-indigo/20"}`}
+                  className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                    language === value
+                      ? "bg-primary text-white"
+                      : "text-dark-gray hover:bg-indigo/20"
+                  }`}
                 >
                   {label}
                 </button>
