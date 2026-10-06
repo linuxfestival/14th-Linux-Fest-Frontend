@@ -46,9 +46,9 @@ const WorkshopDetails = ({
   const unavailable = full || !item.registrationActive;
   const format =
     item.service === PresentationService.TALK
-      ? "ارائه و گفت‌وگو"
+      ? "ارائه"
       : item.service === PresentationService.PACKAGE
-        ? "پکیج یادگیری"
+        ? "پکیج"
         : "کارگاه عملی";
   const dateTime = (date: Date) =>
     new Intl.DateTimeFormat("fa-IR", {
@@ -223,19 +223,27 @@ const WorkshopDetails = ({
               onClick={onUpdateCart}
               disabled={purchased || pending || (unavailable && !inCart)}
               aria-busy={pending}
-              data-state={purchased ? "purchased" : inCart ? "in-cart" : unavailable ? "unavailable" : "available"}
+              data-state={
+                purchased
+                  ? "purchased"
+                  : inCart
+                    ? "in-cart"
+                    : unavailable
+                      ? "unavailable"
+                      : "available"
+              }
               className="presentation-cart-action mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed"
             >
               <HiShoppingBag aria-hidden="true" className="size-5" />
               {purchased
                 ? "خریداری شده"
                 : pending
-                ? "در حال به‌روزرسانی…"
-                : inCart
-                  ? "حذف از سبد خرید"
-                  : unavailable
-                    ? "ثبت‌نام در دسترس نیست"
-                    : "اضافه به سبد خرید"}
+                  ? "در حال به‌روزرسانی…"
+                  : inCart
+                    ? "حذف از سبد خرید"
+                    : unavailable
+                      ? "ثبت‌نام در دسترس نیست"
+                      : "اضافه به سبد خرید"}
             </button>
             {inCart ? (
               <Link

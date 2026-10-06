@@ -20,12 +20,9 @@ const WorkshopCard = ({ item }: Props) => {
   const full = item.remaining === 0;
   const featured = item.service === PresentationService.PACKAGE;
 
-  let label = "پکیج یادگیری";
+  let label = "پکیج";
   if (!featured) {
-    label =
-      item.service === PresentationService.TALK
-        ? "ارائه و گفت‌وگو"
-        : "کارگاه عملی";
+    label = item.service === PresentationService.TALK ? "ارائه" : "کارگاه عملی";
   }
 
   const actionClass =
@@ -69,7 +66,9 @@ const WorkshopCard = ({ item }: Props) => {
             {item.tags.join(" / ")}
           </span>
         </div>
-        <h3 className="text-2xl font-black leading-9">{item.title}</h3>
+        <h3 className="text-2xl font-black leading-9" dir="auto">
+          {item.title}
+        </h3>
         {item.englishTitle && item.englishTitle !== item.title && (
           <p
             dir="ltr"
@@ -80,6 +79,7 @@ const WorkshopCard = ({ item }: Props) => {
         )}
         <p
           className={`mt-3 line-clamp-2 text-sm leading-7 ${featured ? "text-text-gray" : "text-dark-gray"}`}
+          dir="auto"
         >
           {item.description}
         </p>
