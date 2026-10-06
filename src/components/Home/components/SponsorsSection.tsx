@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
-import { HiArrowLeft } from "react-icons/hi2";
-import sponsor from "../../../assets/sponsor.png";
+import SponsorMessage from "../../Sponsor/SponsorMessage";
+import sponsor from "../../../assets/sponsor-with-text.png";
 import "./SponsorsSection.css";
 
 const SponsorsSection = () => (
@@ -10,7 +9,7 @@ const SponsorsSection = () => (
     dir="rtl"
   >
     <div className="relative mx-auto max-w-7xl">
-      <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16 lg:gap-24">
+      <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-16">
         <div className="text-right">
           <h2
             id="sponsor-heading"
@@ -22,25 +21,22 @@ const SponsorsSection = () => (
             برگزاری این رویداد بدون حمایت مالی و معنوی حامیان ما امکان‌پذیر
             نبود. از همراهی و اعتماد شما سپاسگزاریم.
           </p>
-          <Link
-            to="/sponsor"
-            className="mt-6 inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-text-white no-underline transition-colors hover:bg-dark-gray active:bg-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          <blockquote
+            aria-label="پیام همکاران سیستم"
+            cite="http://sgmg.ir/sg-developers"
+            className="mx-0 mb-0 mt-6 max-w-[75ch]"
           >
-            پیام حامی
-            <HiArrowLeft className="size-5" aria-hidden="true" />
-          </Link>
+            <SponsorMessage />
+          </blockquote>
         </div>
 
-        <div className="flex flex-col gap-4 min-h-36 items-center justify-center border-t border-dark-gray/20 pt-10 text-center md:min-h-48 md:border-t-0 md:border-s md:ps-16 md:pt-0 lg:ps-24">
+        <div className="flex min-h-64 flex-col items-center justify-center gap-8 border-t border-dark-gray/20 py-12 text-center lg:min-h-96 lg:self-stretch lg:border-t-0 lg:border-s lg:ps-8">
           <img
-            className="max-h-16 w-auto md:max-h-24"
+            className="max-h-40 w-full max-w-72 object-contain lg:max-h-48 lg:max-w-80"
             src={sponsor}
             alt="لوگوی همکاران سیستم"
             loading="lazy"
           />
-          <p className="m-0 text-[clamp(2rem,4vw,3.5rem)] font-bold leading-relaxed text-dark-gray">
-            همکاران سیستم
-          </p>
         </div>
       </div>
     </div>
