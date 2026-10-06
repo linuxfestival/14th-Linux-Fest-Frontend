@@ -94,6 +94,7 @@ const CASES = [
   ["printf '#!/bin/sh\\necho script $1\\n' > /tmp/s.sh && chmod +x /tmp/s.sh && /tmp/s.sh ok && sh /tmp/s.sh ok2", eq("script ok\nscript ok2\n")],
   ["printf 'echo noshebang\\n' > /tmp/n.sh && chmod +x /tmp/n.sh && /tmp/n.sh", eq("noshebang\n")],
   ["sleep 5 & kill -9 $!; wait $!; echo $?", match(/\n137\n$/)],
+  ["kill 1; echo $?; kill $$; echo still-here", eq("0\nstill-here\n")],
   ["sleep 0.1 & wait; echo done", match(/\ndone\n$/)],
   ["uname -a", match(/^Linux linuxfest .* wasm32/)],
   ["ps", has("PID")],

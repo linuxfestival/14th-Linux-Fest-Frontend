@@ -437,7 +437,7 @@ export class Kernel {
     else targets = this.group(-pid);
     targets = targets.filter((p) => p.state !== "zombie" || pid > 0);
     if (!targets.length) return -E.ESRCH;
-    if (targets.length === 1 && targets[0].pid === 1 && sig) return -E.EPERM;
+    // init (pid 1) accepts signals and drops them, as on Linux: it has no handlers.
     for (const p of targets) this.post(p, sig);
     return 0;
   }
