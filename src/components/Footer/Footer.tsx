@@ -129,7 +129,7 @@ const Footer = () => (
             className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
             to="/staff"
           >
-            دست‌اندرکاران
+            استف
           </Link>
         </nav>
       </div>

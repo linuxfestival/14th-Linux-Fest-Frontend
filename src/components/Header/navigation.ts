@@ -3,5 +3,11 @@ export const siteNavigation = [
   { to: "/workshops", label: "ارائه‌ها" },
   { to: "/faq", label: "سوالات متداول" },
   { to: "/presenters", label: "ارائه‌دهندگان" },
-  { to: "/staff", label: "دست‌اندرکاران" },
+  { to: "/staff", label: "استف" },
+  { to: "/#sponsor", label: "حامی" },
 ];
+
+export const isNavigationActive = (to: string, pathname: string, hash: string) =>
+  to.includes("#") || to === "/"
+    ? to === `${pathname}${hash}`
+    : pathname === to || pathname.startsWith(`${to}/`);

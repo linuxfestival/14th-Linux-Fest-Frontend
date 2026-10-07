@@ -36,11 +36,11 @@ const Staff = () => {
 
   return (
     <div className="flex min-h-dvh flex-col bg-text-white text-primary" dir="rtl">
-      <Helmet><title>لینوکس‌فست | دست‌اندرکاران</title></Helmet>
+      <Helmet><title>لینوکس‌فست | استف</title></Helmet>
       <Header />
       <main className="mx-auto min-h-[70dvh] w-full max-w-7xl flex-1 px-5 pb-16 pt-28 sm:px-8 sm:pb-20 sm:pt-32 lg:px-10">
         <div className="mb-12 border-b border-primary/15 pb-8 sm:mb-14">
-          <h1 className="text-3xl font-extrabold leading-snug sm:text-4xl">دست‌اندرکاران</h1>
+          <h1 className="text-3xl font-extrabold leading-snug sm:text-4xl">استف</h1>
           <p className="mt-3 text-base leading-8 text-dark-gray">با تیم برگزاری لینوکس‌فست آشنا شوید.</p>
           {loadState === "ready" && groups.length > 1 && (
             <nav aria-label="تیم‌های برگزاری" className="mt-6 flex flex-wrap gap-2">
@@ -53,11 +53,11 @@ const Staff = () => {
           )}
         </div>
         {loadState === "loading" ? (
-          <div role="status" aria-label="در حال دریافت دست‌اندرکاران">
-            <span className="sr-only">در حال دریافت دست‌اندرکاران…</span>
-            <div aria-hidden="true" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div role="status" aria-label="در حال دریافت استف">
+            <span className="sr-only">در حال دریافت استف…</span>
+            <div aria-hidden="true" className="flex flex-wrap justify-center gap-6">
               {[0, 1, 2].map(index => (
-                <div key={index} className="rounded-xl border border-primary/15 bg-white p-6">
+                <div key={index} className="w-full rounded-xl border border-primary/15 bg-white p-6 sm:w-[calc(50%_-_0.75rem)] lg:w-[calc(33.333333%_-_1rem)]">
                   <div className="flex items-center gap-4"><div className="h-28 w-24 shrink-0 rounded-lg bg-indigo/20 motion-safe:animate-pulse" /><div className="flex-1 space-y-3"><div className="h-5 w-3/4 rounded bg-primary/10 motion-safe:animate-pulse" /><div className="h-4 w-2/3 rounded bg-primary/5 motion-safe:animate-pulse" /></div></div>
                 </div>
               ))}
@@ -65,13 +65,13 @@ const Staff = () => {
           </div>
         ) : loadState === "error" ? (
           <div role="alert" className="rounded-xl border border-primary/15 bg-white p-6 sm:p-8">
-            <h2 className="text-lg font-bold">دریافت دست‌اندرکاران انجام نشد.</h2>
+            <h2 className="text-lg font-bold">دریافت استف انجام نشد.</h2>
             <p className="mt-3 text-sm leading-7 text-dark-gray">اتصال اینترنت را بررسی کن و دوباره تلاش کن.</p>
             <button type="button" onClick={() => { setLoadState("loading"); setRetry(value => value + 1); }}
               className="mt-5 min-h-11 rounded-lg bg-secondary px-5 py-3 text-sm font-bold text-primary hover:bg-[#e58210] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">تلاش دوباره</button>
           </div>
         ) : !staff.length ? (
-          <p className="rounded-xl border border-primary/15 bg-white p-6 text-sm leading-7 text-dark-gray sm:p-8">هنوز اطلاعات دست‌اندرکاران منتشر نشده است.</p>
+          <p className="rounded-xl border border-primary/15 bg-white p-6 text-sm leading-7 text-dark-gray sm:p-8">هنوز اطلاعات استف منتشر نشده است.</p>
         ) : (
           <div className="space-y-14 sm:space-y-16">
             {groups.map(group => {
@@ -83,8 +83,12 @@ const Staff = () => {
                   <h2 id={`team-${encodeURIComponent(group.team)}`} className="scroll-mt-32 break-words text-2xl font-extrabold">{group.title}</h2>
                   <div aria-hidden="true" className="ms-2 h-px flex-1 bg-primary/15" />
                 </div>
-                <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {group.members.map(member => <StaffCard key={member.id} member={member} />)}
+                <div className="flex flex-wrap items-stretch justify-center gap-6">
+                  {group.members.map(member => (
+                    <div key={member.id} className="w-full sm:w-[calc(50%_-_0.75rem)] lg:w-[calc(33.333333%_-_1rem)]">
+                      <StaffCard member={member} />
+                    </div>
+                  ))}
                 </div>
               </section>
             );})}

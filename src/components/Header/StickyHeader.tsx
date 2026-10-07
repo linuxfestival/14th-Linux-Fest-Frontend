@@ -5,7 +5,7 @@ import { HiArrowLeft, HiBars3, HiXMark, HiUser } from "react-icons/hi2";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import ShoppingCart from "./components/ShoppingCart";
 import logo from "../../assets/logo.png";
-import { siteNavigation } from "./navigation";
+import { isNavigationActive, siteNavigation } from "./navigation";
 
 const focus =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
@@ -13,7 +13,7 @@ const signupClass = `min-h-11 items-center justify-center rounded-lg bg-secondar
 
 const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
   const authenticated = useSelector(selectIsAuthenticated);
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -96,9 +96,10 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
               <NavLink
                 key={item.to}
                 to={item.to}
+                aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
                 end={item.to === "/"}
-                className={({ isActive }) =>
-                  `relative rounded-lg px-3 py-3 text-sm font-medium transition-colors ${focus} ${isActive ? "bg-white/5 text-secondary after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:rounded-full after:bg-secondary" : "text-text-gray hover:bg-white/5 hover:text-white"}`
+                className={() =>
+                  `relative rounded-lg px-3 py-3 text-sm font-medium transition-colors ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:rounded-full after:bg-secondary" : "text-text-gray hover:bg-white/5 hover:text-white"}`
                 }
               >
                 {item.label}
@@ -161,19 +162,20 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
                   end={item.to === "/"}
                   onClick={() => {
                     setOpen(false);
                     toggle.current?.focus();
                   }}
-                  className={({ isActive }) =>
-                    `flex min-h-12 items-center justify-between rounded-lg px-3 py-3 text-base font-bold ${focus} ${isActive ? "bg-white/5 text-secondary" : "text-text-gray hover:bg-white/5 hover:text-white"}`
+                  className={() =>
+                    `flex min-h-12 items-center justify-between rounded-lg px-3 py-3 text-base font-bold ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : "text-text-gray hover:bg-white/5 hover:text-white"}`
                   }
                 >
-                  {({ isActive }) => (
+                  {() => (
                     <>
                       {item.label}
-                      {isActive && (
+                      {isNavigationActive(item.to, pathname, hash) && (
                         <HiArrowLeft className="size-5" aria-hidden="true" />
                       )}
                     </>

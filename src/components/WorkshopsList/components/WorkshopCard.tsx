@@ -3,7 +3,6 @@ import {
   HiArrowLeft,
   HiCalendarDays,
   HiClock,
-  HiUser,
   HiVideoCamera,
   HiMapPin,
   HiWrenchScrewdriver,
@@ -13,6 +12,7 @@ import { digitsToPersian } from "../../../utils/digitsToPersian";
 import type { WorkshopItem } from "../workshops.adapter";
 import WorkshopCartAction from "./WorkshopCartAction";
 import PresentationTags from "./PresentationTags";
+import PresenterAvatar from "../../Presenters/PresenterAvatar";
 
 interface Props {
   item: WorkshopItem;
@@ -125,11 +125,26 @@ const WorkshopCard = ({ item }: Props) => {
             </dt>
             <dd>{item.time}</dd>
           </div>
-          <div className="col-span-2 flex items-center gap-2">
-            <dt>
-              <HiUser className="size-4" aria-label="ارائه‌دهنده" />
-            </dt>
-            <dd>{item.presenter}</dd>
+          <div className="col-span-2">
+            <dt className="sr-only">ارائه‌دهنده</dt>
+            <dd className="flex flex-wrap gap-x-4 gap-y-3">
+              {item.presenters.map((presenter, index) => (
+                <span
+                  key={`${presenter.name}-${index}`}
+                  className="flex min-w-0 max-w-full items-center gap-2"
+                >
+                  <PresenterAvatar
+                    key={presenter.avatar}
+                    avatar={presenter.avatar}
+                    name={presenter.name}
+                    className="size-9"
+                  />
+                  <span className="min-w-0 break-words" dir="auto">
+                    {presenter.name}
+                  </span>
+                </span>
+              ))}
+            </dd>
           </div>
           <div className="col-span-2 flex items-center gap-2">
             <dt>

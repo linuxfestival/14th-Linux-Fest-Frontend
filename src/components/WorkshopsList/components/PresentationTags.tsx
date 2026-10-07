@@ -12,22 +12,18 @@ const PresentationTags = ({ tags, featured = false }: Props) => (
       const inPerson = tag === "In-Person";
       const Icon = online ? HiVideoCamera : inPerson ? HiMapPin : null;
       const color = online
-        ? featured
-          ? "bg-indigo text-primary"
-          : "bg-indigo/20 text-dark-gray"
+        ? "bg-indigo text-primary"
         : inPerson
-          ? featured
-            ? "bg-secondary text-primary"
-            : "bg-secondary/15 text-orange-ink"
+          ? "bg-secondary text-primary"
           : featured
-            ? "bg-indigo/15 text-text-gray"
-            : "bg-text-white text-dark-gray";
+            ? "bg-indigo/30 text-text-white"
+            : "bg-indigo/35 text-primary";
 
       return (
         <span
           key={tag}
           dir="auto"
-          className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2.5 py-1 text-xs leading-5 ${Icon ? "font-extrabold" : "font-medium"} ${color}`}
+          className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2.5 py-1 text-xs leading-5 ${Icon ? "font-extrabold" : "font-bold"} ${color}`}
         >
           {Icon && <Icon className="size-4 shrink-0" aria-hidden="true" />}
           <span className="min-w-0 break-words">{tag}</span>

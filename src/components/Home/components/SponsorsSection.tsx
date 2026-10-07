@@ -4,6 +4,7 @@ import "./SponsorsSection.css";
 
 const SponsorsSection = () => (
   <section
+    id="sponsor"
     aria-labelledby="sponsor-heading"
     className="sponsor-section px-6 py-16 text-primary sm:px-8 md:py-20 lg:px-10"
     dir="rtl"
@@ -15,11 +16,10 @@ const SponsorsSection = () => (
             id="sponsor-heading"
             className="m-0 text-4xl font-black leading-snug text-balance sm:text-5xl lg:text-6xl"
           >
-            با همراهی <em className="not-italic text-secondary">حامی ما</em>
+            همکاران سیستم
           </h2>
           <p className="mb-0 mt-5 text-base leading-8 text-dark-gray">
-            برگزاری این رویداد بدون حمایت مالی و معنوی حامیان ما امکان‌پذیر
-            نبود. از همراهی و اعتماد شما سپاسگزاریم.
+            حامی <bdi dir="ltr">Linux Festival</bdi> دانشگاه صنعتی امیرکبیر
           </p>
           <blockquote
             aria-label="پیام همکاران سیستم"

@@ -16,6 +16,7 @@ export interface WorkshopItem {
   dateLabel: string;
   time: string;
   presenter: string;
+  presenters: { name: string; avatar: string }[];
   price: number;
   remaining: number;
   registrationActive: boolean;
@@ -63,6 +64,10 @@ export const toWorkshopItem = (item: PresentationDto): WorkshopItem => {
     presenter: item.presenters
       .map((presenter) => `${presenter.first_name} ${presenter.last_name}`)
       .join("، "),
+    presenters: item.presenters.map((presenter) => ({
+      name: `${presenter.first_name} ${presenter.last_name}`,
+      avatar: presenter.avatar,
+    })),
     price: item.cost,
     remaining: item.remained_capacity,
     registrationActive: item.is_registration_active,
