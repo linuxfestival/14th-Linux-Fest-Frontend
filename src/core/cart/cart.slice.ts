@@ -7,7 +7,6 @@ import {
   removeItemFromCartThunk,
 } from "./cart.thunk";
 import { CartItemDto } from "./cart.types";
-import { selectPresentationById } from "../presentations/presentations.selector";
 import { CouponStatus, AccessoryDto } from "./cart.api.ts";
 import { logout } from "../auth/auth.slice.ts";
 
@@ -65,9 +64,24 @@ const cartSlice = createSlice({
       state.totalAmount += state.accessoryList
         .filter((el) => state.selectedAccessories.includes(el.id))
         .reduce((acc, cur) => acc + cur.price, 0);
-      if (state.couponStatus != null && state.couponStatus.is_valid)
+      state.discountedAmount = undefined;
+      if (state.couponStatus != null && state.couponStatus.is_valid) {
+        const eligiblePresentationIds =
+          state.couponStatus.eligible_presentations;
+        const discountableAmount = eligiblePresentationIds.length
+          ? state.items.reduce(
+              (acc, item) =>
+                item.payment_state === "PENDING" &&
+                eligiblePresentationIds.includes(item.presentation.id)
+                  ? acc + item.presentation.cost
+                  : acc,
+              0,
+            )
+          : state.totalAmount;
         state.discountedAmount =
-          ((100 - state.couponStatus.percentage) / 100) * state.totalAmount;
+          state.totalAmount -
+          (state.couponStatus.percentage / 100) * discountableAmount;
+      }
     },
     setPage(state, action: PayloadAction<CartPage>) {
       state.step = action.payload;

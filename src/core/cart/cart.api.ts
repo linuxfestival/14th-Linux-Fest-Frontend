@@ -1,6 +1,5 @@
 import { makeCall } from "../../utils/makeCall";
 import { CartItemDto } from "./cart.types";
-import { VerifyPaymentResponse } from "../payment/payment.dto.ts";
 
 export interface AddItemToCartResponse {
   detail: string;
@@ -13,6 +12,8 @@ export interface RemoveItemFromCartResponse {
 export interface CouponStatus {
   percentage: number;
   is_valid: boolean;
+  eligible_presentations: number[];
+  preserve_capacity: boolean;
 }
 
 export interface AccessoryDto {
@@ -45,7 +46,8 @@ export const getCartPresentations = makeCall<void, CartItemDto[]>(
 
 export const getCouponStatus = makeCall<null, CouponStatus>(
   (params) => `/api/coupon/${params.coupon}/`,
-  "GET"
+  "GET",
+  true
 );
 
 export const getAccessoriesList = makeCall<
