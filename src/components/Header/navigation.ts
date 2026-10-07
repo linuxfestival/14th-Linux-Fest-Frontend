@@ -4,10 +4,14 @@ export const siteNavigation = [
   { to: "/faq", label: "سوالات متداول" },
   { to: "/presenters", label: "ارائه‌دهندگان" },
   { to: "/staff", label: "استف" },
-  { to: "/#sponsor", label: "حامی" },
+  { to: "/#sponsor", label: "پیام حامی" },
 ];
 
-export const isNavigationActive = (to: string, pathname: string, hash: string) =>
+export const isNavigationActive = (
+  to: string,
+  pathname: string,
+  hash: string,
+) =>
   to.includes("#") || to === "/"
     ? to === `${pathname}${hash}`
     : pathname === to || pathname.startsWith(`${to}/`);
