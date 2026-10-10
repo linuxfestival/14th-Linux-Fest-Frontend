@@ -42,7 +42,7 @@ const PresentationTags = ({ tags, featured = false }: Props) => (
             />
           )}
           <span className="min-w-0 break-words">
-            {breakfast ? "به همراه صبحانه" : tag}
+            {breakfast ? "به همراه صبحانه" : ({ Beginner: "مقدماتی", Intermediate: "متوسط", Advanced: "پیشرفته", Online: "آنلاین", "In-Person": "حضوری" } as Record<string, string>)[tag] ?? tag}
           </span>
         </span>
       );

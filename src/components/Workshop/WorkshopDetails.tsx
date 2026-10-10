@@ -75,7 +75,7 @@ const WorkshopDetails = ({
       >
         <h1
           id="program-title"
-          dir={presentation.fa_title ? "rtl" : "ltr"}
+          dir="auto"
           className="break-words text-3xl font-black leading-snug sm:text-4xl lg:text-5xl"
         >
           {item.title}

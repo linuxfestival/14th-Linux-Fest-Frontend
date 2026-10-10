@@ -23,6 +23,7 @@ export interface WorkshopItem {
   level: string;
   tags: string[];
   image: string;
+  hasArtwork: boolean;
   imageAlt: string;
   imageTone: string;
 }
@@ -77,6 +78,7 @@ export const toWorkshopItem = (item: PresentationDto): WorkshopItem => {
       item.morkopoloyor ||
       (item.service_type === PresentationService.TALK ? Microphone : Terminal),
     imageAlt: `تصویر ارائه ${item.fa_title || item.en_title}`,
+    hasArtwork: Boolean(item.morkopoloyor),
     imageTone: "bg-indigo/20",
   };
 };
