@@ -499,7 +499,14 @@ In a browser, check that:
 - commands run on desktop and mobile viewports;
 - closing and reopening the window keeps the session and the prompt intact;
 - `awk 'BEGIN { while (1); }'` followed by `^C` restarts the terminal;
-- `Ctrl+Shift+C` copies a selection and does not open the browser's inspector.
+- `Ctrl+Shift+C` copies a selection and does not open the browser's inspector;
+- `fest list` shows the programme and `ctf` lists the puzzles;
+- `vi`, `^Z`, `fg` returns to vi with the screen redrawn.
+
+Checked in Chromium, Firefox 157 and WebKitGTK 2.52 (Safari's engine). On
+Linux distributions other than Ubuntu, Playwright's WebKit build may not
+start for lack of libraries; the system WebKitGTK can be driven from Python
+(`gi.repository.WebKit2`) instead.
 
 ## Deployment
 
