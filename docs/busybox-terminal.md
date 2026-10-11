@@ -259,6 +259,15 @@ Security:
 - Text from the API is decoded with `DOMParser` (an inert document) and
   stripped of control characters and bidi overrides before it reaches
   xterm.js, so it cannot inject escape sequences.
+- Right-to-left text: xterm.js has no bidi support, and its DOM renderer draws
+  rows as inline-block spans that the browser would reorder one by one,
+  scrambling Persian. `terminal.css` turns browser reordering off, and when
+  stdout is a terminal `fest` passes its output through `src/linux/bidi.ts`:
+  Arabic letters become their joined presentation forms and each line (each
+  table column, split at runs of two or more spaces) is put in display order
+  by a simplified Unicode bidi algorithm. Piped output is left unchanged, so
+  `fest list | grep` matches the API's text. Persian typed at the shell shows
+  in stored order, as in terminals without bidi support.
 - The cart is cached for 5 seconds (per login, cleared by `add` and `rm`), so
   a shell loop over `fest list` does not send a request per iteration.
 - OSC 8 links printed in the terminal open only if they are http(s), in a

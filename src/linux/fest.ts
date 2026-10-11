@@ -15,9 +15,11 @@ import type { CartItemDto } from "../core/cart/cart.types";
 import { getAllPresentations } from "../core/presentations/presentations.api";
 import { type PresentationDto, PresentationService } from "../core/presentations/presentations.dto";
 import store from "../store";
+import { visual } from "./bidi.ts";
 import type { ServiceReply } from "./kernel/files.ts";
 
 interface Out {
+  /** Output is a terminal: colours, and RTL text in display order. */
   color: boolean;
   cols: number;
 }
@@ -359,9 +361,28 @@ function go(path: string, what: string): ServiceReply {
   return ok(`Opening ${what}...\n`);
 }
 
+/**
+ * Puts RTL text (Persian titles, API errors) in display order for the
+ * terminal, piece by piece between colour codes. Piped output is left as is,
+ * so `fest list | grep` still matches what the API returned.
+ */
+const forScreen = (r: ServiceReply): ServiceReply => ({
+  ...r,
+  body: r.body
+    // eslint-disable-next-line no-control-regex -- splitting on escape sequences
+    .split(/(\x1b\[[0-9;]*m)/)
+    .map((part, i) => (i % 2 ? part : visual(part)))
+    .join(""),
+});
+
 export async function festCommand(args: string[], cols: number): Promise<ServiceReply> {
   const [color, cmd, ...rest] = args;
   const o: Out = { color: color === "1", cols: Math.max(20, cols || 80) };
+  const reply = await run(cmd, rest, o);
+  return o.color ? forScreen(reply) : reply;
+}
+
+async function run(cmd: string | undefined, rest: string[], o: Out): Promise<ServiceReply> {
   try {
     switch (cmd) {
       case undefined:

@@ -3,6 +3,7 @@
 // Run: node tests/linux.test.mjs [filter]
 import { readFileSync } from "node:fs";
 import { Ctf, answerKey, fileBytes, loadCtf, seal, toB64 } from "../src/linux/ctf.ts";
+import { visual } from "../src/linux/bidi.ts";
 import { createSystem } from "../src/linux/system.ts";
 
 const wasm = process.env.BUSYBOX_WASM ?? new URL("../src/linux/busybox.wasm", import.meta.url).pathname;
@@ -176,6 +177,30 @@ const CASES = [
   ],
 ];
 
+/** RTL text for the screen: joined letter forms, display order, columns kept. */
+function bidi() {
+  const cp = (...c) => String.fromCodePoint(...c);
+  const cases = [
+    ["abc  123", "abc  123"],
+    // seen + lam-alef ligature (final) + meem (isolated), right to left
+    ["سلام", cp(0xfee1, 0xfefc, 0xfeb3)],
+    // the zero-width non-joiner keeps meem apart from alef, and is dropped
+    ["نرم‌ا", cp(0xfe8d, 0xfee1, 0xfeae, 0xfee7)],
+    // Latin words and digits stay left to right; brackets mirror
+    ["آب Docker (۱۲)", "Docker (" + cp(0x6f1, 0x6f2) + ") " + cp(0xfe8f, 0xfe81)],
+    ["آب (دو) ۱۲", cp(0x6f1, 0x6f2) + " (" + cp(0xfeed, 0xfea9) + ") " + cp(0xfe8f, 0xfe81)],
+    // a table: columns stay put, padding stays on the right
+    ["talk  ده  ", "talk  " + cp(0xfee9, 0xfea9) + "  "],
+    ["  x دو", "  x " + cp(0xfeed, 0xfea9)],
+  ];
+  const fails = [];
+  for (const [input, want] of cases) {
+    const got = visual(input);
+    if (got !== want) fails.push(`bidi ${JSON.stringify(input)}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`);
+  }
+  return fails;
+}
+
 /** Ctf.restore opens saved answers' stages in the order solved, skipping bad ones. */
 async function ctfRestore() {
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -305,6 +330,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const fails = await interactive(sys);
     for (const f of fails) console.log("FAIL", f);
     if (!fails.length) console.log("ok   interactive (^C, ^Z/fg, vi)");
+    failed += fails.length;
+  }
+  if (!filter || filter === "bidi") {
+    const fails = bidi();
+    for (const f of fails) console.log("FAIL", f);
+    if (!fails.length) console.log("ok   bidi");
     failed += fails.length;
   }
   if (!filter || filter === "ctf") {
