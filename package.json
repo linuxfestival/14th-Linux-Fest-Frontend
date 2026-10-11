@@ -13,6 +13,7 @@
     "test:purchase": "node tests/purchasedPresentation.test.cjs",
     "test:calendar": "node tests/presentationCalendar.test.cjs",
     "test:linux": "node tests/linux.test.mjs",
+    "test:cart-conflicts": "node tests/cartTimingConflicts.test.cjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,11 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { HiArrowLeft } from "react-icons/hi2";
+import { HiArrowLeft, HiExclamationTriangle } from "react-icons/hi2";
 import CartItem from "../components/CartItem";
 import { useAppDispatch } from "../../../../store";
 import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
 import { selectCartState } from "../../../../core/cart/cart.selector";
+import { findCartTimingConflicts } from "../../../../core/cart/cart.conflicts";
 import {
   DashboardEmpty,
   DashboardPage,
@@ -14,8 +15,10 @@ import {
 import { actionClass, dateText, priceText } from "../../dashboard.styles";
 const CartsList = () => {
   const dispatch = useAppDispatch();
+  const [showConflicts, setShowConflicts] = useState(false);
   const { items, totalAmount, loading } = useSelector(selectCartState);
   const pending = items.filter((item) => item.payment_state !== "COMPLETED");
+  const conflicts = findCartTimingConflicts(items);
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Cart));
   }, [dispatch]);
@@ -24,6 +27,41 @@ const CartsList = () => {
       title="سبد خرید"
       description="ارائه‌های انتخاب‌شده را بررسی کنید و سپس برای تکمیل خرید ادامه دهید."
     >
+      {conflicts.length > 0 && (
+        <section role="alert" aria-labelledby="cart-timing-conflicts" className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-800 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <HiExclamationTriangle aria-hidden="true" className="size-6 shrink-0" />
+              <h2 id="cart-timing-conflicts" className="text-lg font-bold">تداخل زمانی ارائه‌ها</h2>
+            </div>
+            <button
+              type="button"
+              aria-expanded={showConflicts}
+              aria-controls="cart-timing-conflict-details"
+              onClick={() => setShowConflicts((shown) => !shown)}
+              className="min-h-11 rounded-lg px-3 py-2 text-sm font-bold underline underline-offset-4 transition-colors hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+            >
+              {showConflicts ? "بستن تداخل‌ها" : "نمایش تداخل‌ها"}
+            </button>
+          </div>
+          <div id="cart-timing-conflict-details" hidden={!showConflicts}>
+            <p className="mt-3 text-sm leading-7">زمان بعضی از ارائه‌های انتخاب‌شده با هم یا با ارائه‌های خریداری‌شده‌تان تداخل دارد. پیش از تکمیل خرید، زمان آن‌ها را بررسی کنید.</p>
+            <ul className="mt-4 space-y-4">
+            {conflicts.map(({ selected, other, start, end }) => (
+              <li key={`${selected.presentation.id}-${other.presentation.id}`} className="text-sm leading-7">
+                <p>
+                  <strong dir="auto">{selected.presentation.fa_title || selected.presentation.en_title}</strong>
+                  {" با "}
+                  <strong dir="auto">{other.presentation.fa_title || other.presentation.en_title}</strong>
+                  {other.payment_state === "COMPLETED" ? " (خریداری‌شده)" : " (در سبد خرید)"}
+                </p>
+                <p className="mt-1">زمان مشترک: {dateText(start)} تا {dateText(end)}</p>
+              </li>
+            ))}
+            </ul>
+          </div>
+        </section>
+      )}
       {pending.length ? (
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="min-w-0 space-y-4">

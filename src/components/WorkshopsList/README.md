@@ -15,5 +15,21 @@ authenticated cart actions.
 
 ## Image replacement
 
-Cards use API artwork when supplied and existing fallback illustrations otherwise.
-Alternative text describes the program associated with the image.
+Cards show API artwork when supplied. Without artwork, a compact format icon
+replaces the former repeated illustration panels, keeping subjects and presenters
+prominent. The adapter retains its fallback image for other consumers.
+Alternative text describes the presentation associated with actual artwork.
+
+## Catalog refinement
+
+The opening uses a conversational invitation and the existing home-page penguin.
+The three-column catalog stays familiar, with a warm orange tint for workshops,
+presenters directly below titles, translated level tags, and compact logistics.
+Attendance appears once and only when explicitly supplied by an attendance tag;
+cards do not infer a venue from the absence of an online tag.
+
+Search, format choices, and day tabs stay visible on mobile. The filter disclosure
+holds sorting and availability controls; these remain visible on desktop.
+There is no reset/remove-filters button, including in filtered empty states.
+A live result count confirms search/filter changes. Registration and cart behavior
+are preserved.

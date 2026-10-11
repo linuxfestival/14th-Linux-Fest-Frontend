@@ -16,12 +16,14 @@ export interface WorkshopItem {
   dateLabel: string;
   time: string;
   presenter: string;
+  presenters: { name: string; avatar: string }[];
   price: number;
   remaining: number;
   registrationActive: boolean;
   level: string;
   tags: string[];
   image: string;
+  hasArtwork: boolean;
   imageAlt: string;
   imageTone: string;
 }
@@ -63,6 +65,10 @@ export const toWorkshopItem = (item: PresentationDto): WorkshopItem => {
     presenter: item.presenters
       .map((presenter) => `${presenter.first_name} ${presenter.last_name}`)
       .join("، "),
+    presenters: item.presenters.map((presenter) => ({
+      name: `${presenter.first_name} ${presenter.last_name}`,
+      avatar: presenter.avatar,
+    })),
     price: item.cost,
     remaining: item.remained_capacity,
     registrationActive: item.is_registration_active,
@@ -72,6 +78,7 @@ export const toWorkshopItem = (item: PresentationDto): WorkshopItem => {
       item.morkopoloyor ||
       (item.service_type === PresentationService.TALK ? Microphone : Terminal),
     imageAlt: `تصویر ارائه ${item.fa_title || item.en_title}`,
+    hasArtwork: Boolean(item.morkopoloyor),
     imageTone: "bg-indigo/20",
   };
 };

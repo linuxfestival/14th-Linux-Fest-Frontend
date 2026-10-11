@@ -8,7 +8,7 @@ import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import ShoppingCart from "./components/ShoppingCart";
 import clsx from "clsx";
 import StickyHeader from "./StickyHeader";
-import { siteNavigation } from "./navigation";
+import { isNavigationActive, siteNavigation } from "./navigation";
 
 interface Props {
   sticky?: boolean;
@@ -25,7 +25,7 @@ const LegacyHeader = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const menu = useRef<HTMLDialogElement>(null);
   const menuToggle = useRef<HTMLButtonElement>(null);
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   const toggleMenu = () => {
     setMenuOpen((open) => !open);
@@ -117,9 +117,10 @@ const LegacyHeader = ({
           <NavLink
             key={item.to}
             to={item.to}
+            aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
             end={item.to === "/"}
-            className={({ isActive }) =>
-              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isActive ? "border-secondary text-secondary" : "border-transparent"}`
+            className={() =>
+              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isNavigationActive(item.to, pathname, hash) ? "border-secondary text-secondary" : "border-transparent"}`
             }
           >
             {item.label}
@@ -178,10 +179,11 @@ const LegacyHeader = ({
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
                   end={item.to === "/"}
                   onClick={() => setMenuOpen(false)}
-                  className={({ isActive }) =>
-                    isActive ? "bg-white/5 text-secondary" : undefined
+                  className={() =>
+                    isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : undefined
                   }
                 >
                   {item.label}

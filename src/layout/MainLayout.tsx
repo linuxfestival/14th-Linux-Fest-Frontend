@@ -11,13 +11,23 @@ const MainLayout = () => {
   >();
   useGoftino();
 
-  const { pathname } = useLocation();
+  const { pathname, hash, key } = useLocation();
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0);
-
     setPageInformation(PageMetaInformation[pathname]);
   }, [pathname]);
+
+  useLayoutEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const target = hash ? document.getElementById(hash.slice(1)) : null;
+      if (target) {
+        target.scrollIntoView({ block: "start" });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, hash, key]);
 
   return (
     <>
