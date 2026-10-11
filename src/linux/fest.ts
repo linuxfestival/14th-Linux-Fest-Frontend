@@ -120,10 +120,30 @@ async function programme() {
 
 const loggedIn = () => store.getState().auth.isAuthenticated;
 
+/**
+ * The cart, shared for a few seconds so a shell loop over `fest list` or
+ * `fest show` doesn't send a request per iteration. Cleared on add and rm.
+ */
+let cartCache: { at: number; session: unknown; items: Promise<CartItemDto[]> } | undefined;
+const CART_TTL = 5_000;
+
+function cartItems() {
+  // A new login replaces auth.user, so another account never sees this cart.
+  const session = store.getState().auth.user;
+  if (!cartCache || cartCache.session !== session || Date.now() - cartCache.at >= CART_TTL) {
+    const items = getCartPresentations().then((r) => r.data);
+    cartCache = { at: Date.now(), session, items };
+    items.catch(() => {
+      if (cartCache?.items === items) cartCache = undefined;
+    });
+  }
+  return cartCache.items;
+}
+
 async function cart(): Promise<CartItemDto[] | undefined> {
   if (!loggedIn()) return undefined;
   try {
-    return (await getCartPresentations()).data;
+    return await cartItems();
   } catch {
     return undefined;
   }
@@ -216,7 +236,7 @@ async function showCart(o: Out) {
   if (!loggedIn()) return needLogin();
   let items: CartItemDto[];
   try {
-    items = (await getCartPresentations()).data;
+    items = await cartItems();
   } catch (e) {
     return fail(apiError(e));
   }
@@ -240,7 +260,10 @@ async function showCart(o: Out) {
   return ok(lines.join("\n") + "\n");
 }
 
-const refreshCart = () => store.dispatch(getCartThunk()).catch(() => {});
+const refreshCart = () => {
+  cartCache = undefined;
+  return store.dispatch(getCartThunk()).catch(() => {});
+};
 
 async function add(args: string[], o: Out) {
   if (!loggedIn()) return needLogin();

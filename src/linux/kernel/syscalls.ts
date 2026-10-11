@@ -299,6 +299,11 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
       if (req > HEAP_MAX) return 0;
       let size = Math.max(req, Math.min(old * 2, old + 64 * 1024 * 1024));
       size = Math.min(HEAP_MAX, Math.ceil(size / PAGE) * PAGE);
+      // All processes share MEM_TOTAL (what /proc/meminfo reports): past it
+      // malloc fails with ENOMEM instead of the tab running out of memory.
+      const used = memoryUse(k).used - old;
+      if (used + req > MEM_TOTAL) return 0;
+      size = Math.min(size, Math.ceil((MEM_TOTAL - used) / PAGE) * PAGE);
       try {
         mem.grow((size - old) / PAGE);
         return 1;

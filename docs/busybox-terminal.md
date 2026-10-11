@@ -41,6 +41,8 @@ main thread                              Web Worker
 
 - `busybox.wasm` is compiled once. Each process is a separate
   `WebAssembly.Instance` with its own memory (4 MB initial, growable to 256 MB).
+  All processes and file contents together are held to 512 MB (the total in
+  `/proc/meminfo`); past it `malloc` fails, so the tab does not run out.
 - All processes run cooperatively on the worker thread.
 - Emscripten's generated JavaScript glue is not used. The kernel implements
   every import of `busybox.wasm` itself, so all processes share one filesystem
@@ -194,7 +196,8 @@ blocked.
 
 - Output is batched and transferred to the page. When more than 64 KB is
   waiting to be drawn, terminal writes block until xterm.js catches up, so a
-  fast writer cannot exhaust memory.
+  fast writer cannot exhaust memory. After a restart, acknowledgements for
+  output from the old worker are dropped.
 - A process looping with no yield point (`awk 'BEGIN { while (1); }'`) keeps
   the worker busy, so `^C` cannot reach it. After `^C` the page pings the
   worker; with no reply within 2 seconds it terminates the worker and boots a
@@ -256,6 +259,8 @@ Security:
 - Text from the API is decoded with `DOMParser` (an inert document) and
   stripped of control characters and bidi overrides before it reaches
   xterm.js, so it cannot inject escape sequences.
+- The cart is cached for 5 seconds (per login, cleared by `add` and `rm`), so
+  a shell loop over `fest list` does not send a request per iteration.
 - OSC 8 links printed in the terminal open only if they are http(s), in a
   new tab without an opener.
 
@@ -267,7 +272,9 @@ the terminal.
 `ctf` lists puzzles of increasing difficulty; each ends in a discount code.
 Flags look like `lf{...}` and are submitted with `ctf submit <flag>`; `ctf codes`
 shows the codes won. Solved flags are kept in `localStorage`
-(`linuxfest-ctf`) and replayed at boot, so progress survives a reload.
+(`linuxfest-ctf`) and replayed at boot, so progress survives a reload. The
+replay derives the keys in parallel and opens stages in the order they were
+solved; `ctf` commands wait until it is done.
 
 The puzzle content is not in the repository in readable form:
 

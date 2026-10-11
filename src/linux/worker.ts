@@ -43,6 +43,8 @@ const send = (m: FromWorker, transfer: Transferable[] = []) => scope.postMessage
 
 let kernel: Kernel | undefined;
 let ctf: Ctf | undefined;
+/** Settles once the answers saved in earlier visits have been replayed. */
+let restored: Promise<void> = Promise.resolve();
 let nextRequest = 1;
 const replies = new Map<number, (r: ServiceReply) => void>();
 let unacked = 0;
@@ -103,6 +105,7 @@ async function request(args: string[]): Promise<ServiceReply> {
   const [color, cmd, ...rest] = args;
   if (cmd === "ctf") {
     if (!ctf) return { status: 1, body: "ctf: the puzzles could not be loaded\n" };
+    await restored;
     const r = await ctf.command(rest, color === "1");
     if (r.solved) send({ type: "ctf-solved", answer: r.solved });
     return { status: r.status, body: r.body };
@@ -132,8 +135,9 @@ async function boot(m: Extract<ToWorker, { type: "boot" }>) {
     },
   });
   send({ type: "ready" });
-  // Puzzles solved in earlier visits: open their stages again.
-  for (const answer of m.ctfAnswers ?? []) await ctf?.submit(answer).catch(() => {});
+  // Puzzles solved in earlier visits: open their stages again. `ctf` waits
+  // for this, so it never shows partial progress or races a new submit.
+  restored = ctf?.restore(m.ctfAnswers ?? []).catch(() => {}) ?? Promise.resolve();
 }
 
 scope.onmessage = (e: MessageEvent<ToWorker>) => {

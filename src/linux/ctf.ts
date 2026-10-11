@@ -150,7 +150,22 @@ export class Ctf {
   /** Tries an answer against every closed stage. Returns the stage it opened. */
   async submit(answer: string): Promise<Stage | undefined> {
     if (!normalize(answer)) return undefined;
-    const key = await answerKey(answer, this.salt, this.pack.iter);
+    return this.open(await answerKey(answer, this.salt, this.pack.iter));
+  }
+
+  /**
+   * Opens the stages of answers from earlier visits. The slow part, deriving
+   * each key, runs in parallel; stages are then opened in the order solved,
+   * so a later stage's files still replace an earlier one's.
+   */
+  async restore(answers: string[]) {
+    const keys = await Promise.all(
+      answers.filter((a) => normalize(a)).map((a) => answerKey(a, this.salt, this.pack.iter).catch(() => undefined)),
+    );
+    for (const key of keys) if (key) await this.open(key);
+  }
+
+  private async open(key: CryptoKey): Promise<Stage | undefined> {
     for (let i = 0; i < this.pack.stages.length; i++) {
       if (this.opened.has(i)) continue;
       const stage = await unseal<Stage>(key, this.pack.stages[i]);

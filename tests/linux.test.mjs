@@ -2,7 +2,7 @@
 // with a fake terminal and checks the output of real shell commands.
 // Run: node tests/linux.test.mjs [filter]
 import { readFileSync } from "node:fs";
-import { fileBytes, loadCtf } from "../src/linux/ctf.ts";
+import { Ctf, answerKey, fileBytes, loadCtf, seal, toB64 } from "../src/linux/ctf.ts";
 import { createSystem } from "../src/linux/system.ts";
 
 const wasm = process.env.BUSYBOX_WASM ?? new URL("../src/linux/busybox.wasm", import.meta.url).pathname;
@@ -169,7 +169,38 @@ const CASES = [
   ["fest fail 2>&1; echo $?", eq("failed\n3\n")],
   ["ctf | grep -c '^[0-9]\\. '", eq("5\n")],
   ["ctf submit lf{not-a-real-flag} 2>&1; echo $?", match(/not a flag[\s\S]*\n1\n$/)],
+  // all processes share MEM_TOTAL (512M): two 200M buffers fit, the third doesn't
+  [
+    "for i in 1 2 3; do { dd if=/dev/zero bs=200M count=1 2>/tmp/dd$i | sleep 1; } & done; wait; cat /tmp/dd1 /tmp/dd2 /tmp/dd3",
+    eq("dd: out of memory\n"),
+  ],
 ];
+
+/** Ctf.restore opens saved answers' stages in the order solved, skipping bad ones. */
+async function ctfRestore() {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iter = 1000;
+  const file = (s) => ({ data: toB64(new TextEncoder().encode(s)) });
+  const stage = async (answer, step, final, text) =>
+    seal(await answerKey(answer, salt, iter), {
+      puzzle: "p",
+      step,
+      final,
+      message: text,
+      files: { "/tmp/stage": file(text) },
+    });
+  const pack = { v: 1, salt: toB64(salt), iter, stages: [await stage("two", 2, true, "second"), await stage("one", 1, false, "first")] };
+  const base = { puzzles: [{ id: "p", title: "P", level: 1, intro: "", steps: 2 }], files: {} };
+  const files = {};
+  const ctf = new Ctf(pack, base, (path, data) => (files[path] = new TextDecoder().decode(data)));
+  await ctf.restore(["lf{one}", "", "wrong", "TWO"]);
+  const fails = [];
+  if (files["/tmp/stage"] !== "second") fails.push("restore order: " + JSON.stringify(files));
+  const list = await ctf.command([], false);
+  if (!/solved/.test(list.body)) fails.push("restore progress: " + JSON.stringify(list.body));
+  if (!(await ctf.command(["codes"], false)).body.includes("second")) fails.push("restore reward");
+  return fails;
+}
 
 async function interactive(sys) {
   const fails = [];
@@ -274,6 +305,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const fails = await interactive(sys);
     for (const f of fails) console.log("FAIL", f);
     if (!fails.length) console.log("ok   interactive (^C, ^Z/fg, vi)");
+    failed += fails.length;
+  }
+  if (!filter || filter === "ctf") {
+    const fails = await ctfRestore();
+    for (const f of fails) console.log("FAIL", f);
+    if (!fails.length) console.log("ok   ctf restore");
     failed += fails.length;
   }
   sys.k.shutdown();

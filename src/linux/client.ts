@@ -107,12 +107,14 @@ export function startTerminal(container: HTMLElement, opts: SessionOptions = {})
 
   const boot = () => {
     opts.onState?.("booting");
-    worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "busybox" });
+    const current = (worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "busybox" }));
     worker.onmessage = (e: MessageEvent<FromWorker>) => {
       const m = e.data;
       if (m.type === "output") {
         const n = m.bytes.length;
-        term.write(m.bytes, () => post({ type: "ack", bytes: n }));
+        // After a restart, writes still queued from the old worker must not
+        // count against the new one's flow control.
+        term.write(m.bytes, () => current === worker && post({ type: "ack", bytes: n }));
       } else if (m.type === "pong") {
         clearTimeout(watchdog);
         watchdog = undefined;
@@ -124,8 +126,7 @@ export function startTerminal(container: HTMLElement, opts: SessionOptions = {})
         const reply = opts.onRequest
           ? opts.onRequest(m.args, m.cols).catch((e) => ({ status: 1, body: `fest: ${e?.message ?? e}\n` }))
           : Promise.resolve({ status: 1, body: "fest: not available\n" });
-        const from = worker;
-        reply.then((r) => from === worker && post({ type: "reply", id: m.id, ...r }));
+        reply.then((r) => current === worker && post({ type: "reply", id: m.id, ...r }));
       } else if (m.type === "ctf-solved") {
         saveAnswer(m.answer);
       }
