@@ -796,10 +796,19 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
       p.sid = p.pgid = p.pid;
       return p.pid;
     }),
-    kill: sys((pid: number, sig: number) => {
-      if (sig < 0 || sig > 64) return -E.EINVAL;
-      return k.kill(P(), pid, sig);
-    }),
+    // Blocking import: a process that stops itself (raise(SIGSTOP), `kill
+    // -STOP $$`) stops here, before its next instruction, as on Linux.
+    kill: (pid: number, sig: number) => {
+      if (img.rewinding) return img.finishRewind() as number;
+      let r: number;
+      try {
+        r = sig < 0 || sig > 64 ? -E.EINVAL : k.kill(P(), pid, sig);
+      } catch (e) {
+        if (!(e instanceof KError)) throw e;
+        r = -e.code;
+      }
+      return k.finish(img, r, true);
+    },
     sigdisp: (sig: number, disp: number) => {
       const p = P();
       if (sig < 1 || sig > 64) return;

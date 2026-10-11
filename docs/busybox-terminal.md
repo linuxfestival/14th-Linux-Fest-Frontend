@@ -91,7 +91,7 @@ When a process calls a blocking import (`read`, `write`, `poll`, `wait4`,
    the stored result.
 
 Only imports listed in `-sASYNCIFY_IMPORTS` (in `build.sh`) may suspend:
-`bbw.yield`, `bbw.vfork`, `bbw.wait4`, `bbw.nanosleep`, `bbw.sigsuspend`,
+`bbw.yield`, `bbw.kill`, `bbw.vfork`, `bbw.wait4`, `bbw.nanosleep`, `bbw.sigsuspend`,
 `fd_read`, `fd_write`, `__syscall_poll` and `invoke_*`. A new blocking syscall
 must be added there and the binary rebuilt.
 
@@ -322,8 +322,10 @@ pnpm test:linux
 
 What `build.sh` does:
 
-- Downloads BusyBox 1.37.0, applies `patches/*.patch` (a yield point in hush's
-  command loop, and a fix for `timeout`'s NOMMU re-exec), and generates the
+- Downloads BusyBox 1.37.0 (checking its SHA-256), applies `patches/*.patch`
+  (a yield point in hush's command loop, a fix for `timeout`'s NOMMU re-exec,
+  and `vi`'s `^Z` handling moved out of its signal handler; a patch that does
+  not apply stops the build), and generates the
   configuration from `cfg/fragment.config` (`cfg/apply.py` merges it into
   `allnoconfig`; several `oldconfig` passes let dependent options appear).
 - Compiles with `emcc`. BusyBox's own link step cannot drive `wasm-ld`, so the
@@ -366,7 +368,7 @@ shim replaces those weak definitions with calls to imports in the `bbw` module:
 | `sigsuspend(mask: i64)` | Blocking |
 | `yield()` | Called from hush's command loop: time-slice check and signal delivery |
 | `getpid`, `getppid`, `getpgid`, `setpgid`, `getsid`, `setsid` | Process ids |
-| `kill(pid, sig)` | Negative pid targets a process group |
+| `kill(pid, sig)` | Negative pid targets a process group. Blocking, so a process that stops itself (`raise(SIGSTOP)`) stops before its next instruction |
 | `sigdisp(sig, disp)` | 0 default, 1 ignore, 2 handler, 3 handler with `SA_RESTART` |
 | `sigmask(mask: i64)` | The blocked mask; newly unblocked signals are delivered |
 | `sysinfo(struct*)`, `sethostname(name, len)` | |
@@ -519,7 +521,7 @@ Sizes:
 | Home chunk | always | +1.3 KB gzip (launcher and window) |
 | `client-*.js` (xterm.js and glue) | on hover or open | 86 KB gzip |
 | `worker-*.js` (kernel) | on open | 68 KB raw |
-| `busybox-*.wasm` | on hover or open | 935 KB raw, 340 KB gzip |
+| `busybox-*.wasm` | on hover or open | 939 KB raw, 341 KB gzip |
 
 ## Limitations
 
@@ -534,11 +536,10 @@ Sizes:
   the watchdog restarting the whole terminal. More yield points can be added
   with BusyBox patches if a particular applet needs them.
 - A process cannot stop or wait inside its own signal handler (the handler
-  runs nested inside a kernel call). `vi`'s `^Z` handler stops itself from
-  inside the handler, so the stop takes effect only after the handler has
-  put the terminal back in raw mode: commands run from the prompt get a raw
-  terminal (`stty sane` repairs it), and `fg` does not redraw `vi` (`^L`
-  does, if the terminal was not repaired in between).
+  runs nested inside a kernel call): a stop takes effect when the handler
+  returns, and a read or sleep in a handler does not wait. BusyBox's handlers
+  only set flags, redraw or exit, except `vi`'s `^Z` handler, which
+  `patches/vi-tstp-mainloop.patch` moves into vi's main loop.
 - While a pipeline's vfork child waits for a `$(...)` (`echo $(sleep 9) | cat`),
   the shell itself is suspended in `vfork`, so `^Z` cannot stop that pipeline
   until the substitution finishes. `^C` works. Real NOMMU systems behave the

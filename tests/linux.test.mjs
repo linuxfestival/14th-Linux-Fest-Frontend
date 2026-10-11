@@ -107,6 +107,8 @@ const CASES = [
   ["printf 'echo noshebang\\n' > /tmp/n.sh && chmod +x /tmp/n.sh && /tmp/n.sh", eq("noshebang\n")],
   ["sleep 5 & kill -9 $!; wait $!; echo $?", match(/\n137\n$/)],
   ["kill 1; echo $?; kill $$; echo still-here", eq("0\nstill-here\n")],
+  // a process that stops itself stops at once (kill is a blocking import)
+  ["sh -c 'kill -STOP $$; echo resumed' & sleep 0.3; ps -o stat,args | grep -c '^T .*kill -STOP'; kill -CONT $!; wait $!", match(/^(\[1\].*\n)?1\nresumed\n/)],
   ["sleep 0.1 & wait; echo done", match(/\ndone\n$/)],
   ["uname -a", match(/^Linux linuxfest .* wasm32/)],
   ["ps", has("PID")],
@@ -207,6 +209,25 @@ async function interactive(sys) {
   await sys.waitFor(/# $/, 4000).catch((e) => fails.push("vi ^C: " + e.message));
   const vi2 = await sys.run("cat /tmp/vi-int.txt");
   if (vi2.out !== "hello world\n") fails.push("vi after ^C: " + JSON.stringify(vi2.out));
+  // vi ^Z: the terminal is cooked at the prompt, and fg redraws vi
+  sys.clear();
+  sys.type("vi /tmp/vi-tstp.txt\r");
+  await sleep(500);
+  sys.type("iabc\x1b");
+  await sleep(150);
+  sys.type("\x1a");
+  await sys.waitFor(/# $/, 3000).catch((e) => fails.push("vi ^Z: " + e.message));
+  const tty = await sys.run("stty -a | grep -o -- '-\\?icanon' | head -1");
+  if (tty.out !== "icanon\n") fails.push("tty after vi ^Z: " + JSON.stringify(tty.out));
+  sys.clear();
+  sys.type("fg\r");
+  await sys.waitFor("abc", 3000).catch((e) => fails.push("vi redraw after fg: " + e.message));
+  sys.type("Adef\x1b");
+  await sleep(150);
+  sys.type(":wq\r");
+  await sys.waitFor(/# $/, 4000).catch((e) => fails.push("vi :wq after fg: " + e.message));
+  const vi3 = await sys.run("cat /tmp/vi-tstp.txt");
+  if (vi3.out !== "abcdef\n") fails.push("vi after ^Z/fg: " + JSON.stringify(vi3.out));
   // ^C while a vfork child waits (read in a pipeline)
   sys.clear();
   sys.type("read x | cat\r");

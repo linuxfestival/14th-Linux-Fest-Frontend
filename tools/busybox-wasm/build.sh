@@ -7,13 +7,24 @@ BB_VER=1.37.0
 SRC="$HERE/busybox-$BB_VER"
 OUT="${OUT:-$HERE/out}"
 
+# https://busybox.net/downloads/busybox-1.37.0.tar.bz2.sha256
+BB_SHA256=3311dff32e746499f4df0d5df04d7eb396382d7e108bb9250e7b519b837043a4
+
 if [ ! -d "$SRC" ]; then
-  curl -fsSL "https://busybox.net/downloads/busybox-$BB_VER.tar.bz2" | tar xj -C "$HERE"
+  TARBALL="$HERE/busybox-$BB_VER.tar.bz2"
+  curl -fsSL -o "$TARBALL" "https://busybox.net/downloads/busybox-$BB_VER.tar.bz2"
+  echo "$BB_SHA256  $TARBALL" | sha256sum -c --quiet
+  tar xjf "$TARBALL" -C "$HERE"
 fi
 
 cd "$SRC"
 for p in "$HERE"/patches/*.patch; do
-  patch -p1 -N -s --dry-run < "$p" >/dev/null 2>&1 && patch -p1 -N -s < "$p"
+  if patch -p1 -N -s --dry-run < "$p" >/dev/null 2>&1; then
+    patch -p1 -N -s < "$p"
+  elif ! patch -p1 -R -s --dry-run < "$p" >/dev/null 2>&1; then
+    echo "build.sh: $(basename "$p") does not apply" >&2
+    exit 1
+  fi # else: already applied
 done
 make allnoconfig >/dev/null
 sed "s|@SHIM_INCLUDE@|$HERE/shim/include|" "$HERE/cfg/fragment.config" > "$HERE/cfg/.fragment.resolved"
@@ -28,7 +39,7 @@ LIBS=$(echo */built-in.o */*/built-in.o */lib.a */*/lib.a | tr ' ' '\n' | grep -
 
 emcc -Oz -c "$HERE/shim/bbwasm.c" -o "$HERE/shim/bbwasm.o"
 
-ASYNC_IMPORTS='bbw.yield,bbw.vfork,bbw.wait4,bbw.nanosleep,bbw.sigsuspend,wasi_snapshot_preview1.fd_read,wasi_snapshot_preview1.fd_write,env.__syscall_poll,env.__syscall__newselect,env.__syscall_pselect6,env.invoke_*'
+ASYNC_IMPORTS='bbw.yield,bbw.kill,bbw.vfork,bbw.wait4,bbw.nanosleep,bbw.sigsuspend,wasi_snapshot_preview1.fd_read,wasi_snapshot_preview1.fd_write,env.__syscall_poll,env.__syscall__newselect,env.__syscall_pselect6,env.invoke_*'
 
 # Only busybox.wasm is used; the JS kernel in src/linux/kernel replaces
 # Emscripten's busybox.js glue and implements every import itself.
