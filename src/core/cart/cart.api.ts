@@ -45,7 +45,8 @@ export const getCartPresentations = makeCall<void, CartItemDto[]>(
 
 export const getCouponStatus = makeCall<null, CouponStatus>(
   (params) => `/api/coupon/${params.coupon}/`,
-  "GET"
+  "GET",
+  true
 );
 
 export const getAccessoriesList = makeCall<
