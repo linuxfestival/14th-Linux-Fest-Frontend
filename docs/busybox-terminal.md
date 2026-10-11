@@ -533,6 +533,16 @@ Sizes:
 - A process that loops without reaching a yield point can only be stopped by
   the watchdog restarting the whole terminal. More yield points can be added
   with BusyBox patches if a particular applet needs them.
+- A process cannot stop or wait inside its own signal handler (the handler
+  runs nested inside a kernel call). `vi`'s `^Z` handler stops itself from
+  inside the handler, so the stop takes effect only after the handler has
+  put the terminal back in raw mode: commands run from the prompt get a raw
+  terminal (`stty sane` repairs it), and `fg` does not redraw `vi` (`^L`
+  does, if the terminal was not repaired in between).
+- While a pipeline's vfork child waits for a `$(...)` (`echo $(sleep 9) | cat`),
+  the shell itself is suspended in `vfork`, so `^Z` cannot stop that pipeline
+  until the substitution finishes. `^C` works. Real NOMMU systems behave the
+  same way.
 - Sleeping time keeps elapsing while a process is stopped: a `sleep` that is
   stopped with `^Z` past its deadline finishes as soon as it is continued.
 

@@ -156,6 +156,11 @@ const CASES = [
   ["echo $(echo a) | cat", eq("a\n")],
   ["echo $(seq 3 | wc -l)x | tr x y", eq("3y\n")],
   ["echo b | (read x; echo $(echo c)$x)", eq("cb\n")],
+  ["x=$(echo a) | cat; echo ok", eq("ok\n")],
+  ["f() { echo fn$1; }; f $(echo 1) | cat", eq("fn1\n")],
+  ["echo $(sleep 0.2; echo late) | cat", eq("late\n")],
+  // a heredoc bigger than a pipe, in a pipeline: the vfork child waits for a helper
+  ["{ echo 'cat <<EOF | wc -c'; yes xxxxxxxxx | head -n 10000; echo EOF; } > /tmp/h.sh; sh /tmp/h.sh", eq("100000\n")],
   // fest talks to the page through /dev/fest
   ["ls -l /dev/fest | cut -c1", eq("c\n")],
   ["fest list 'two words' x | cat", eq('["0","list","two words","x"]\n')],
@@ -186,6 +191,22 @@ async function interactive(sys) {
   await sys.waitFor(/# $/, 4000).catch((e) => fails.push("fg: " + e.message));
   const jobs = await sys.run("jobs");
   if (jobs.out !== "") fails.push("jobs after fg: " + JSON.stringify(jobs.out) + " after " + (Date.now() - t0) + "ms");
+  // vi's SIGINT handler leaves through siglongjmp; vi must keep working
+  sys.clear();
+  sys.type("vi /tmp/vi-int.txt\r");
+  await sleep(500);
+  sys.type("ihello");
+  await sleep(150);
+  sys.type("\x03");
+  await sleep(300);
+  sys.type("\x1b");
+  await sleep(100);
+  sys.type("A world\x1b");
+  await sleep(150);
+  sys.type(":wq\r");
+  await sys.waitFor(/# $/, 4000).catch((e) => fails.push("vi ^C: " + e.message));
+  const vi2 = await sys.run("cat /tmp/vi-int.txt");
+  if (vi2.out !== "hello world\n") fails.push("vi after ^C: " + JSON.stringify(vi2.out));
   // ^C while a vfork child waits (read in a pipeline)
   sys.clear();
   sys.type("read x | cat\r");
