@@ -24,6 +24,10 @@ const HeroSection = () => {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      // AltGr is Ctrl+Alt on many layouts: don't steal it from form fields.
+      if (t?.isContentEditable || t?.closest("input, textarea, select")) return;
+      if (e.repeat) return;
       if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "t") {
         e.preventDefault();
         setTerminalMounted(true);

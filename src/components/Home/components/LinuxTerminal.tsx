@@ -33,11 +33,13 @@ const LinuxTerminal = ({ open, onClose }: Props) => {
   const [error, setError] = useState("");
   const [touch] = useState(() => matchMedia("(pointer: coarse)").matches);
 
-  useEffect(() => {
-    let cancelled = false;
+  const cancelled = useRef(false);
+
+  const start = () => {
+    setState("loading");
     loadClient()
       .then(({ startTerminal }) => {
-        if (cancelled || !screen.current) return;
+        if (cancelled.current || !screen.current || session.current) return;
         session.current = startTerminal(screen.current, {
           onState: (s, message) => {
             setState(s);
@@ -49,8 +51,16 @@ const LinuxTerminal = ({ open, onClose }: Props) => {
         setState("error");
         setError(String(e?.message ?? e));
       });
+  };
+
+  // If the client chunk failed to load there is no session yet: load again.
+  const restart = () => (session.current ? session.current.restart() : start());
+
+  useEffect(() => {
+    cancelled.current = false;
+    start();
     return () => {
-      cancelled = true;
+      cancelled.current = true;
       session.current?.dispose();
       session.current = undefined;
     };
@@ -91,7 +101,7 @@ const LinuxTerminal = ({ open, onClose }: Props) => {
           <p className="m-0 flex-1 truncate text-center font-mono text-sm">root@linuxfest: ~</p>
           <button
             type="button"
-            onClick={() => session.current?.restart()}
+            onClick={restart}
             className="rounded p-1 text-[#eaf5ff] hover:bg-[#ffffff1a] focus-visible:outline-2 focus-visible:outline-secondary"
             aria-label="راه‌اندازی دوباره"
             title="Restart"

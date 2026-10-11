@@ -43,6 +43,21 @@ export function startTerminal(container: HTMLElement, opts: SessionOptions = {})
     fontSize: container.clientWidth < 500 ? 13 : 15,
     scrollback: 2000,
     allowProposedApi: false,
+    // xterm's default handler for OSC 8 links opens any scheme in a
+    // same-origin window, so a printed javascript: link would run with the
+    // site's cookies. Only follow web links, without an opener.
+    linkHandler: {
+      activate: (_e, uri) => {
+        try {
+          const url = new URL(uri);
+          if (url.protocol === "http:" || url.protocol === "https:") {
+            window.open(url.href, "_blank", "noopener,noreferrer");
+          }
+        } catch {
+          // not a URL
+        }
+      },
+    },
     theme: {
       background: "#081a40",
       foreground: "#eaf5ff",
