@@ -251,6 +251,7 @@ export function mountDev(k: Kernel) {
   vfs.addDevice("/dev/tty", "tty", 5 << 8);
   vfs.addDevice("/dev/console", "tty", (5 << 8) | 1, 0o600);
   vfs.addDevice("/dev/tty1", "tty", TTY1, 0o620);
+  vfs.addDevice("/dev/fest", "service", (10 << 8) | 242);
   vfs.addSymlink("/dev/stdin", "/proc/self/fd/0");
   vfs.addSymlink("/dev/stdout", "/proc/self/fd/1");
   vfs.addSymlink("/dev/stderr", "/proc/self/fd/2");

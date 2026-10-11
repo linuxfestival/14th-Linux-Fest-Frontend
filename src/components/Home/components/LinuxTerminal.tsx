@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiArrowPath, HiXMark } from "react-icons/hi2";
 import type { TerminalSession } from "../../../linux/client";
-import { loadClient } from "../../../linux/load";
+import { loadClient, loadFest } from "../../../linux/load";
 
 type State = "loading" | "booting" | "running" | "error";
 
@@ -37,14 +37,15 @@ const LinuxTerminal = ({ open, onClose }: Props) => {
 
   const start = () => {
     setState("loading");
-    loadClient()
-      .then(({ startTerminal }) => {
+    Promise.all([loadClient(), loadFest()])
+      .then(([{ startTerminal }, { festCommand }]) => {
         if (cancelled.current || !screen.current || session.current) return;
         session.current = startTerminal(screen.current, {
           onState: (s, message) => {
             setState(s);
             if (message) setError(message);
           },
+          onRequest: festCommand,
         });
       })
       .catch((e) => {

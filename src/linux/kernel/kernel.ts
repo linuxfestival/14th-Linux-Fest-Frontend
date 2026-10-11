@@ -3,7 +3,7 @@
 // thread when it blocks (Asyncify unwind), exits, or uses up its time slice
 // at a yield point (bbw.yield, fd_write, poll).
 import { E, S, SIG, SIGNAL_NAMES } from "./constants.ts";
-import { OpenFile, openInode } from "./files.ts";
+import { OpenFile, ServiceCall, openInode, type ServiceHandler } from "./files.ts";
 import { ExecSignal, ExitSignal, Image, VforkDone, utf8ToBin } from "./image.ts";
 import {
   CONTINUED_STATUS,
@@ -37,6 +37,8 @@ export class Terminated {
 export interface KernelHost {
   output(bytes: Uint8Array): void;
   outputReady(): boolean;
+  /** Answers requests written to /dev/fest. */
+  request?: ServiceHandler;
 }
 
 export interface KernelOptions {
@@ -182,8 +184,13 @@ export class Kernel {
     p.wait = undefined;
     p.state = "runnable";
     p.interrupted = interrupted;
-    p.image!.rewindValue = r;
+    this.imageOf(p)!.rewindValue = r;
     this.enqueue(p);
+  }
+
+  /** The image a process runs in: its own, or a vfork child's parent's. */
+  private imageOf(p: Process): Image | undefined {
+    return p.image ?? (p.vforkParent ? this.imageOf(p.vforkParent) : undefined);
   }
 
   private armTimer() {
@@ -221,7 +228,10 @@ export class Kernel {
   }
 
   private run(p: Process) {
-    const img = p.image!;
+    // A blocked vfork child resumes inside its parent's image; what the step
+    // returns (exit, exec) is about the image's owner.
+    const img = this.imageOf(p)!;
+    p = img.owner;
     this.running = p;
     const t0 = (this.sliceStart = performance.now());
     let result;
@@ -265,6 +275,18 @@ export class Kernel {
     return !img.inVforkChild && !img.current.exiting && img.current.inHandler === 0;
   }
 
+  /**
+   * True if the current import may wait. Unlike canSuspend, this includes a
+   * vfork child: hush expands `$(...)` in the child for a builtin in a
+   * pipeline (`echo $(date) | cat`), and must read the substitution's pipe.
+   * Its stack unwinds into the image's buffer; the parent's stack is safe in
+   * the vfork snapshot. The child is never stopped or preempted, and its
+   * signals wait until it execs or exits.
+   */
+  canBlock(img: Image) {
+    return !img.current.exiting && img.current.inHandler === 0;
+  }
+
   sliceUsed() {
     return performance.now() - this.sliceStart > SLICE_MS;
   }
@@ -280,13 +302,13 @@ export class Kernel {
       const r = img.finishRewind() as number;
       if (!p.interrupted) return this.finish(img, r, true);
       p.interrupted = false;
-      const restart = this.deliver(img, false);
+      const restart = !img.inVforkChild && this.deliver(img, false);
       if (!w.restart || !restart) return this.finish(img, w.intr(), true);
       // every handler had SA_RESTART: try again
     }
     const r = op();
     if (r !== BLOCK) return this.finish(img, r, true);
-    if (!this.canSuspend(img)) return this.finish(img, w.nonblock ? w.nonblock() : -E.EAGAIN, false);
+    if (!this.canBlock(img)) return this.finish(img, w.nonblock ? w.nonblock() : -E.EAGAIN, false);
     p.wait = { check: op, intr: w.intr, deadline: w.deadline };
     p.state = "blocked";
     img.unwind();
@@ -363,6 +385,21 @@ export class Kernel {
   /** Default actions for a process that is not running. */
   private applySignals(p: Process) {
     if (p.state === "zombie" || p === this.running || p.pid === 1) return;
+    if (p.vforkParent) {
+      // A vfork child runs in its parent's memory, so it runs no handlers and
+      // does not stop: signals wait for exec or exit. One that would kill it
+      // while it waits (^C during `read x | cat`) ends it and resumes the parent.
+      if (p.state !== "blocked") return;
+      const ready = p.pending & ~p.mask;
+      for (let sig = 1; sig <= 64; sig++) {
+        if (!(ready & sigbit(sig))) continue;
+        if (sig === SIG.KILL || (p.disp[sig] === DISP.DEFAULT && Process.defaultAction(sig) === "term")) {
+          this.killVforkChild(p, sig);
+          return;
+        }
+      }
+      return;
+    }
     for (;;) {
       const sig = p.nextSignal();
       if (!sig) return;
@@ -480,6 +517,17 @@ export class Kernel {
     };
     img.unwind();
     return 0;
+  }
+
+  private killVforkChild(p: Process, sig: number) {
+    const img = this.imageOf(p)!;
+    if (img.current !== p) return;
+    const parent = p.vforkParent!;
+    this.exitProcess(p, signaledStatus(sig));
+    this.endVfork(p);
+    img.resumeVforkParent();
+    parent.state = "runnable";
+    this.enqueue(parent);
   }
 
   private endVfork(child: Process) {
@@ -659,8 +707,10 @@ export class Kernel {
 
   ttyFor = () => this.tty;
 
+  newCall = () => new ServiceCall(this.host.request, () => this.wake());
+
   open(inode: Inode, flags: number): OpenFile {
-    return openInode(this.vfs, inode, flags, this.ttyFor);
+    return openInode(this.vfs, inode, flags, this.ttyFor, this.newCall);
   }
 
   uptime() {

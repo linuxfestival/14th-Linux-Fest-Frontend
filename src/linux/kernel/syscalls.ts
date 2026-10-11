@@ -694,7 +694,7 @@ export function makeImports(k: Kernel, img: Image): WebAssembly.Imports {
       const f = file(fd);
       const d = dv();
       const type =
-        f.kind === "tty" ? FILETYPE.CHAR : f.kind === "dir" ? FILETYPE.DIR : f.kind === "pipe" ? FILETYPE.UNKNOWN : FILETYPE.REG;
+        f.kind === "tty" ? FILETYPE.CHAR : f.kind === "dir" ? FILETYPE.DIR : f.kind === "pipe" || f.kind === "service" ? FILETYPE.UNKNOWN : FILETYPE.REG;
       d.setUint8(buf, type);
       d.setUint16(buf + 2, (f.flags & O.APPEND ? 1 : 0) | (f.flags & O.NONBLOCK ? 4 : 0), true);
       d.setBigUint64(buf + 8, 0xffffffffffffffffn, true);

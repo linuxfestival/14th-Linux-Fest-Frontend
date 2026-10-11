@@ -11,6 +11,8 @@ export interface SystemOptions extends KernelOptions {
   cols?: number;
   /** Extra files, path → contents (e.g. festival data fetched at boot). */
   files?: Record<string, string | Uint8Array>;
+  /** Called after the root filesystem is built, before the login shell starts. */
+  setup?: (vfs: Vfs) => void;
 }
 
 export const DEFAULT_ENV = [
@@ -27,6 +29,7 @@ export function createSystem(o: SystemOptions): Kernel {
   const vfs = new Vfs();
   buildRoot(vfs);
   for (const [path, data] of Object.entries(o.files ?? {})) vfs.writeFile(path, data);
+  o.setup?.(vfs);
   const k = new Kernel(o.module, vfs, o.host, { env: DEFAULT_ENV, ...o });
   mountDev(k);
   mountProc(k);

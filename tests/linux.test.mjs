@@ -2,23 +2,35 @@
 // with a fake terminal and checks the output of real shell commands.
 // Run: node tests/linux.test.mjs [filter]
 import { readFileSync } from "node:fs";
+import { fileBytes, loadCtf } from "../src/linux/ctf.ts";
 import { createSystem } from "../src/linux/system.ts";
 
 const wasm = process.env.BUSYBOX_WASM ?? new URL("../src/linux/busybox.wasm", import.meta.url).pathname;
 const module = new WebAssembly.Module(readFileSync(wasm));
+const pack = readFileSync(new URL("../src/linux/ctf.pack", import.meta.url));
 const dec = new TextDecoder();
 
-export function boot() {
+/** Stands in for the page: `fest fail` exits 3, other fest commands echo their arguments. */
+const fakeFest = async (args) =>
+  args[1] === "fail" ? { status: 3, body: "failed\n" } : { status: 0, body: JSON.stringify(args) + "\n" };
+
+export async function boot() {
   let out = "";
   const waiters = [];
-  const k = createSystem({
+  let k;
+  const ctf = await loadCtf(pack, (path, data, mode) => k.vfs.writeFile(path, data, mode));
+  k = createSystem({
     module,
+    setup: (vfs) => {
+      for (const [path, f] of Object.entries(ctf.files)) vfs.writeFile(path, fileBytes(f), f.mode);
+    },
     host: {
       output: (b) => {
         out += dec.decode(b, { stream: true });
         for (const w of [...waiters]) w();
       },
       outputReady: () => true,
+      request: (args) => (args[1] === "ctf" ? ctf.command(args.slice(2), false) : fakeFest(args)),
     },
     onLogout: () => false,
     rows: 24,
@@ -140,6 +152,16 @@ const CASES = [
   // second line of `times` is the children's CPU time: must not be zero
   ["seq 1 200000 | md5sum >/dev/null; times", match(/^\S+ \S+\n(?!0m0\.000s )\S+ \S+\n$/)],
   ["hostname -i", eq("127.0.1.1\n")],
+  // command substitution in a pipeline runs in a vfork child, which must be able to wait
+  ["echo $(echo a) | cat", eq("a\n")],
+  ["echo $(seq 3 | wc -l)x | tr x y", eq("3y\n")],
+  ["echo b | (read x; echo $(echo c)$x)", eq("cb\n")],
+  // fest talks to the page through /dev/fest
+  ["ls -l /dev/fest | cut -c1", eq("c\n")],
+  ["fest list 'two words' x | cat", eq('["0","list","two words","x"]\n')],
+  ["fest fail 2>&1; echo $?", eq("failed\n3\n")],
+  ["ctf | grep -c '^[0-9]\\. '", eq("5\n")],
+  ["ctf submit lf{not-a-real-flag} 2>&1; echo $?", match(/not a flag[\s\S]*\n1\n$/)],
 ];
 
 async function interactive(sys) {
@@ -152,11 +174,11 @@ async function interactive(sys) {
   await sys.waitFor(/\^C[\s\S]*# $/, 3000).catch((e) => fails.push("^C: " + e.message));
   // ^Z + fg (hush reports a stopped job as "[1] <pid> <cmd>")
   sys.clear();
-  sys.type("sleep 1\r");
+  sys.type("sleep 1.2\r");
   await sleep(150);
   sys.type("\x1a");
-  await sys.waitFor(/\[1\] \d+ sleep 1[\s\S]*# $/, 3000).catch((e) => fails.push("^Z: " + e.message));
-  const st = await sys.run("ps -o stat,comm | grep sleep");
+  await sys.waitFor(/\[1\] \d+ sleep 1\.2[\s\S]*# $/, 3000).catch((e) => fails.push("^Z: " + e.message));
+  const st = await sys.run("ps -o stat,args | grep '[s]leep 1.2'");
   if (!/^T/.test(st.out)) fails.push("^Z state: " + JSON.stringify(st.out));
   sys.clear();
   const t0 = Date.now();
@@ -164,6 +186,12 @@ async function interactive(sys) {
   await sys.waitFor(/# $/, 4000).catch((e) => fails.push("fg: " + e.message));
   const jobs = await sys.run("jobs");
   if (jobs.out !== "") fails.push("jobs after fg: " + JSON.stringify(jobs.out) + " after " + (Date.now() - t0) + "ms");
+  // ^C while a vfork child waits (read in a pipeline)
+  sys.clear();
+  sys.type("read x | cat\r");
+  await sleep(300);
+  sys.type("\x03");
+  await sys.waitFor(/\^C[\s\S]*# $/, 3000).catch((e) => fails.push("^C in pipeline: " + e.message));
   // vi start and quit
   sys.clear();
   sys.type("vi /tmp/vi.txt\r");
@@ -181,7 +209,7 @@ async function interactive(sys) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const filter = process.argv[2];
-  const sys = boot();
+  const sys = await boot();
   await sys.waitFor(/# $/);
   let failed = 0;
   for (const [cmd, check] of CASES) {

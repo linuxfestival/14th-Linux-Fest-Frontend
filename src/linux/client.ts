@@ -6,6 +6,8 @@ import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 import "./terminal.css";
 import wasmUrl from "./busybox.wasm?url";
+import ctfUrl from "./ctf.pack?url";
+import type { ServiceReply } from "./kernel/files.ts";
 import type { FromWorker, ToWorker } from "./worker.ts";
 
 /** How long the worker may stay silent after ^C before it is restarted. */
@@ -21,7 +23,28 @@ export interface TerminalSession {
 
 export interface SessionOptions {
   onState?: (state: "booting" | "running" | "error", message?: string) => void;
+  /** Answers a `fest` command: args are [color flag, command, ...arguments]. */
+  onRequest?: (args: string[], cols: number) => Promise<ServiceReply>;
 }
+
+/** CTF flags solved in this browser, so progress survives a reload. */
+const CTF_KEY = "linuxfest-ctf";
+const loadAnswers = (): string[] => {
+  try {
+    const v = JSON.parse(localStorage.getItem(CTF_KEY) ?? "[]");
+    return Array.isArray(v) ? v.filter((a) => typeof a === "string") : [];
+  } catch {
+    return [];
+  }
+};
+const saveAnswer = (answer: string) => {
+  try {
+    const all = loadAnswers();
+    if (!all.includes(answer)) localStorage.setItem(CTF_KEY, JSON.stringify([...all, answer]));
+  } catch {
+    // storage unavailable: progress lasts for this session only
+  }
+};
 
 /** Warms the HTTP cache with busybox.wasm (call on hover/focus of the launcher). */
 export function prefetch() {
@@ -97,13 +120,28 @@ export function startTerminal(container: HTMLElement, opts: SessionOptions = {})
         opts.onState?.("running");
       } else if (m.type === "error") {
         opts.onState?.("error", m.message);
+      } else if (m.type === "request") {
+        const reply = opts.onRequest
+          ? opts.onRequest(m.args, m.cols).catch((e) => ({ status: 1, body: `fest: ${e?.message ?? e}\n` }))
+          : Promise.resolve({ status: 1, body: "fest: not available\n" });
+        const from = worker;
+        reply.then((r) => from === worker && post({ type: "reply", id: m.id, ...r }));
+      } else if (m.type === "ctf-solved") {
+        saveAnswer(m.answer);
       }
     };
     worker.onerror = (e) => {
       e.preventDefault();
       crash("the kernel stopped unexpectedly");
     };
-    post({ type: "boot", wasmUrl: new URL(wasmUrl, location.href).href, rows: term.rows, cols: term.cols });
+    post({
+      type: "boot",
+      wasmUrl: new URL(wasmUrl, location.href).href,
+      ctfUrl: new URL(ctfUrl, location.href).href,
+      ctfAnswers: loadAnswers(),
+      rows: term.rows,
+      cols: term.cols,
+    });
   };
 
   const stop = () => {

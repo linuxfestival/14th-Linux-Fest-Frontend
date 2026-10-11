@@ -10,10 +10,15 @@ const MOTD = `
  Welcome to the 15th Linux Fest, Amirkabir University of Technology.
 
  This is a real BusyBox shell compiled to WebAssembly, running in your
- browser. Nothing leaves your machine, and you are root here: break things.
+ browser. You are root here: break things.
 
  Try:  ls /bin     neofetch     cat README     top     vi notes.txt
        fortune | cowsay         ps             help
+
+ The festival, from your shell:
+       fest list     fest show <id>     fest add <id>     fest cart
+
+ Psst: discount codes are hidden on this machine. Type ctf to play.
 `;
 
 const MOTD_SMALL = `
@@ -24,6 +29,12 @@ const MOTD_SMALL = `
 
  Try: ls /bin, neofetch, top, ps,
       fortune | cowsay, vi notes.txt
+
+ Festival: fest list, fest show <id>,
+           fest add <id>, fest cart
+
+ Psst: discount codes are hidden
+ here. Type ctf to play.
 `;
 
 export const ETC_FILES: Record<string, string> = {
@@ -48,6 +59,8 @@ ll() { ls -alF "$@"; }
 la() { ls -A "$@"; }
 l() { ls -CF "$@"; }
 cls() { clear; }
+for f in /etc/profile.d/*.sh; do [ -r "$f" ] && . "$f"; done
+unset f
 cols=$(stty size 2>/dev/null | cut -d' ' -f2)
 if [ "\${cols:-80}" -ge 78 ]; then cat /etc/motd; else cat /etc/motd.small; fi
 unset cols
@@ -62,8 +75,9 @@ Every command is a real process: \`ls | wc -l\` starts two BusyBox processes
 connected by a pipe. Job control works (^C, ^Z, fg, bg, &), as do /proc,
 signals, FIFOs, vi, top and tar.
 
-There is no network. The filesystem lives in memory and resets when you
-close the page.
+There is no network. The fest command talks to the festival site for
+you (fest help), and ctf lists the puzzles hidden on this machine. The
+filesystem lives in memory and resets when you close the page.
 
 Things to try:
   neofetch                 who am I running on?
@@ -72,6 +86,7 @@ Things to try:
   vi hello.sh              write a script, then: sh hello.sh
   cat /proc/self/status    the kernel's view of a process
   help                     hush's built-in commands
+  fest list workshops      what's on at the festival
 `,
   "/root/notes.txt": "",
 };
@@ -137,6 +152,21 @@ cat <<'COW'
                 ||----w |
                 ||     ||
 COW
+`,
+  // fest and ctf ask the page (or the worker) through /dev/fest: one request
+  // per open, fields separated by \x1f, then "<status>\n<body>" comes back.
+  fest: `#!/bin/sh
+color=0; [ -t 1 ] && color=1
+exec 3<>/dev/fest || exit 1
+printf '%s\\037' "$color" "$@" >&3
+printf '\\n' >&3
+read -r status <&3
+if [ "$status" = 0 ]; then cat <&3; else cat <&3 >&2; fi
+exec 3>&-
+exit "\${status:-1}"
+`,
+  ctf: `#!/bin/sh
+exec /usr/local/bin/fest ctf "$@"
 `,
   sudo: `#!/bin/sh
 echo "You are already root. With great power comes great responsibility." >&2

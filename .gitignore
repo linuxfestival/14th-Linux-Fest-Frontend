@@ -23,3 +23,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# CTF puzzle source and discount codes (answers): never commit
+tools/ctf/private/

@@ -7,7 +7,9 @@ small Linux-like kernel written in TypeScript, displayed with xterm.js.
 It is not an emulator and not a scripted fake. `ls | wc -l` starts two BusyBox
 processes connected by a pipe; job control, signals, `/proc`, `vi`, `top` and
 `tar` all work. Everything runs in the visitor's browser: there is no network
-access and no server-side component.
+access and no server-side component. The `fest` command reaches the festival
+site through the page (see *The fest command*), and `ctf` runs a set of
+puzzles hidden in the filesystem (see *CTF puzzles*).
 
 It can also be opened with `Ctrl+Alt+T` anywhere on the home page.
 
@@ -115,8 +117,15 @@ hush also re-executes itself through `/proc/self/exe` for subshells.
   child runs in the parent's memory, as with a real vfork. When the child calls
   `execve` or `_exit`, the snapshot is restored and the stack is rewound again
   as the parent (`vfork` returns the child's pid). A vfork child may itself
-  vfork (daemonizing does), so snapshots form a stack, up to 4 deep. A vfork
-  child cannot block, so a `sleep` between `vfork` and `exec` returns at once.
+  vfork (daemonizing does), so snapshots form a stack, up to 4 deep.
+- **A vfork child may wait.** hush expands `$(...)` inside the child when a
+  builtin is part of a pipeline (`echo $(date) | cat`), so the child must be
+  able to read the substitution's pipe. Its stack unwinds into the image's
+  buffer (the parent's is safe in the snapshot) and the scheduler later
+  resumes it through the parent's image. A vfork child is never stopped or
+  preempted and runs no signal handlers: signals wait until it execs or
+  exits, except one that would kill it while it waits (`^C` during
+  `read x | cat`), which ends it and resumes the parent.
 - **system() and popen()**: Emscripten's versions cannot start processes. The
   shim implements them with vfork, exec of `/bin/sh -c` and `waitpid`, with
   POSIX signal handling (used by `watch`, `awk`'s `system()` and pipes, `vi`'s
@@ -178,7 +187,7 @@ blocked.
   `loadavg`, `mounts`, `cpuinfo`, `version`. Field formats match what BusyBox's
   `ps`, `top`, `free`, `df` and `uptime` parse. Memory figures are the real
   sizes of the running wasm instances and file contents.
-- **`/dev`**: `null`, `zero`, `full`, `random`, `urandom`, `tty`, `tty1`,
+- **`/dev`**: `null`, `zero`, `full`, `random`, `urandom`, `tty`, `tty1`, `fest`,
   `console`, and `stdin`/`stdout`/`stderr` links to `/proc/self/fd/*`.
 
 ### Worker and page
@@ -218,6 +227,79 @@ Notes for editing `/etc/profile`:
   read `/etc/profile` again.
 
 Text stays in English: xterm.js does not shape or reorder right-to-left text.
+
+## The fest command
+
+`fest` browses the programme and manages the visitor's cart: `list`, `show`,
+`cart`, `add`, `rm`, `checkout`, `open`, `coupon`, `login`, `whoami`
+(`fest help`). It is a shell script in `/usr/local/bin` that talks to the
+character device `/dev/fest`:
+
+1. The script opens `/dev/fest` read-write (`exec 3<>/dev/fest`) and writes one
+   request: a color flag (`1` if stdout is a terminal) and its arguments,
+   each followed by `\x1f`, then `\n`.
+2. The kernel (`ServiceCall` in `kernel/files.ts`) passes the fields to the
+   host's `request` handler. Reading the device blocks until the handler
+   answers with `<status>\n<body>`, then returns EOF. The script prints the
+   body to stdout (or stderr) and exits with the status.
+3. The worker answers `ctf` itself and forwards everything else to the page
+   (`request`/`reply` messages, with the terminal width).
+4. On the page, `src/linux/fest.ts` runs the command with the site's own API
+   calls, Redux store and router.
+
+Security:
+
+- The access token never leaves the page. The terminal can only name one of
+  the commands above. Ids must be digits and coupon codes
+  `[A-Za-z0-9_-]`, so terminal input cannot change an API path.
+- Nothing in the terminal pays: `fest checkout` opens the cart page.
+- Text from the API is decoded with `DOMParser` (an inert document) and
+  stripped of control characters and bidi overrides before it reaches
+  xterm.js, so it cannot inject escape sequences.
+- OSC 8 links printed in the terminal open only if they are http(s), in a
+  new tab without an opener.
+
+`checkout`, `open` and `login` navigate away from the home page, which closes
+the terminal.
+
+## CTF puzzles
+
+`ctf` lists puzzles of increasing difficulty; each ends in a discount code.
+Flags look like `lf{...}` and are submitted with `ctf submit <flag>`; `ctf codes`
+shows the codes won. Solved flags are kept in `localStorage`
+(`linuxfest-ctf`) and replayed at boot, so progress survives a reload.
+
+The puzzle content is not in the repository in readable form:
+
+- `src/linux/ctf.pack` is built by `tools/ctf/build.mjs` from a **private**
+  source in `tools/ctf/private/` (gitignored: it holds the answers and
+  codes). The pack's outer layer (titles, intros, starting files) is
+  encrypted with a key that is in `src/linux/ctf.ts`: it keeps the content
+  away from grep, not from someone who reads the code.
+- Every later stage, and every discount code, is encrypted with AES-GCM under
+  a key derived from the answer that opens it (PBKDF2-SHA256, 600,000
+  iterations, one salt per pack). Stages are shuffled and unlabeled. Answers
+  are random tokens, so guessing them offline is not practical. The only way
+  to a code is to solve its puzzle, in the terminal or by reading the files
+  it starts with.
+- The worker (`src/linux/ctf.ts`) writes each puzzle's starting files before
+  the login shell starts. `/etc/profile` sources `/etc/profile.d/*.sh`, which
+  is how puzzles start background processes.
+
+Discount codes are coupons in the backend. Create them there with a usage
+limit, then:
+
+```sh
+# tools/ctf/private/codes.json: {"<puzzle id>": "<coupon code>", ...}
+node tools/ctf/build.mjs                  # → src/linux/ctf.pack
+node tools/ctf/private/solve.mjs          # plays every puzzle in the real terminal
+```
+
+Puzzles without a code get a `PLACEHOLDER-…` code. Rebuilding keeps the flags
+(they live in the private source) but changes every ciphertext. Rebuilding
+`busybox.wasm` can change puzzle behavior: run `solve.mjs` afterwards. Keep
+a backup of `tools/ctf/private/`: without it the pack cannot be rebuilt with
+the same flags.
 
 ## Building busybox.wasm
 

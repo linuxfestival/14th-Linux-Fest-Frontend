@@ -24,7 +24,7 @@ let nextIno = 2;
 /** A character device; `open` returns the per-open state for it. */
 export interface CharDevice {
   rdev: number;
-  kind: "null" | "zero" | "full" | "random" | "tty";
+  kind: "null" | "zero" | "full" | "random" | "tty" | "service";
 }
 
 /** Directory whose entries are computed on every lookup (e.g. /proc). */

@@ -6,6 +6,73 @@ import { Inode, KError, Vfs, toBytes } from "./vfs.ts";
 
 export const PIPE_CAPACITY = 65536;
 
+export interface ServiceReply {
+  status: number;
+  body: string;
+}
+export type ServiceHandler = (args: string[]) => Promise<ServiceReply>;
+
+/** Longest request accepted on a service device. */
+const REQUEST_MAX = 4096;
+
+/**
+ * One request on a service device (/dev/fest). The process writes fields
+ * separated by \x1f and ended by \n, then reads "<status>\n<body>" and EOF.
+ * The read blocks until the host answers.
+ */
+export class ServiceCall {
+  private req: number[] = [];
+  private reply?: Uint8Array;
+  private sent = false;
+  private handler?: ServiceHandler;
+  private wake: () => void;
+
+  constructor(handler: ServiceHandler | undefined, wake: () => void) {
+    this.handler = handler;
+    this.wake = wake;
+  }
+
+  write(src: Uint8Array): number {
+    if (this.sent) return -E.EBUSY;
+    for (let i = 0; i < src.length; i++) {
+      if (src[i] !== 10) {
+        this.req.push(src[i]);
+        if (this.req.length > REQUEST_MAX) return -E.E2BIG;
+        continue;
+      }
+      this.sent = true;
+      const text = new TextDecoder().decode(new Uint8Array(this.req));
+      const args = text.split("\x1f");
+      if (args[args.length - 1] === "") args.pop();
+      this.send(args);
+      return i + 1;
+    }
+    return src.length;
+  }
+
+  private send(args: string[]) {
+    const done = (r: ServiceReply) => {
+      this.reply = new TextEncoder().encode(`${r.status}\n${r.body}`);
+      this.wake();
+    };
+    if (!this.handler) return done({ status: 1, body: "not available here\n" });
+    this.handler(args).then(done, (e) => done({ status: 1, body: `${e?.message ?? e}\n` }));
+  }
+
+  read(dst: Uint8Array, nonblock: boolean, pos: number): number {
+    if (!this.sent) return 0;
+    if (!this.reply) return nonblock ? -E.EAGAIN : BLOCK;
+    const n = Math.min(dst.length, this.reply.length - pos);
+    if (n <= 0) return 0;
+    dst.set(this.reply.subarray(pos, pos + n));
+    return n;
+  }
+
+  poll(): number {
+    return !this.sent ? POLL.OUT : this.reply ? POLL.IN : 0;
+  }
+}
+
 export class Pipe {
   private buf = new Uint8Array(PIPE_CAPACITY);
   private start = 0;
@@ -75,7 +142,7 @@ export class Pipe {
   }
 }
 
-export type FileKind = "reg" | "dir" | "pipe" | "tty" | "null" | "zero" | "full" | "random";
+export type FileKind = "reg" | "dir" | "pipe" | "tty" | "null" | "zero" | "full" | "random" | "service";
 
 export interface DirEntry {
   name: string;
@@ -98,6 +165,7 @@ export class OpenFile {
   refs = 1;
   pipe?: Pipe;
   tty?: Tty;
+  call?: ServiceCall;
   /** Named pipes: the peer's open count when this end was opened. */
   fifoMark = 0;
   /** Snapshot of a generated (procfs) file, taken at open. */
@@ -187,6 +255,11 @@ export class OpenFile {
       case "random":
         for (let i = 0; i < dst.length; i += 65536) crypto.getRandomValues(dst.subarray(i, i + 65536));
         return dst.length;
+      case "service": {
+        const n = this.call!.read(dst, this.nonblock, this.pos);
+        if (n > 0) this.pos += n;
+        return n;
+      }
     }
   }
 
@@ -223,6 +296,8 @@ export class OpenFile {
         return src.length;
       case "full":
         return -E.ENOSPC;
+      case "service":
+        return this.call!.write(src);
     }
   }
 
@@ -240,13 +315,15 @@ export class OpenFile {
         return this.pipe!.poll(this.writable);
       case "tty":
         return this.tty!.poll();
+      case "service":
+        return this.call!.poll();
       default:
         return POLL.IN | POLL.OUT;
     }
   }
 
   seek(offset: number, whence: number): number {
-    if (this.kind === "pipe" || this.kind === "tty") return -E.ESPIPE;
+    if (this.kind === "pipe" || this.kind === "tty" || this.kind === "service") return -E.ESPIPE;
     let base = 0;
     if (whence === 1) base = this.pos;
     else if (whence === 2) base = this.kind === "dir" ? (this.dirents?.length ?? 0) : this.size();
@@ -264,7 +341,13 @@ export class OpenFile {
 }
 
 /** Builds the open file description for an inode. */
-export function openInode(vfs: Vfs, inode: Inode, flags: number, ttyFor: () => Tty | undefined): OpenFile {
+export function openInode(
+  vfs: Vfs,
+  inode: Inode,
+  flags: number,
+  ttyFor: () => Tty | undefined,
+  newCall?: () => ServiceCall,
+): OpenFile {
   const type = inode.mode & S.IFMT;
   if (type === S.IFDIR) {
     if ((flags & O.ACCMODE) !== O.RDONLY) throw new KError(E.EISDIR);
@@ -278,6 +361,12 @@ export function openInode(vfs: Vfs, inode: Inode, flags: number, ttyFor: () => T
       if (!tty) throw new KError(E.ENXIO);
       const f = new OpenFile(vfs, inode, flags, "tty");
       f.tty = tty;
+      return f;
+    }
+    if (kind === "service") {
+      if (!newCall) throw new KError(E.ENXIO);
+      const f = new OpenFile(vfs, inode, flags, "service");
+      f.call = newCall();
       return f;
     }
     return new OpenFile(vfs, inode, flags, kind);

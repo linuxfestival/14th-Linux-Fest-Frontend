@@ -255,7 +255,8 @@ export class Image {
     return this.vforkSnaps.length;
   }
 
-  private resumeVforkParent() {
+  /** The vfork child is done (exec, exit or killed): rewind as the parent. */
+  resumeVforkParent() {
     const snap = this.vforkSnaps.pop()!;
     this.u8().set(snap.bytes, this.asyncBuf);
     this.exports._emscripten_stack_restore(snap.sp);
