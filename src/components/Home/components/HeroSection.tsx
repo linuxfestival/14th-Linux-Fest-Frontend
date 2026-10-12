@@ -110,7 +110,7 @@ const HeroSection = () => {
               <HiArrowLeft aria-hidden="true" />
             </Link>
             <Link
-              to="/bundles"
+              to="/workshops?format=bundles"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-2 text-base font-extrabold text-white underline decoration-secondary decoration-2 underline-offset-8 transition-colors hover:text-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary"
             >
               بسته‌ها

@@ -11,7 +11,7 @@ const BundlesSection = () => (
         <p className="max-w-xl text-base leading-8 sm:text-lg sm:leading-9">
           بسته‌ها، چند ارائه و کارگاه رو کنار هم قرار می‌دن. برنامه‌های هر بسته رو ببین و همه رو با یک قیمت مشخص انتخاب کن.
         </p>
-        <Link to="/bundles" className="group mt-6 inline-flex min-h-12 items-center justify-center gap-4 rounded-lg bg-primary px-6 py-4 text-sm font-extrabold text-white transition-colors hover:bg-dark-gray focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary max-sm:w-full">
+        <Link to="/workshops?format=bundles" className="group mt-6 inline-flex min-h-12 items-center justify-center gap-4 rounded-lg bg-primary px-6 py-4 text-sm font-extrabold text-white transition-colors hover:bg-dark-gray focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary max-sm:w-full">
           دیدن بسته‌ها
           <HiArrowLeft aria-hidden="true" className="size-5 transition-transform motion-safe:group-hover:-translate-x-1" />
         </Link>

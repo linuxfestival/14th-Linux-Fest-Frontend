@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { HiMagnifyingGlass } from "react-icons/hi2";
+import { HiArrowLeft, HiMagnifyingGlass } from "react-icons/hi2";
 import Penguin from "../../assets/images/pinguin.webp";
 import { digitsToPersian } from "../../utils/digitsToPersian";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-import BundlesBanner from "./components/BundlesBanner";
+import BundleCard from "./components/BundleCard";
+import { getBundles } from "../../core/bundles/bundles.api";
+import type { BundleDto } from "../../core/bundles/bundles.types";
 import WorkshopCard from "./components/WorkshopCard";
 import WorkshopsFilter, { type Sort } from "./components/WorkshopsFilter";
 import { useAppDispatch } from "../../store";
@@ -23,7 +26,7 @@ const formats = [
   { label: "همه ارائه‌ها", value: "ALL" },
   { label: "کارگاه‌ها", value: PresentationService.WORKSHOP },
   { label: "ارائه‌ها", value: PresentationService.TALK },
-  // { label: "پکیج‌ها", value: PresentationService.PACKAGE },
+  { label: "بسته‌ها", value: "BUNDLE" },
 ];
 const normalize = (value: string) =>
   value
@@ -39,9 +42,32 @@ const WorkshopsList = () => {
   const { list, loadedFirstTime } = useSelector(selectPresentationsState);
   const authenticated = useSelector(selectIsAuthenticated);
   const [loadError, setLoadError] = useState(false);
+  const [bundles, setBundles] = useState<BundleDto[]>([]);
+  const [bundlesLoading, setBundlesLoading] = useState(true);
+  const [bundlesError, setBundlesError] = useState(false);
+  const [bundleRevision, setBundleRevision] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    setBundlesLoading(true);
+    setBundlesError(false);
+    getBundles().then(response => { if (active) setBundles(response.data); })
+      .catch(() => { if (active) setBundlesError(true); })
+      .finally(() => { if (active) setBundlesLoading(false); });
+    return () => { active = false; };
+  }, [bundleRevision]);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<Sort>("SORT_BY_DATE");
-  const [format, setFormat] = useState("ALL");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const format = searchParams.get("format") === "bundles" ? "BUNDLE" : searchParams.get("format") === "workshops" ? PresentationService.WORKSHOP : searchParams.get("format") === "talks" ? PresentationService.TALK : "ALL";
+  const setFormat = (value: string) => {
+    setSearchParams(previous => {
+      const next = new URLSearchParams(previous);
+      if (value === "ALL") next.delete("format");
+      else next.set("format", value === "BUNDLE" ? "bundles" : value === PresentationService.WORKSHOP ? "workshops" : "talks");
+      return next;
+    }, { replace: true });
+  };
   const [day, setDay] = useState("ALL");
   const [availableOnly, setAvailableOnly] = useState(false);
 
@@ -58,15 +84,29 @@ const WorkshopsList = () => {
   }, [dispatch, authenticated]);
 
   const workshops = useMemo(() => list.map(toWorkshopItem), [list]);
+  const bundleItems = useMemo(() => bundles.map(bundle => ({ bundle, members: bundle.presentations.map(toWorkshopItem) })), [bundles]);
+  const visibleBundles = useMemo(() => bundleItems.filter(({ bundle, members }) =>
+    (format === "ALL" || format === "BUNDLE") &&
+    (day === "ALL" || members.some(member => member.day === day)) &&
+    (!availableOnly || bundle.is_available) &&
+    normalize([bundle.name, bundle.description, ...bundle.tags.map(tag => tag.fa_name || tag.name || tag.en_name), ...members.flatMap(member => [member.title, member.englishTitle, member.description, member.presenter, ...member.tags])].join(" ")).includes(normalize(search))
+  ).sort((a, b) => {
+    const availabilityOrder = Number(!a.bundle.is_available) - Number(!b.bundle.is_available);
+    if (availabilityOrder) return availabilityOrder;
+    if (sort === "SORT_BY_PRICE") return Number(a.bundle.price) - Number(b.bundle.price);
+    if (sort === "SORT_BY_NAME") return a.bundle.name.localeCompare(b.bundle.name, "fa");
+    const earliest = (members: typeof a.members) => members.map(member => member.start).sort()[0] || "";
+    return earliest(a.members).localeCompare(earliest(b.members));
+  }), [bundleItems, format, day, availableOnly, search, sort]);
   const days = useMemo(
     () => [
       ...new Map(
-        [...workshops]
+        [...workshops, ...bundleItems.flatMap(item => item.members)]
           .sort((a, b) => a.start.localeCompare(b.start))
           .map((item) => [item.day, item.dateLabel]),
       ).entries(),
     ],
-    [workshops],
+    [workshops, bundleItems],
   );
   const visible = useMemo(
     () =>
@@ -126,7 +166,6 @@ const WorkshopsList = () => {
             </div>
             <img src={Penguin} alt="" aria-hidden="true" className="hidden w-44 shrink-0 -rotate-6 object-contain md:block lg:w-52" />
           </div>
-          <BundlesBanner />
           <h2 className="mb-5 text-2xl font-black sm:text-3xl">ارائه‌ها و کارگاه‌ها</h2>
           <WorkshopsFilter
             search={search}
@@ -169,13 +208,18 @@ const WorkshopsList = () => {
             </div>
           </div>
           <p role="status" aria-live="polite" aria-atomic="true" className="mb-4 text-xs text-dark-gray sm:text-sm">
-            {loading ? "در حال دریافت…" : loadError ? "دریافت انجام نشد" : `${digitsToPersian(visible.length.toString())} ارائه`}
+            {loading ? "در حال دریافت…" : loadError ? "دریافت انجام نشد" : format === "BUNDLE" ? `${digitsToPersian(visibleBundles.length.toString())} بسته` : `${digitsToPersian(visible.length.toString())} ارائه`}
           </p>
-          {loading ? (
+          {bundlesError && <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/15 p-4">
+            <p className="text-sm text-dark-gray">دریافت بسته‌ها انجام نشد.</p>
+            <button type="button" onClick={() => setBundleRevision(value => value + 1)} className="min-h-11 rounded-lg px-3 text-sm font-bold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-primary">دریافت دوباره بسته‌ها</button>
+          </div>}
+          {loading && (
             <p role="status" className="py-16 text-center text-dark-gray">
               در حال دریافت ارائه‌ها…
             </p>
-          ) : loadError ? (
+          )}
+          {loadError && (
             <div role="alert" className="py-16 text-center">
               <h2 className="text-xl font-extrabold">
                 دریافت ارائه‌ها انجام نشد.
@@ -196,13 +240,25 @@ const WorkshopsList = () => {
                 تلاش دوباره
               </button>
             </div>
-          ) : visible.length ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {visible.map((item) => (
-                <WorkshopCard key={item.id} item={item} />
-              ))}
+          )}
+          {format === "ALL" && !bundlesLoading && visibleBundles.length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-y border-indigo/40 bg-indigo/10 px-4 py-3 text-sm sm:mb-5 sm:px-5">
+              <p className="text-dark-gray"><span className="font-bold text-primary">{digitsToPersian(visibleBundles.length.toString())} بسته</span> برای انتخاب یک‌جا آماده است.</p>
+              <button type="button" onClick={() => setFormat("BUNDLE")} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-bold text-orange-ink underline underline-offset-4 transition-colors hover:bg-secondary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                دیدن بسته‌ها
+                <HiArrowLeft aria-hidden="true" className="size-4" />
+              </button>
             </div>
-          ) : (
+          )}
+          {format === "BUNDLE" && visibleBundles.length > 0 ? (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {visibleBundles.map(({ bundle }) => <BundleCard key={`bundle-${bundle.id}`} bundle={bundle} compact onChanged={() => setBundleRevision(value => value + 1)} />)}
+            </div>
+          ) : format !== "BUNDLE" && visible.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {visible.map((item) => <WorkshopCard key={item.id} item={item} />)}
+            </div>
+          ) : !loading && !bundlesLoading && !loadError && !bundlesError ? (
             <div className="flex flex-col items-center py-16 text-center">
               <HiMagnifyingGlass
                 className="mb-4 size-10 text-dark-gray"
@@ -226,7 +282,7 @@ const WorkshopsList = () => {
                 دریافت دوباره ارائه‌ها
               </button>}
             </div>
-          )}
+          ) : null}
         </section>
       </main>
       <Footer />

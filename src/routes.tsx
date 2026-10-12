@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import React, { Suspense } from "react";
 import Fallback from "./components/Fallback/Fallback.tsx";
 import { DashboardLoading } from "./components/Dashboard/DashboardUI";
@@ -10,7 +10,6 @@ const Sponsor = React.lazy(() => import("./components/Sponsor/Sponsor"));
 const WorkshopsList = React.lazy(
   () => import("./components/WorkshopsList/WorkshopsList.tsx"),
 );
-const Bundles = React.lazy(() => import("./components/Bundles/Bundles"));
 // const ComingSoon = React.lazy(
 //   () => import("./components/ComingSoon/ComingSoon.tsx"),
 // );
@@ -198,11 +197,7 @@ const router = createBrowserRouter([
       },
       {
         path: "bundles",
-        element: (
-          <Suspense fallback={<Fallback />}>
-            <Bundles />
-          </Suspense>
-        ),
+        element: <Navigate to="/workshops?format=bundles" replace />,
       },
       {
         path: "workshop/:id",

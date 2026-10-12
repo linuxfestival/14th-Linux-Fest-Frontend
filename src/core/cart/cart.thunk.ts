@@ -42,14 +42,23 @@ export const removeItemFromCartThunk = createAsyncThunk(
     }
   }
 );
+type CartRequestOptions =
+  | { toastContainerId?: string; suppressErrorToast?: boolean }
+  | undefined;
+type BundleMutationRequest = number | { id: number; toastContainerId?: string };
+const toastOptions = (toastContainerId?: string) =>
+  toastContainerId ? { containerId: toastContainerId } : undefined;
+
 export const getCartThunk = createAsyncThunk(
   "cart/get_cart",
-  async (_, { rejectWithValue }) => {
+  async (options: CartRequestOptions, { rejectWithValue }) => {
     try {
       const [presentations, bundles] = await Promise.all([getCartPresentations(), getBundleCart()]);
       return { items: presentations.data, bundles: bundles.data };
     } catch (error: unknown) {
-      toast.error("خطا در دریافت اطلاعات");
+      if (!options?.suppressErrorToast) {
+        toast.error("خطا در دریافت اطلاعات", toastOptions(options?.toastContainerId));
+      }
       return rejectWithValue(cartErrorText(error));
     }
   }
@@ -87,14 +96,17 @@ export const getAccessoriesListThunk = createAsyncThunk(
 
 export const addBundleToCartThunk = createAsyncThunk(
   "cart/add_bundle",
-  async (id: number, { dispatch, rejectWithValue }) => {
+  async (request: BundleMutationRequest, { dispatch, rejectWithValue }) => {
+    const { id, toastContainerId } = typeof request === "number" ? { id: request } : request;
     try {
       await addBundleToCart(undefined, { id });
-      await dispatch(getCartThunk()).unwrap();
-      toast.success("بسته به سبد خرید اضافه شد");
+      await dispatch(
+        getCartThunk({ toastContainerId, suppressErrorToast: true }),
+      ).unwrap();
+      toast.success("بسته به سبد خرید اضافه شد", toastOptions(toastContainerId));
     } catch (error: unknown) {
       const message = cartErrorText(error);
-      toast.error(message);
+      toast.error(message, toastOptions(toastContainerId));
       return rejectWithValue(message);
     }
   }
@@ -102,14 +114,17 @@ export const addBundleToCartThunk = createAsyncThunk(
 
 export const removeBundleFromCartThunk = createAsyncThunk(
   "cart/remove_bundle",
-  async (id: number, { dispatch, rejectWithValue }) => {
+  async (request: BundleMutationRequest, { dispatch, rejectWithValue }) => {
+    const { id, toastContainerId } = typeof request === "number" ? { id: request } : request;
     try {
       await removeBundleFromCart(undefined, { id });
-      await dispatch(getCartThunk()).unwrap();
-      toast.info("بسته از سبد خرید حذف شد");
+      await dispatch(
+        getCartThunk({ toastContainerId, suppressErrorToast: true }),
+      ).unwrap();
+      toast.info("بسته از سبد خرید حذف شد", toastOptions(toastContainerId));
     } catch (error: unknown) {
       const message = cartErrorText(error);
-      toast.error(message);
+      toast.error(message, toastOptions(toastContainerId));
       return rejectWithValue(message);
     }
   }

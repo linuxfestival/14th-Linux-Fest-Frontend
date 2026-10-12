@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { HiArrowLeft, HiExclamationTriangle } from "react-icons/hi2";
 import BundleCard from "../../../WorkshopsList/components/BundleCard";
+import BundleSuggestionModal from "../components/BundleSuggestionModal";
 import { standaloneCartItems } from "../../../../core/cart/cart.pricing";
 import { getCartThunk } from "../../../../core/cart/cart.thunk";
+import { getBundles } from "../../../../core/bundles/bundles.api";
+import type { BundleDto } from "../../../../core/bundles/bundles.types";
 import CartItem from "../components/CartItem";
 import { useAppDispatch } from "../../../../store";
 import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
@@ -18,13 +21,57 @@ import {
 import { actionClass, dateText, priceText } from "../../dashboard.styles";
 const CartsList = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [showConflicts, setShowConflicts] = useState(false);
+  const [showBundleSuggestions, setShowBundleSuggestions] = useState(false);
+  const [bundleCatalog, setBundleCatalog] = useState<BundleDto[]>([]);
+  const [bundleCatalogChecked, setBundleCatalogChecked] = useState(false);
+  const [checkoutRequested, setCheckoutRequested] = useState(false);
   const { items, bundles, totalAmount, loading, error } = useSelector(selectCartState);
   const pending = standaloneCartItems(items);
   const conflicts = findCartTimingConflicts(items);
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Cart));
   }, [dispatch]);
+  useEffect(() => {
+    let active = true;
+    let settled = false;
+    const fallback = window.setTimeout(() => {
+      if (active && !settled) setBundleCatalogChecked(true);
+    }, 1500);
+    getBundles()
+      .then((response) => { if (active) setBundleCatalog(response.data); })
+      .catch(() => { /* A catalog failure must not block checkout. */ })
+      .finally(() => {
+        settled = true;
+        window.clearTimeout(fallback);
+        if (active) setBundleCatalogChecked(true);
+      });
+    return () => {
+      active = false;
+      window.clearTimeout(fallback);
+    };
+  }, []);
+  const suggestions = useMemo(() => {
+    const selectedBundleIds = new Set(bundles.map((selection) => selection.bundle.id));
+    const pendingPresentationIds = new Set(pending.map((item) => item.presentation.id));
+    return bundleCatalog.filter((bundle) =>
+      bundle.is_available &&
+      !selectedBundleIds.has(bundle.id) &&
+      bundle.presentations.some((presentation) => pendingPresentationIds.has(presentation.id)),
+    );
+  }, [bundleCatalog, bundles, pending]);
+  const continueToCheckout = useCallback(() => navigate("/profile/cart/checkout"), [navigate]);
+  useEffect(() => {
+    if (!checkoutRequested || !bundleCatalogChecked) return;
+    setCheckoutRequested(false);
+    if (suggestions.length) setShowBundleSuggestions(true);
+    else continueToCheckout();
+  }, [bundleCatalogChecked, checkoutRequested, continueToCheckout, suggestions]);
+  const startCheckout = () => {
+    if (loading || error) return;
+    setCheckoutRequested(true);
+  };
   return (
     <DashboardPage
       title="سبد خرید"
@@ -103,18 +150,15 @@ const CartsList = () => {
                 <span className="text-xs font-normal">تومان</span>
               </p>
             </div>
-            <Link
-              aria-disabled={loading || error}
-              tabIndex={loading || error ? -1 : undefined}
-              onClick={(event) => {
-                if (loading || error) event.preventDefault();
-              }}
-              to="/profile/cart/checkout"
-              className={`${actionClass} mt-6 w-full ${loading || error ? "opacity-60" : ""}`}
+            <button
+              type="button"
+              onClick={startCheckout}
+              disabled={loading || error || checkoutRequested}
+              className={`${actionClass} mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60`}
             >
-              تکمیل خرید
+              {checkoutRequested ? "در حال بررسی بسته‌ها…" : "تکمیل خرید"}
               <HiArrowLeft aria-hidden="true" className="size-4" />
-            </Link>
+            </button>
           </DashboardPanel>
         </div>
       ) : (
@@ -125,6 +169,7 @@ const CartsList = () => {
           />
         </DashboardPanel>
       )}
+      {showBundleSuggestions && <BundleSuggestionModal bundles={suggestions} onClose={() => setShowBundleSuggestions(false)} onContinue={continueToCheckout} />}
     </DashboardPage>
   );
 };

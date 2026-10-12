@@ -107,7 +107,7 @@ const Footer = () => (
           <h2 className="mb-2 text-lg font-black text-text-white sm:text-xl">
             درباره رویداد
           </h2>
-          <Link to="/bundles" className="inline-flex min-h-11 items-center rounded-sm text-sm font-extrabold text-white underline-offset-4 transition-colors hover:text-secondary hover:underline focus-visible:outline-2 focus-visible:outline-secondary">
+          <Link to="/workshops?format=bundles" className="inline-flex min-h-11 items-center rounded-sm text-sm font-extrabold text-white underline-offset-4 transition-colors hover:text-secondary hover:underline focus-visible:outline-2 focus-visible:outline-secondary">
             بسته‌ها
           </Link>
           <Link
