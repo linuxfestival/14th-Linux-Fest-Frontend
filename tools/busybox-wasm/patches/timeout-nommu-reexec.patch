@@ -1,0 +1,24 @@
+--- a/coreutils/timeout.c	2026-10-06 18:17:58.541854320 +0330
++++ b/coreutils/timeout.c	2026-10-06 18:18:59.629658687 +0330
+@@ -100,7 +100,7 @@
+ 	if (!argv[optind])
+ 		bb_show_usage();
+ 	timeout = parse_duration_str(argv[optind++]);
+-	if (!argv[optind]) /* no PROG? */
++	if (!argv[optind] && !parent) /* no PROG? (a re-execed grandchild has none) */
+ 		bb_show_usage();
+ 
+ 	/* We want to create a grandchild which will watch
+@@ -123,7 +123,11 @@
+ 		/* Child: spawn grandchild and exit */
+ 		parent = getppid();
+ #if !BB_MMU
+-		argv[optind] = xasprintf("-p%u", parent);
++		/* Re-exec as "timeout [OPTS] -pPID DURATION": -p must come
++		 * before DURATION, since option parsing stops at the first
++		 * non-option ("+" above). */
++		argv[optind] = argv[optind - 1];
++		argv[optind - 1] = xasprintf("-p%u", parent);
+ 		argv[optind + 1] = NULL;
+ #endif
+ 		/* NB: exits with nonzero on error: */

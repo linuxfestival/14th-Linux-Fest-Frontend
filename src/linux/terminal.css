@@ -1,0 +1,20 @@
+/* The site sets `* { font-family: Vazirmatn !important }`; the terminal grid
+   needs a monospace font, and `.xterm *` is more specific than `*`. */
+.xterm,
+.xterm * {
+  font-family: "DejaVu Sans Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace !important;
+}
+
+/* The Goftino chat button would cover the terminal and its touch keys. */
+body.linux-terminal-open #goftino_w {
+  display: none !important;
+}
+
+/* xterm.js draws rows as inline-block spans, and the browser would reorder
+   RTL text inside each span only, scrambling it. Cells are shown in the order
+   written; fest puts RTL text in display order itself (see bidi.ts). */
+.xterm .xterm-rows,
+.xterm .xterm-rows span {
+  unicode-bidi: bidi-override;
+  direction: ltr;
+}

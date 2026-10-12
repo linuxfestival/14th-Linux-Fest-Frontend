@@ -1,0 +1,44 @@
+--- a/editors/vi.c
++++ b/editors/vi.c
+@@ -1119,6 +1119,10 @@
+ }
+ 
+ //----- IO Routines --------------------------------------------
++#if ENABLE_FEATURE_VI_USE_SIGNALS
++static volatile sig_atomic_t got_tstp;
++static void suspend_vi(void);
++#endif
+ static int readit(void) // read (maybe cursor) key from stdin
+ {
+ 	int c;
+@@ -1129,7 +1133,19 @@
+ 	// on nonblocking stdin.
+ 	// Note: read_key sets errno to 0 on success.
+  again:
++#if ENABLE_FEATURE_VI_USE_SIGNALS
++	// busybox-wasm: ^Z is handled here, not in the signal handler (the
++	// browser kernel cannot stop a process inside a handler).
++	if (got_tstp) {
++		got_tstp = 0;
++		suspend_vi();
++	}
++	c = read_key(STDIN_FILENO, readbuffer, /*timeout:*/ -1);
++	if (c == -1 && errno == EINTR)
++		goto again;
++#else
+ 	c = safe_read_key(STDIN_FILENO, readbuffer, /*timeout:*/ -1);
++#endif
+ 	if (c == -1) { // EOF/error
+ 		if (errno == EAGAIN) // paranoia
+ 			goto again;
+@@ -3519,6 +3535,10 @@
+ }
+ static void tstp_handler(int sig UNUSED_PARAM)
+ {
++	got_tstp = 1; // readit() suspends
++}
++static void suspend_vi(void)
++{
+ 	int save_errno = errno;
+ 
+ 	// ioctl inside cookmode() was seen to generate SIGTTOU,
