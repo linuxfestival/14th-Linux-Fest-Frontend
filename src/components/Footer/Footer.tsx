@@ -101,14 +101,26 @@ const Footer = () => (
         </div>
 
         <nav
-          className="flex min-w-0 flex-col items-center text-center lg:items-start lg:text-right"
+          className="grid min-w-0 grid-cols-2 justify-items-center gap-x-6 text-center lg:justify-items-start lg:gap-x-10 lg:text-right"
           aria-label="درباره رویداد"
         >
-          <h2 className="mb-2 text-lg font-black text-text-white sm:text-xl">
+          <h2 className="col-span-2 mb-2 text-lg font-black text-text-white sm:text-xl">
             درباره رویداد
           </h2>
           <Link to="/workshops?format=bundles" className="inline-flex min-h-11 items-center rounded-sm text-sm font-extrabold text-white underline-offset-4 transition-colors hover:text-secondary hover:underline focus-visible:outline-2 focus-visible:outline-secondary">
             بسته‌ها
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            to="/install-fest"
+          >
+            Install Fest
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"
+            to="/community-day"
+          >
+            روز جامعه
           </Link>
           <Link
             className="inline-flex min-h-11 items-center rounded-sm text-sm text-text-gray underline-offset-4 transition-colors hover:text-text-white hover:underline focus-visible:outline-2 focus-visible:outline-secondary"

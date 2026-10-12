@@ -113,42 +113,46 @@ const CommunityDay = () => {
         </div>
         <div className="community-hero__layout mx-auto w-full max-w-7xl px-6 pb-12 pt-12 sm:px-8 lg:px-10 lg:pb-18 lg:pt-18">
           <div className="community-hero__copy">
-            <p className="text-base font-bold tracking-wide">
-              جمعه، ۲۴ مهر ۱۴۰۵ · ۱۳:۰۰ تا ۱۹:۰۰
-            </p>
-            <h1>
-              روز
-              <br />
-              <span style={{ color: "#f2a11b" }}>جامعه</span>
-            </h1>
-            <p className="community-hero__intro">
-              دورهمی برای افراد علاقه‌مند به نرم‌افزار آزاد و متن‌باز، با
-              ارائه‌های کوتاه و فرصت شبکه‌سازی.
-            </p>
-            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <button type="button" className={`community-ticket ${focus}`}>
-                خرید بلیت <HiTicket className="size-5" aria-hidden="true" />
-              </button>
-              <a
-                href="#lineup"
-                className={`inline-flex items-center gap-2 font-extrabold underline decoration-2 underline-offset-8 hover:text-white ${focus}`}
-              >
-                ارائه‌دهندگان{" "}
-                <HiArrowLeft className="size-5" aria-hidden="true" />
-              </a>
+            <div className="community-hero__headline">
+              <p className="text-base font-bold tracking-wide">
+                جمعه، ۲۴ مهر ۱۴۰۵ · ۱۳:۰۰ تا ۱۹:۰۰
+              </p>
+              <h1>
+                روز
+                <br />
+                <span style={{ color: "#f2a11b" }}>جامعه</span>
+              </h1>
+              <p className="community-hero__intro">
+                دورهمی برای افراد علاقه‌مند به نرم‌افزار آزاد و متن‌باز، با
+                ارائه‌های کوتاه و فرصت شبکه‌سازی.
+              </p>
             </div>
-            <p className="mt-4 text-sm font-medium">
-              فروش بلیت به‌زودی فعال می‌شود.
-            </p>
+            <div className="community-hero__cta">
+              <div className="community-hero__actions mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <button type="button" className={`community-ticket ${focus}`}>
+                  خرید بلیت <HiTicket className="size-5" aria-hidden="true" />
+                </button>
+                <a
+                  href="#lineup"
+                  className={`community-hero__lineup-link inline-flex items-center gap-2 font-extrabold underline decoration-2 underline-offset-8 hover:text-white ${focus}`}
+                >
+                  ارائه‌دهندگان{" "}
+                  <HiArrowLeft className="size-5" aria-hidden="true" />
+                </a>
+              </div>
+              <p className="mt-4 text-sm font-medium">
+                فروش بلیت به‌زودی فعال می‌شود.
+              </p>
+            </div>
           </div>
           <div
             className="community-hero__collage"
             aria-label="تصاویر موقت ارائه‌دهندگان"
           >
-            <img src={tux} alt="" className="" />
+            <img src={tux} alt="" className="community-hero__mascot" />
           </div>
         </div>
-        <div className="community-hero__marquee" aria-hidden="true">
+        <div className="community-hero__marquee" aria-hidden="true" dir="ltr">
           <div className="community-hero__marquee-track">
             {MARQUEE_COPIES.map((copy) => (
               <div
@@ -156,7 +160,7 @@ const CommunityDay = () => {
                 key={copy}
                 dir="ltr"
               >
-                LINUXFEST · COMMUNITY DAY · ۱۵TH EDITION · LINUXFEST · COMMUNITY
+                LINUXFEST · COMMUNITY DAY · 15TH EDITION · LINUXFEST · COMMUNITY
                 DAY ·
               </div>
             ))}
@@ -251,7 +255,11 @@ const CommunityDay = () => {
               {talks.map((talk, index) => (
                 <article key={talk.speaker}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
-                  <img src={talk.image} loading="lazy" />
+                  <img
+                    src={talk.image}
+                    alt={`تصویر ${talk.speaker}`}
+                    loading="lazy"
+                  />
                   <div>
                     <h3>{talk.speaker}</h3>
                     <p>{talk.title}</p>

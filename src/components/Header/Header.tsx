@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import logo from "../../assets/logo.png";
+import logoDark from "../../assets/logo_dark.png";
+import logoLight from "../../assets/logo_light.png";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import Button, { ButtonSizes, ButtonVariants } from "../Common/Button/Button";
 import { IoClose, IoMenu, IoPerson } from "react-icons/io5";
@@ -28,6 +29,7 @@ const LegacyHeader = ({
   const menu = useRef<HTMLDialogElement>(null);
   const menuToggle = useRef<HTMLButtonElement>(null);
   const { pathname, hash } = useLocation();
+  const headerLogo = landingOnLight ? logoDark : logoLight;
 
   const toggleMenu = () => {
     setMenuOpen((open) => !open);
@@ -188,7 +190,12 @@ const LegacyHeader = ({
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 text-xl font-black"
               >
-                <img src={logo} width={40} height={40} alt="نشان لینوکس‌فست" />
+                <img
+                  src={logoLight}
+                  width={40}
+                  height={40}
+                  alt="نشان لینوکس‌فست"
+                />
                 <span>لینوکس‌فست</span>
               </Link>
               <button
@@ -271,7 +278,12 @@ const LegacyHeader = ({
         className="flex justify-center items-center gap-0 xl:gap-[10px]"
         aria-label="صفحه اصلی لینوکس‌فست"
       >
-        <img src={logo} width={50} height={50} alt="نشان لینوکس‌فست" />
+        <img
+          src={headerLogo}
+          width={50}
+          height={50}
+          alt="نشان لینوکس‌فست"
+        />
         <p className="hidden xl:block text-2xl font-medium">لینوکس‌فست</p>
       </Link>
     </div>

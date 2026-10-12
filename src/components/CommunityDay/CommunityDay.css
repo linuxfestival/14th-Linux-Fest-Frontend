@@ -14,7 +14,7 @@
 }
 .community-hero__layout {
   display: grid;
-  gap: 3rem;
+  gap: 2rem;
   grid-template-columns: 1fr;
   position: relative;
   z-index: 1;
@@ -23,7 +23,7 @@
   align-self: center;
   padding-top: 1rem;
 }
-.community-hero__copy > p:first-child {
+.community-hero__headline > p:first-child {
   margin-bottom: 1.35rem;
 }
 .community-hero h1 {
@@ -80,11 +80,27 @@
   color: var(--ink) !important;
 }
 .community-hero__collage {
-  height: 24rem;
+  align-items: center;
+  display: flex;
+  height: clamp(17rem, 78vw, 24rem);
+  justify-content: center;
   margin-inline: auto;
   max-width: 31rem;
   position: relative;
   width: 100%;
+}
+.community-hero__mascot {
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.community-hero__actions {
+  align-items: stretch;
+  gap: 0.75rem;
+}
+.community-hero__lineup-link {
+  justify-content: center;
+  min-height: 2.75rem;
 }
 .community-hero__photo {
   filter: saturate(0.82) contrast(1.08);
@@ -316,8 +332,8 @@
 .community-talk-list button {
   color: #f7f1e5;
   display: grid;
-  gap: 1rem;
-  grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
   padding: 1rem 0;
   text-align: right;
   transition:
@@ -353,11 +369,13 @@
 }
 .community-talk-list__time {
   color: #cad8ee;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
+  grid-column: 2;
+  grid-row: 2;
   line-height: 1.7;
-  padding-top: 0.35rem;
-  text-align: left;
+  padding-top: 0;
+  text-align: right;
 }
 .community-break {
   border-bottom: 1px solid rgba(202, 216, 238, 0.2);
@@ -484,14 +502,38 @@
   transform: translateY(-3px);
 }
 @media (min-width: 640px) {
+  .community-hero__actions {
+    align-items: center;
+    gap: 1rem;
+  }
+  .community-hero__lineup-link {
+    justify-content: flex-start;
+    min-height: 0;
+  }
   .community-hero__collage {
     height: 29rem;
+  }
+  .community-talk-list button {
+    gap: 1rem;
+    grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  }
+  .community-talk-list__time {
+    font-size: 1rem;
+    grid-column: auto;
+    grid-row: auto;
+    padding-top: 0.35rem;
+    text-align: left;
   }
   .community-lineup__grid {
     grid-template-columns: repeat(3, 1fr);
   }
   .community-lineup__grid article {
     min-height: 20rem;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .community-hero__collage {
+    height: clamp(18rem, 42vw, 20rem);
   }
 }
 @media (min-width: 1024px) {
@@ -501,6 +543,7 @@
     min-height: 42rem;
   }
   .community-hero__copy {
+    display: block;
     padding-top: 0;
   }
   .community-hero__collage {
@@ -530,6 +573,20 @@
     transform: translateY(3.5rem);
   }
 }
+@media (max-width: 1023px) {
+  .community-hero__copy {
+    display: contents;
+  }
+  .community-hero__headline {
+    order: 1;
+  }
+  .community-hero__collage {
+    order: 2;
+  }
+  .community-hero__cta {
+    order: 3;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .community-hero__marquee-track {
     animation: none;
@@ -541,5 +598,10 @@
     animation-duration: 0.01ms !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+@media (hover: none) {
+  .community-lineup__grid img {
+    filter: grayscale(0) contrast(1);
   }
 }

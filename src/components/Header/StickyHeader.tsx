@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { HiArrowLeft, HiBars3, HiXMark, HiUser } from "react-icons/hi2";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import ShoppingCart from "./components/ShoppingCart";
-import logo from "../../assets/logo.png";
+import logoLight from "../../assets/logo_light.png";
 import { isNavigationActive, siteNavigation } from "./navigation";
 
 const focus =
@@ -80,7 +80,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
             className={`flex shrink-0 items-center gap-2 rounded-md ${focus}`}
           >
             <img
-              src={logo}
+              src={logoLight}
               width={40}
               height={40}
               className="size-10 object-contain"
