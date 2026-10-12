@@ -21,8 +21,7 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
   const full = item.remaining === 0;
   const isInstallFest =
     item.id === 23 && item.service === PresentationService.PACKAGE;
-  const featured =
-    item.service === PresentationService.PACKAGE && !isInstallFest;
+  const featured = item.service === PresentationService.PACKAGE && !isInstallFest;
   const workshop = item.service === PresentationService.WORKSHOP;
   const Icon =
     featured || isInstallFest

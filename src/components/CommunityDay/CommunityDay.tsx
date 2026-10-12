@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   HiArrowLeft,
   HiCalendarDays,
@@ -10,6 +11,10 @@ import {
 } from "react-icons/hi2";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import WorkshopCartAction from "../WorkshopsList/components/WorkshopCartAction";
+import { useAppDispatch } from "../../store";
+import { selectIsAuthenticated } from "../../core/auth/auth.selector";
+import { getCartThunk } from "../../core/cart/cart.thunk";
 import arianAhmadi from "../../assets/community/arian-ahmidi.jpg";
 import mohammadMoslemi from "../../assets/community/mohammad-moslemi.jpg";
 import erfanAlimohammadi from "../../assets/community/erfan-alimohammadi.jpg";
@@ -24,6 +29,7 @@ const focus =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
 
 const MARQUEE_COPIES = [0, 1, 2];
+const COMMUNITY_DAY_PRESENTATION_ID = 24;
 
 const talks = [
   {
@@ -78,6 +84,8 @@ const talks = [
 ];
 
 const CommunityDay = () => {
+  const dispatch = useAppDispatch();
+  const authenticated = useSelector(selectIsAuthenticated);
   const [activeTalk, setActiveTalk] = useState(0);
   const timelineItems = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -98,6 +106,11 @@ const CommunityDay = () => {
     items.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (authenticated)
+      void dispatch(getCartThunk({ suppressErrorToast: true }));
+  }, [authenticated, dispatch]);
 
   const active = talks[activeTalk];
 
@@ -129,9 +142,19 @@ const CommunityDay = () => {
             </div>
             <div className="community-hero__cta">
               <div className="community-hero__actions mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                <button type="button" className={`community-ticket ${focus}`}>
-                  خرید بلیت <HiTicket className="size-5" aria-hidden="true" />
-                </button>
+                <WorkshopCartAction
+                  id={COMMUNITY_DAY_PRESENTATION_ID}
+                  unavailable={false}
+                  featured={false}
+                  redirectTo="/profile/cart/list"
+                  labels={{
+                    add: "خرید بلیت",
+                    inCart: "مشاهده سبد خرید",
+                    purchased: "ثبت‌نام شده",
+                  }}
+                  icon={<HiTicket className="size-5" aria-hidden="true" />}
+                  className={`community-ticket ${focus} !mt-0 !w-full !rounded-full sm:!w-auto`}
+                />
                 <a
                   href="#lineup"
                   className={`community-hero__lineup-link inline-flex items-center gap-2 font-extrabold underline decoration-2 underline-offset-8 hover:text-white ${focus}`}
@@ -140,9 +163,6 @@ const CommunityDay = () => {
                   <HiArrowLeft className="size-5" aria-hidden="true" />
                 </a>
               </div>
-              <p className="mt-4 text-sm font-medium">
-                فروش بلیت به‌زودی فعال می‌شود.
-              </p>
             </div>
           </div>
           <div
@@ -284,9 +304,19 @@ const CommunityDay = () => {
                 <HiMapPin aria-hidden="true" /> دانشگاه صنعتی امیرکبیر، سالن
                 مولانا
               </p>
-              <button type="button" className="community-location__ticket">
-                خرید بلیت <HiTicket aria-hidden="true" />
-              </button>
+              <WorkshopCartAction
+                id={COMMUNITY_DAY_PRESENTATION_ID}
+                unavailable={false}
+                featured={false}
+                redirectTo="/profile/cart/list"
+                labels={{
+                  add: "خرید بلیت",
+                  inCart: "مشاهده سبد خرید",
+                  purchased: "ثبت‌نام شده",
+                }}
+                icon={<HiTicket className="size-5" aria-hidden="true" />}
+                className="community-location__ticket !mt-7 !w-auto !rounded-full"
+              />
             </div>
           </div>
         </section>

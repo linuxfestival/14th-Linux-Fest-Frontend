@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../../store";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector";
@@ -17,6 +18,8 @@ const WorkshopCartAction = ({
   featured,
   className = "",
   labels,
+  redirectTo,
+  icon,
 }: {
   id: number;
   unavailable: boolean;
@@ -26,9 +29,13 @@ const WorkshopCartAction = ({
     add?: string;
     remove?: string;
     purchased?: string;
+    inCart?: string;
   };
+  redirectTo?: string;
+  icon?: ReactNode;
 }) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const authenticated = useSelector(selectIsAuthenticated);
   const cartItem = useSelector(selectItemInCartById(id));
   const { bundles, loading, error } = useSelector(selectCartState);
@@ -39,6 +46,10 @@ const WorkshopCartAction = ({
 
   const updateCart = async () => {
     if (purchased || pending || loading || error) return;
+    if (cartItem && redirectTo) {
+      navigate(redirectTo);
+      return;
+    }
     if (bundled && !bundleSelection) {
       toast.info("برای حذف این برنامه، کل بسته را از سبد خرید حذف کنید.");
       return;
@@ -54,8 +65,10 @@ const WorkshopCartAction = ({
           ? await dispatch(removeBundleFromCartThunk(bundleSelection.bundle.id))
           : await dispatch(removeItemFromCartThunk(cartItem.presentation.id))
         : await dispatch(addItemToCartThunk(id));
-      if (result.meta.requestStatus === "fulfilled")
+      if (result.meta.requestStatus === "fulfilled") {
         await dispatch(getCartThunk());
+        if (redirectTo) navigate(redirectTo);
+      }
     } finally {
       setPending(false);
     }
@@ -76,10 +89,15 @@ const WorkshopCartAction = ({
         : pending
         ? "در حال به‌روزرسانی…"
         : cartItem
-          ? bundled ? "حذف کل بسته از سبد خرید" : labels?.remove || "حذف از سبد خرید"
+          ? redirectTo
+            ? labels?.inCart || "مشاهده سبد خرید"
+            : bundled
+              ? "حذف کل بسته از سبد خرید"
+              : labels?.remove || "حذف از سبد خرید"
           : unavailable
             ? "ثبت‌نام در دسترس نیست"
             : labels?.add || "اضافه به سبد خرید"}
+      {icon}
     </button>
   );
 };
