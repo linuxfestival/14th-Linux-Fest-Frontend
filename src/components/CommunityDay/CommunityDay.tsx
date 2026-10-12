@@ -49,7 +49,7 @@ const talks = [
     image: arianEbrahimpour,
   },
   {
-    speaker: "مصطفی مشکاتی",
+    speaker: "سید مصطفی مشکاتی",
     title:
       "تجربه‌ی سرو مدل‌های open-weight: گلوگاه‌ها کجا بودن و چطور ردشون کردیم",
     detail:
@@ -219,7 +219,7 @@ const CommunityDay = () => {
                     alt={`تصویر موقت ${active.speaker}`}
                     className="community-talk-detail__image"
                   />
-                  <span>ارائه {activeTalk + 1} از ۶</span>
+                  <span>ارائه {digitsToPersian(activeTalk + 1)} از ۶</span>
                 </div>
                 <div className="community-talk-detail__body">
                   <p className="font-bold text-[#f2a11b]">{active.speaker}</p>
