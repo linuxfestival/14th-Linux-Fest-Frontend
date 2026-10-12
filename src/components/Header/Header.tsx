@@ -18,12 +18,49 @@ interface Props {
   landingOnLight?: boolean;
 }
 
+const COMMUNITY_DAY_NOTICE_DISMISSED =
+  "linux-fest-community-day-notice-dismissed";
+
+const CommunityDayRegistrationNotice = ({
+  onDismiss,
+}: {
+  onDismiss: () => void;
+}) => (
+  <aside
+    role="status"
+    aria-label="ثبت‌نام روز جامعه آغاز شده است"
+    className="fixed inset-x-0 top-0 z-[60] bg-secondary text-primary shadow-[0_6px_18px_rgba(23,33,60,.16)]"
+    dir="rtl"
+  >
+    <div className="mx-auto flex min-h-12 w-full max-w-7xl items-center justify-center gap-3 px-4 text-sm font-bold sm:justify-between sm:px-8 lg:px-10">
+      <p>ثبت‌نام روز جامعه شروع شد!</p>
+      <div className="flex items-center gap-2">
+        <Link
+          to="/community-day"
+          className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3 text-xs font-extrabold text-white transition-colors hover:bg-[#234e86] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:px-4 sm:text-sm"
+        >
+          همین حالا
+        </Link>
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label="بستن اطلاعیه ثبت‌نام روز جامعه"
+          className="inline-flex size-9 items-center justify-center rounded-lg text-primary transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <IoClose className="size-5" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  </aside>
+);
+
 const LegacyHeader = ({
   sticky = true,
   contestStyle = false,
   landing = false,
   landingOnLight = false,
-}: Props) => {
+  registrationNoticeVisible = false,
+}: Props & { registrationNoticeVisible?: boolean }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
   const menu = useRef<HTMLDialogElement>(null);
@@ -71,7 +108,7 @@ const LegacyHeader = ({
       className={clsx(
         landing
           ? `relative z-5 mx-auto flex w-[calc(100%-2rem)] max-w-7xl flex-row-reverse items-center justify-between bg-transparent p-0 ${landingOnLight ? "text-primary" : "text-text-white"} md:w-[calc(100%-4rem)] md:py-5`
-          : "top-0 left-0 z-5 flex w-full flex-row-reverse items-center justify-between bg-light-gray text-text-white p-[10px] lg:left-1/2 lg:top-[25px] lg:w-3/4 lg:-translate-x-1/2 lg:rounded-[26px]",
+          : `${registrationNoticeVisible ? "top-12 lg:top-[73px]" : "top-0 lg:top-[25px]"} left-0 z-5 flex w-full flex-row-reverse items-center justify-between bg-light-gray text-text-white p-[10px] lg:left-1/2 lg:w-3/4 lg:-translate-x-1/2 lg:rounded-[26px]`,
         { ["fixed"]: sticky && !landing, ["absolute"]: !sticky && !landing },
         {
           ["!w-full !bg-transparent !shadow-none px-16"]: contestStyle,
@@ -138,15 +175,19 @@ const LegacyHeader = ({
           <NavLink
             key={item.to}
             to={item.to}
-            aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
+            aria-current={
+              isNavigationActive(item.to, pathname, hash) ? "page" : false
+            }
             end={item.to === "/"}
             className={() =>
-              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors focus-visible:outline-2 ${landingOnLight ? "hover:border-primary hover:text-primary focus-visible:outline-primary" : "hover:border-secondary hover:text-secondary focus-visible:outline-secondary"} ${isNavigationActive(item.to, pathname, hash) ? landingOnLight ? "border-primary text-primary" : "border-secondary text-secondary" : item.to === "/bundles" ? landingOnLight ? "border-primary/50 font-extrabold text-primary" : "border-secondary/50 font-extrabold text-secondary" : "border-transparent"}`
+              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors focus-visible:outline-2 ${landingOnLight ? "hover:border-primary hover:text-primary focus-visible:outline-primary" : "hover:border-secondary hover:text-secondary focus-visible:outline-secondary"} ${isNavigationActive(item.to, pathname, hash) ? (landingOnLight ? "border-primary text-primary" : "border-secondary text-secondary") : item.to === "/bundles" ? (landingOnLight ? "border-primary/50 font-extrabold text-primary" : "border-secondary/50 font-extrabold text-secondary") : "border-transparent"}`
             }
           >
             <span
               className={
-                item.to === "/install-fest" ? "install-fest-nav-label" : undefined
+                item.to === "/install-fest"
+                  ? "install-fest-nav-label"
+                  : undefined
               }
             >
               {item.label}
@@ -216,11 +257,17 @@ const LegacyHeader = ({
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
+                  aria-current={
+                    isNavigationActive(item.to, pathname, hash) ? "page" : false
+                  }
                   end={item.to === "/"}
                   onClick={() => setMenuOpen(false)}
                   className={() =>
-                    isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : item.to === "/bundles" ? "text-secondary" : undefined
+                    isNavigationActive(item.to, pathname, hash)
+                      ? "bg-white/5 text-secondary"
+                      : item.to === "/bundles"
+                        ? "text-secondary"
+                        : undefined
                   }
                 >
                   <span
@@ -278,23 +325,51 @@ const LegacyHeader = ({
         className="flex justify-center items-center gap-0 xl:gap-[10px]"
         aria-label="صفحه اصلی لینوکس‌فست"
       >
-        <img
-          src={headerLogo}
-          width={50}
-          height={50}
-          alt="نشان لینوکس‌فست"
-        />
+        <img src={headerLogo} width={50} height={50} alt="نشان لینوکس‌فست" />
         <p className="hidden xl:block text-2xl font-medium">لینوکس‌فست</p>
       </Link>
     </div>
   );
 };
 
-const Header = (props: Props) =>
-  props.landing || props.contestStyle ? (
-    <LegacyHeader {...props} />
-  ) : (
-    <StickyHeader sticky={props.sticky} />
+const Header = (props: Props) => {
+  const [registrationNoticeDismissed, setRegistrationNoticeDismissed] =
+    useState(() => {
+      try {
+        return window.localStorage.getItem(COMMUNITY_DAY_NOTICE_DISMISSED) === "true";
+      } catch {
+        return false;
+      }
+    });
+  const registrationNoticeVisible = !registrationNoticeDismissed;
+  const dismissRegistrationNotice = () => {
+    try {
+      window.localStorage.setItem(COMMUNITY_DAY_NOTICE_DISMISSED, "true");
+    } catch {
+      // Keep the notice dismissed for the current page when storage is unavailable.
+    }
+    setRegistrationNoticeDismissed(true);
+  };
+
+  return (
+    <>
+      {registrationNoticeVisible && (
+        <CommunityDayRegistrationNotice onDismiss={dismissRegistrationNotice} />
+      )}
+      {registrationNoticeVisible && <div aria-hidden="true" className="h-12" />}
+      {props.landing || props.contestStyle ? (
+        <LegacyHeader
+          {...props}
+          registrationNoticeVisible={registrationNoticeVisible}
+        />
+      ) : (
+        <StickyHeader
+          sticky={props.sticky}
+          registrationNoticeVisible={registrationNoticeVisible}
+        />
+      )}
+    </>
   );
+};
 
 export default Header;

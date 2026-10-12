@@ -32,7 +32,7 @@ const experiences = [
     imageAlt: "شرکت‌کنندگان لینوکس‌فست در سالن همایش",
     width: 1280,
     height: 853,
-    links: [{ label: "پرسش‌های متداول", to: "/faq" }],
+    links: [{ label: "ثبت‌نام روز جامعه", to: "/community-day" }],
   },
 ];
 

@@ -11,7 +11,13 @@ const focus =
   "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary";
 const signupClass = `min-h-11 items-center justify-center rounded-lg bg-secondary px-5 text-sm font-extrabold text-primary transition-colors hover:bg-[#e58210] ${focus}`;
 
-const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
+const StickyHeader = ({
+  sticky = true,
+  registrationNoticeVisible = false,
+}: {
+  sticky?: boolean;
+  registrationNoticeVisible?: boolean;
+}) => {
   const authenticated = useSelector(selectIsAuthenticated);
   const { pathname, hash } = useLocation();
   const [open, setOpen] = useState(false);
@@ -70,7 +76,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
         )
           setOpen(false);
       }}
-      className={`${sticky ? "fixed" : "absolute"} inset-x-0 top-0 z-50 text-text-white sm:inset-x-6 sm:top-4 lg:inset-x-8`}
+      className={`${sticky ? "fixed" : "absolute"} inset-x-0 ${registrationNoticeVisible ? "top-12 sm:top-16" : "top-0 sm:top-4"} z-50 text-text-white sm:inset-x-6 lg:inset-x-8`}
     >
       <div className="mx-auto max-w-7xl bg-primary shadow-[0_8px_28px_rgba(11,13,49,0.16)] sm:rounded-xl">
         <div className="flex min-h-20 items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:gap-6">
