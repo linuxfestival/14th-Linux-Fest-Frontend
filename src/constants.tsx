@@ -93,6 +93,12 @@ export const PageMetaInformation: Record<string, PageInformationOptions> = {
       "Install Fest رایگان در دانشگاه صنعتی امیرکبیر؛ برای همه، از تازه‌کار تا باتجربه.",
     keywords: ["Install Fest", "لینوکس", "امیرکبیر", "متن‌باز"],
   },
+  ["/community-day"]: {
+    title: "Community Day | روز جامعه",
+    description:
+      "روز جامعه لینوکس‌فست؛ شش ارائه، فرصت شبکه‌سازی و دورهمی علاقه‌مندان به لینوکس و متن‌باز.",
+    keywords: ["Community Day", "روز جامعه", "لینوکس‌فست", "متن‌باز", "ارائه"],
+  },
   ["/faq"]: {
     title: "سوالات متداول",
     description: "سوالات متداول درباره جشنواره لینوکس",

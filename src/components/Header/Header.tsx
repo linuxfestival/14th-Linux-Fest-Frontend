@@ -14,12 +14,14 @@ interface Props {
   sticky?: boolean;
   contestStyle?: boolean;
   landing?: boolean;
+  landingOnLight?: boolean;
 }
 
 const LegacyHeader = ({
   sticky = true,
   contestStyle = false,
   landing = false,
+  landingOnLight = false,
 }: Props) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -66,25 +68,35 @@ const LegacyHeader = ({
     <div
       className={clsx(
         landing
-          ? "relative z-5 mx-auto flex w-[calc(100%-2rem)] max-w-7xl flex-row-reverse items-center justify-between bg-transparent p-0 text-text-white md:w-[calc(100%-4rem)] md:py-5"
+          ? `relative z-5 mx-auto flex w-[calc(100%-2rem)] max-w-7xl flex-row-reverse items-center justify-between bg-transparent p-0 ${landingOnLight ? "text-primary" : "text-text-white"} md:w-[calc(100%-4rem)] md:py-5`
           : "top-0 left-0 z-5 flex w-full flex-row-reverse items-center justify-between bg-light-gray text-text-white p-[10px] lg:left-1/2 lg:top-[25px] lg:w-3/4 lg:-translate-x-1/2 lg:rounded-[26px]",
         { ["fixed"]: sticky && !landing, ["absolute"]: !sticky && !landing },
         {
           ["!w-full !bg-transparent !shadow-none px-16"]: contestStyle,
           ["[&>nav]:!gap-3 xl:[&>nav]:!gap-6 [&>nav]:!text-[.92rem] [&_.bg-secondary]:!bg-secondary [&_.bg-secondary]:!font-extrabold [&_.bg-secondary]:!text-primary [&_img]:!size-10 [&_img]:!object-contain [&_p]:!text-2xl [&_p]:!font-black"]:
             landing,
-          ["shadow-md"]: !contestStyle,
+          ["shadow-md"]: !contestStyle && !landing,
         },
       )}
     >
       <div className="hidden xl:flex flex-row-reverse justify-start items-center gap-[10px] w-max max-w-[200px]">
         {isAuthenticated ? (
           <>
-            <ShoppingCart className="mx-2" />
+            <ShoppingCart
+              className={clsx(
+                "mx-2",
+                landingOnLight && "focus-visible:!outline-primary",
+              )}
+            />
             <Link
               to="/profile/edit"
               aria-label="حساب کاربری"
-              className="flex size-11 items-center justify-center rounded-lg hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-secondary"
+              className={clsx(
+                "flex size-11 items-center justify-center rounded-lg hover:bg-white/10 focus-visible:outline-2",
+                landingOnLight
+                  ? "hover:bg-primary/10 focus-visible:outline-primary"
+                  : "focus-visible:outline-secondary",
+              )}
             >
               <IoPerson size={30} aria-hidden="true" />
             </Link>
@@ -93,7 +105,14 @@ const LegacyHeader = ({
           !contestStyle && (
             <>
               <Link to="/signup" className="!w-full">
-                <Button size={ButtonSizes.MEDIUM} className="!w-full">
+                <Button
+                  size={ButtonSizes.MEDIUM}
+                  className={clsx(
+                    "!w-full",
+                    landingOnLight &&
+                      "!bg-primary !text-[#f4efe4] hover:!bg-[#234e86] focus-visible:!outline-primary",
+                  )}
+                >
                   ساخت حساب
                 </Button>
               </Link>
@@ -120,7 +139,7 @@ const LegacyHeader = ({
             aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
             end={item.to === "/"}
             className={() =>
-              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isNavigationActive(item.to, pathname, hash) ? "border-secondary text-secondary" : item.to === "/bundles" ? "border-secondary/50 font-extrabold text-secondary" : "border-transparent"}`
+              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors focus-visible:outline-2 ${landingOnLight ? "hover:border-primary hover:text-primary focus-visible:outline-primary" : "hover:border-secondary hover:text-secondary focus-visible:outline-secondary"} ${isNavigationActive(item.to, pathname, hash) ? landingOnLight ? "border-primary text-primary" : "border-secondary text-secondary" : item.to === "/bundles" ? landingOnLight ? "border-primary/50 font-extrabold text-primary" : "border-secondary/50 font-extrabold text-secondary" : "border-transparent"}`
             }
           >
             <span
@@ -137,7 +156,12 @@ const LegacyHeader = ({
       <button
         ref={menuToggle}
         type="button"
-        className="inline-flex size-12 items-center justify-center rounded-lg text-text-white outline-offset-4 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-secondary xl:hidden"
+        className={clsx(
+          "inline-flex size-12 items-center justify-center rounded-lg outline-offset-4 focus-visible:outline-2 xl:hidden",
+          landingOnLight
+            ? "text-primary hover:bg-primary/10 focus-visible:outline-primary"
+            : "text-text-white hover:bg-white/10 focus-visible:outline-secondary",
+        )}
         onClick={toggleMenu}
         aria-label="باز کردن منو"
         aria-expanded={menuOpen}
