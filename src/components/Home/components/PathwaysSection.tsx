@@ -18,7 +18,7 @@ const pathways = [
     imageAlt: "تصویر ترمینال",
   },
   {
-    title: "جشن نصب",
+    title: "Install Fest",
     copy: "لپ‌تاپت رو بیار تا به کمک هم لینوکس نصب کنیم!",
     image: UsbIllustration,
     imageAlt: "تصویر پنگوئن و فلش نصب",

@@ -15,10 +15,18 @@ const WorkshopCartAction = ({
   id,
   unavailable,
   featured,
+  className = "",
+  labels,
 }: {
   id: number;
   unavailable: boolean;
   featured: boolean;
+  className?: string;
+  labels?: {
+    add?: string;
+    remove?: string;
+    purchased?: string;
+  };
 }) => {
   const dispatch = useAppDispatch();
   const authenticated = useSelector(selectIsAuthenticated);
@@ -61,17 +69,17 @@ const WorkshopCartAction = ({
       aria-busy={pending}
       data-featured={featured}
       data-state={purchased ? "purchased" : cartItem ? "in-cart" : unavailable ? "unavailable" : "available"}
-      className="presentation-cart-action mt-4 w-full rounded-lg px-4 py-3 text-sm font-extrabold transition-colors disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray"
+      className={`presentation-cart-action mt-4 w-full rounded-lg px-4 py-3 text-sm font-extrabold transition-colors disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dark-gray ${className}`}
     >
       {purchased
-        ? "خریداری شده"
+        ? labels?.purchased || "خریداری شده"
         : pending
         ? "در حال به‌روزرسانی…"
         : cartItem
-          ? bundled ? "حذف کل بسته از سبد خرید" : "حذف از سبد خرید"
+          ? bundled ? "حذف کل بسته از سبد خرید" : labels?.remove || "حذف از سبد خرید"
           : unavailable
             ? "ثبت‌نام در دسترس نیست"
-            : "اضافه به سبد خرید"}
+            : labels?.add || "اضافه به سبد خرید"}
     </button>
   );
 };

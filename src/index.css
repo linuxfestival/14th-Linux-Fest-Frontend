@@ -52,6 +52,30 @@ html {
     .animate-marquee {
         animation: none;
     }
+
+    .install-fest-nav-label {
+        animation: none;
+    }
+}
+
+.install-fest-nav-label {
+    animation: install-fest-nav-shine 5.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes install-fest-nav-shine {
+    0%,
+    70%,
+    100% {
+        text-shadow: 0 0 0 transparent;
+    }
+
+    77% {
+        text-shadow: 0 0 7px rgba(247, 148, 29, 0.92), 0 0 16px rgba(247, 148, 29, 0.42);
+    }
+
+    91% {
+        text-shadow: 0 0 0 transparent;
+    }
 }
 
 ::selection { background: #F7941D; color: #0B0D31; }

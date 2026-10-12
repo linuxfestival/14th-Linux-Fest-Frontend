@@ -123,7 +123,13 @@ const LegacyHeader = ({
               `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isNavigationActive(item.to, pathname, hash) ? "border-secondary text-secondary" : item.to === "/bundles" ? "border-secondary/50 font-extrabold text-secondary" : "border-transparent"}`
             }
           >
-            {item.label}
+            <span
+              className={
+                item.to === "/install-fest" ? "install-fest-nav-label" : undefined
+              }
+            >
+              {item.label}
+            </span>
           </NavLink>
         ))}
       </nav>
@@ -186,7 +192,15 @@ const LegacyHeader = ({
                     isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : item.to === "/bundles" ? "text-secondary" : undefined
                   }
                 >
-                  {item.label}
+                  <span
+                    className={
+                      item.to === "/install-fest"
+                        ? "install-fest-nav-label"
+                        : undefined
+                    }
+                  >
+                    {item.label}
+                  </span>
                 </NavLink>
               ))}
             </nav>

@@ -102,7 +102,15 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                   `relative rounded-lg px-3 py-3 text-sm font-medium transition-colors ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:rounded-full after:bg-secondary" : item.to === "/bundles" ? "font-extrabold text-secondary hover:bg-white/5" : "text-text-gray hover:bg-white/5 hover:text-white"}`
                 }
               >
-                {item.label}
+                <span
+                  className={
+                    item.to === "/install-fest"
+                      ? "install-fest-nav-label"
+                      : undefined
+                  }
+                >
+                  {item.label}
+                </span>
               </NavLink>
             ))}
           </nav>
@@ -174,7 +182,15 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                 >
                   {() => (
                     <>
-                      {item.label}
+                      <span
+                        className={
+                          item.to === "/install-fest"
+                            ? "install-fest-nav-label"
+                            : undefined
+                        }
+                      >
+                        {item.label}
+                      </span>
                       {isNavigationActive(item.to, pathname, hash) && (
                         <HiArrowLeft className="size-5" aria-hidden="true" />
                       )}

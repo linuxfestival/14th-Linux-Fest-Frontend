@@ -17,7 +17,7 @@ const EventFormat = () => (
       </h1>
       <p className={`${paragraph} mt-5`}>
         سه روز برای یاد گرفتن، امتحان کردن و آشنا شدن با هم. از ارائه‌های آنلاین
-        و جشن نصب تا کارگاه‌های عملی و دورهمی جمعه؛ اینجا ببین هر بخش چطور
+        و <bdi lang="en">Install Fest</bdi> تا کارگاه‌های عملی و دورهمی جمعه؛ اینجا ببین هر بخش چطور
         برگزار می‌شه و قبل از شرکت چه چیزهایی رو باید بررسی کنی.
       </p>
 
@@ -70,15 +70,15 @@ const EventFormat = () => (
               </p>
             </article>
             <article className="mt-9">
-              <h3 className={heading}>جشن نصب لینوکس</h3>
+              <h3 className={heading}><bdi lang="en">Install Fest</bdi> لینوکس</h3>
               <p className={paragraph}>
-                «جشن نصب» یا <bdi lang="en">Install Fest</bdi> جاییه که می‌تونی
+                <bdi lang="en">Install Fest</bdi> جاییه که می‌تونی
                 برای نصب لینوکس روی کامپیوترت از بقیه کمک بگیری. اگر با لینوکس
                 آشنا نیستی، می‌تونی سوال‌هات رو بپرسی و با علاقه‌مندان لینوکس و
                 متن‌باز گپ بزنی.
               </p>
               <p className="mt-5 max-w-prose rounded-xl bg-indigo/15 px-5 py-4 text-base leading-8 text-primary">
-                قصد نصب لینوکس داری؟ قبل از اومدن، راهنمای آمادگی جشن نصب رو
+                قصد نصب لینوکس داری؟ قبل از اومدن، راهنمای آمادگی <bdi lang="en">Install Fest</bdi> رو
                 بررسی کن تا بدونی چه چیزهایی رو باید از قبل آماده کنی.
               </p>
             </article>

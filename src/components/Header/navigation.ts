@@ -1,7 +1,7 @@
 export const siteNavigation = [
   { to: "/", label: "خانه" },
   { to: "/workshops", label: "ارائه‌ها" },
-  { to: "/faq", label: "سوالات متداول" },
+  { to: "/install-fest", label: "Install Fest" },
   { to: "/presenters", label: "ارائه‌دهندگان" },
   { to: "/staff", label: "استف" },
   { to: "/#sponsor", label: "پیام حامی" },

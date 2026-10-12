@@ -27,6 +27,7 @@ const Onboarding = React.lazy(
 );
 const FAQ = React.lazy(() => import("./components/FAQ/FAQ.tsx"));
 const EventFormat = React.lazy(() => import("./components/EventFormat/EventFormat.tsx"));
+const InstallFest = React.lazy(() => import("./components/InstallFest/InstallFest.tsx"));
 const PaymentStatus = React.lazy(
   () => import("./components/PaymentStatus/PaymentStatus.tsx"),
 );
@@ -220,6 +221,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Fallback />}>
             <EventFormat />
+          </Suspense>
+        ),
+      },
+      {
+        path: "install-fest",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <InstallFest />
           </Suspense>
         ),
       },
