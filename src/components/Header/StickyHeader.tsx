@@ -24,7 +24,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
   }, [pathname]);
 
   useEffect(() => {
-    const wideScreen = window.matchMedia("(min-width: 1024px)");
+    const wideScreen = window.matchMedia("(min-width: 1280px)");
     const close = () => setOpen(false);
     wideScreen.addEventListener("change", close);
     return () => wideScreen.removeEventListener("change", close);
@@ -90,7 +90,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
           </Link>
           <nav
             aria-label="ناوبری اصلی"
-            className="hidden items-center gap-1 lg:flex xl:gap-3"
+            className="hidden items-center gap-1 xl:flex xl:gap-1 2xl:gap-3"
           >
             {siteNavigation.map((item) => (
               <NavLink
@@ -99,7 +99,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                 aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
                 end={item.to === "/"}
                 className={() =>
-                  `relative rounded-lg px-3 py-3 text-sm font-medium transition-colors ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:rounded-full after:bg-secondary" : "text-text-gray hover:bg-white/5 hover:text-white"}`
+                  `relative rounded-lg px-3 py-3 text-sm font-medium transition-colors ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:rounded-full after:bg-secondary" : item.to === "/bundles" ? "font-extrabold text-secondary hover:bg-white/5" : "text-text-gray hover:bg-white/5 hover:text-white"}`
                 }
               >
                 {item.label}
@@ -128,7 +128,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                 </Link>
                 <Link
                   to="/signup"
-                  className={`hidden lg:inline-flex ${signupClass}`}
+                  className={`hidden xl:inline-flex ${signupClass}`}
                 >
                   ساخت حساب
                 </Link>
@@ -141,7 +141,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
               aria-label={open ? "بستن منو" : "باز کردن منو"}
               aria-expanded={open}
               aria-controls="sticky-mobile-navigation"
-              className={`inline-flex size-11 items-center justify-center rounded-lg text-indigo hover:bg-white/10 lg:hidden ${focus}`}
+              className={`inline-flex size-11 items-center justify-center rounded-lg text-indigo hover:bg-white/10 xl:hidden ${focus}`}
             >
               {open ? (
                 <HiXMark className="size-6" aria-hidden="true" />
@@ -155,7 +155,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
           <div
             ref={menu}
             id="sticky-mobile-navigation"
-            className="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-indigo/20 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 sm:max-h-[calc(100dvh-7rem)] sm:px-5 lg:hidden"
+            className="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-indigo/20 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 sm:max-h-[calc(100dvh-7rem)] sm:px-5 xl:hidden"
           >
             <nav aria-label="ناوبری موبایل" className="flex flex-col gap-1">
               {siteNavigation.map((item) => (
@@ -169,7 +169,7 @@ const StickyHeader = ({ sticky = true }: { sticky?: boolean }) => {
                     toggle.current?.focus();
                   }}
                   className={() =>
-                    `flex min-h-12 items-center justify-between rounded-lg px-3 py-3 text-base font-bold ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : "text-text-gray hover:bg-white/5 hover:text-white"}`
+                    `flex min-h-12 items-center justify-between rounded-lg px-3 py-3 text-base font-bold ${focus} ${isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : item.to === "/bundles" ? "font-extrabold text-secondary hover:bg-white/5" : "text-text-gray hover:bg-white/5 hover:text-white"}`
                   }
                 >
                   {() => (

@@ -10,6 +10,8 @@ import {
   getAccessoriesListThunk,
   getCouponStatusThunk,
 } from "../../../../core/cart/cart.thunk";
+import { standaloneCartItems } from "../../../../core/cart/cart.pricing";
+import { cartErrorText } from "../../../../core/cart/cart.errors";
 import { finalizePaymentThunk } from "../../../../core/payment/payment.thunk";
 import AuthField from "../../../Auth/AuthField";
 import SelectableCard from "../components/SelectableCard";
@@ -31,6 +33,9 @@ const CartPayment = () => {
   const [accessoryError, setAccessoryError] = useState(false);
   const {
     items,
+    bundles,
+    loading: cartLoading,
+    error: cartError,
     totalAmount,
     couponStatus,
     discountedAmount,
@@ -61,9 +66,11 @@ const CartPayment = () => {
   );
   const hasDiscount =
     !!appliedCoupon && couponStatus?.is_valid && discountedAmount !== undefined;
-  const pending = items.filter((item) => item.payment_state !== "COMPLETED");
+  const pending = standaloneCartItems(items);
+  const couponEligible = pending.length > 0 || (bundles.length === 0 && selectedAccessories.length > 0);
   const applyCoupon = async () => {
-    if (!coupon.trim() || couponLoading || paymentLoading) return;
+    if (!coupon.trim() || !couponEligible || cartLoading || cartError || couponLoading || paymentLoading) return;
+    dispatch(cartActions.clearCoupon());
     setCouponLoading(true);
     setCouponError("");
     const value = coupon.trim();
@@ -85,16 +92,18 @@ const CartPayment = () => {
   const pay = async () => {
     if (
       paymentLoading ||
+      cartLoading ||
+      cartError ||
       couponLoading ||
       accessoryLoading ||
       !user ||
-      (!pending.length && !selectedAccessories.length)
+      (!pending.length && !bundles.length && !selectedAccessories.length)
     )
       return;
     setPaymentError("");
     const result = await dispatch(
       finalizePaymentThunk({
-        coupon: hasDiscount ? appliedCoupon : "",
+        coupon: hasDiscount && couponEligible ? appliedCoupon : "",
         accessories: selectedAccessories,
       }),
     );
@@ -109,8 +118,7 @@ const CartPayment = () => {
           result.payload.data?.detail || "پرداخت انجام نشد. دوباره تلاش کنید.",
         );
     } else {
-      const payload = result.payload as { detail?: string } | undefined;
-      setPaymentError(payload?.detail || "پرداخت انجام نشد. دوباره تلاش کنید.");
+      setPaymentError(cartErrorText(result.payload));
     }
   };
   return (
@@ -187,6 +195,10 @@ const CartPayment = () => {
               <dd>{priceText(pending.length)}</dd>
             </div>
             <div className="flex justify-between gap-3">
+              <dt>بسته‌ها</dt>
+              <dd>{priceText(bundles.length)}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
               <dt>مرچ</dt>
               <dd>{priceText(selectedAccessories.length)}</dd>
             </div>
@@ -199,7 +211,7 @@ const CartPayment = () => {
               void applyCoupon();
             }}
           >
-            <fieldset disabled={couponLoading || paymentLoading}>
+            <fieldset disabled={!couponEligible || couponLoading || paymentLoading || cartLoading || cartError}>
               <AuthField
                 label="کد تخفیف"
                 name="coupon"
@@ -220,6 +232,7 @@ const CartPayment = () => {
                 {couponLoading ? "در حال بررسی…" : "اعمال کد تخفیف"}
               </button>
             </fieldset>
+            {bundles.length > 0 && <p className="mt-3 text-xs leading-6 text-dark-gray">کد تخفیف روی قیمت بسته‌ها اعمال نمی‌شود.</p>}
             {hasDiscount && (
               <p
                 role="status"
@@ -241,6 +254,7 @@ const CartPayment = () => {
               <span className="text-xs font-normal">تومان</span>
             </p>
           </div>
+          {cartError && <p role="alert" className="mt-4 text-sm leading-7 text-ubuntu-red">دریافت سبد خرید ناموفق بود. برای دریافت دوباره به سبد خرید برگردید.</p>}
           {paymentError && (
             <p role="alert" className="mt-4 text-sm leading-7 text-ubuntu-red">
               {paymentError}
@@ -252,9 +266,11 @@ const CartPayment = () => {
             loading={paymentLoading}
             disabled={
               couponLoading ||
+              cartLoading ||
+              cartError ||
               accessoryLoading ||
               !user ||
-              (!pending.length && !selectedAccessories.length)
+              (!pending.length && !bundles.length && !selectedAccessories.length)
             }
             className="mt-6 w-full"
           >

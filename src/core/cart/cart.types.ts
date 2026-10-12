@@ -6,6 +6,7 @@ import {
 
 export interface CartItemDto {
   id: number;
+  bundle_selection?: number | null;
   presentation: PresentationDto;
   payment_state: PaymentState;
   service_type: PresentationService;

@@ -1,13 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   addItemToCartThunk,
+  addBundleToCartThunk,
+  removeBundleFromCartThunk,
   getAccessoriesListThunk,
   getCartThunk,
   getCouponStatusThunk,
   removeItemFromCartThunk,
 } from "./cart.thunk";
 import { CartItemDto } from "./cart.types";
-import { selectPresentationById } from "../presentations/presentations.selector";
+import type { BundleSelectionDto } from "../bundles/bundles.types";
+import { calculateCartPrice, standaloneCartItems } from "./cart.pricing";
 import { CouponStatus, AccessoryDto } from "./cart.api.ts";
 import { logout } from "../auth/auth.slice.ts";
 
@@ -24,6 +27,9 @@ export const CartSteps = [
 
 export interface CartState {
   items: CartItemDto[];
+  bundles: BundleSelectionDto[];
+  error: boolean;
+  requestId?: string;
   count: number;
   totalAmount: number;
   step: CartPage;
@@ -37,6 +43,8 @@ export interface CartState {
 
 const initialState: CartState = {
   items: [],
+  bundles: [],
+  error: false,
   count: 0,
   totalAmount: 0,
   step: CartPage.Cart,
@@ -52,22 +60,27 @@ const cartSlice = createSlice({
   reducers: {
     clearCart(state) {
       state.items = [];
+      state.bundles = [];
+      state.count = 0;
+      state.couponStatus = undefined;
+      state.requestId = undefined;
       state.totalAmount = 0;
       state.selectedAccessories = [];
       state.discountedAmount = 0;
     },
     updateTotalAmount(state) {
-      state.totalAmount = state.items.reduce(
-        (acc, cur) =>
-          cur.payment_state === "PENDING" ? acc + cur.presentation.cost : acc,
-        0
-      );
-      state.totalAmount += state.accessoryList
-        .filter((el) => state.selectedAccessories.includes(el.id))
-        .reduce((acc, cur) => acc + cur.price, 0);
-      if (state.couponStatus != null && state.couponStatus.is_valid)
-        state.discountedAmount =
-          ((100 - state.couponStatus.percentage) / 100) * state.totalAmount;
+      const accessoryTotal = state.accessoryList
+        .filter(el => state.selectedAccessories.includes(el.id))
+        .reduce((total, item) => total + Number(item.price), 0);
+      const price = calculateCartPrice(state.items, state.bundles, accessoryTotal,
+        state.couponStatus?.is_valid ? state.couponStatus.percentage : 0);
+      state.totalAmount = price.totalAmount;
+      state.discountedAmount = state.couponStatus?.is_valid ? price.discountedAmount : undefined;
+      state.count = standaloneCartItems(state.items).length + state.bundles.length;
+    },
+    clearCoupon(state) {
+      state.couponStatus = undefined;
+      state.discountedAmount = undefined;
     },
     setPage(state, action: PayloadAction<CartPage>) {
       state.step = action.payload;
@@ -96,15 +109,10 @@ const cartSlice = createSlice({
         state.loading = true;
       })
       .addCase(addItemToCartThunk.fulfilled, (state) => {
-        state.count++;
         state.loading = false;
         cartSlice.caseReducers.updateTotalAmount(state);
       })
-      .addCase(logout, (state) => {
-        state.items = [];
-        state.totalAmount = 0;
-        console.log("Cart cleared on logout");
-      })
+      .addCase(logout, () => initialState)
       .addCase(addItemToCartThunk.rejected, (state) => {
         state.loading = false;
       })
@@ -112,7 +120,6 @@ const cartSlice = createSlice({
         state.loading = true;
       })
       .addCase(removeItemFromCartThunk.fulfilled, (state) => {
-        state.count--;
         state.loading = false;
         cartSlice.caseReducers.updateTotalAmount(state);
       })
@@ -123,24 +130,30 @@ const cartSlice = createSlice({
         state.loading = true;
       })
       .addCase(getCouponStatusThunk.fulfilled, (state, action) => {
+        state.loading = false;
         state.couponStatus = action.payload;
         cartSlice.caseReducers.updateTotalAmount(state);
       })
       .addCase(removeItemFromCartThunk.rejected, (state) => {
         state.loading = false;
       })
-      .addCase(getCartThunk.pending, (state) => {
+      .addCase(getCartThunk.pending, (state, action) => {
         state.loading = true;
+        state.error = false;
+        state.requestId = action.meta.requestId;
       })
       .addCase(getCartThunk.fulfilled, (state, action) => {
-        state.items = action.payload;
-        state.count = action.payload.filter(
-          (el) => el.payment_state !== "COMPLETED"
-        ).length;
+        if (state.requestId !== action.meta.requestId) return;
+        state.items = action.payload.items;
+        state.bundles = action.payload.bundles;
+        state.couponStatus = undefined;
+        state.discountedAmount = undefined;
         state.loading = false;
         cartSlice.caseReducers.updateTotalAmount(state);
       })
-      .addCase(getCartThunk.rejected, (state) => {
+      .addCase(getCartThunk.rejected, (state, action) => {
+        if (state.requestId !== action.meta.requestId) return;
+        state.error = true;
         state.loading = false;
       })
       .addCase(getAccessoriesListThunk.pending, (state) => {
@@ -149,10 +162,19 @@ const cartSlice = createSlice({
       .addCase(getAccessoriesListThunk.fulfilled, (state, action) => {
         state.accessoryLoading = false;
         state.accessoryList = action.payload;
+        cartSlice.caseReducers.updateTotalAmount(state);
       })
       .addCase(getAccessoriesListThunk.rejected, (state) => {
         state.accessoryLoading = false;
-      });
+      })
+      .addMatcher(
+        action => [addBundleToCartThunk.pending.type, removeBundleFromCartThunk.pending.type].includes(action.type),
+        state => { state.loading = true; }
+      )
+      .addMatcher(
+        action => [addBundleToCartThunk.fulfilled.type, addBundleToCartThunk.rejected.type, removeBundleFromCartThunk.fulfilled.type, removeBundleFromCartThunk.rejected.type].includes(action.type),
+        state => { state.loading = false; }
+      );
   },
 });
 

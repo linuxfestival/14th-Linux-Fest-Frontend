@@ -80,13 +80,16 @@ test("cart page renders the red alert for selected and purchased conflicts and c
   const pageExports = {};
   const empty = () => null;
   const mockRequire = name => {
-    if (name === "react-redux") return { useSelector: () => ({ items, totalAmount: 0, loading: false }) };
+    if (name === "react-redux") return { useSelector: () => ({ items, bundles: [], totalAmount: 0, loading: false }) };
     if (name === "react-router-dom") return { Link: ({ to, children }) => React.createElement("a", { href: to }, children) };
     if (name === "react-icons/hi2") return { HiArrowLeft: empty, HiExclamationTriangle: empty };
     if (name.endsWith("/store")) return { useAppDispatch: () => () => {} };
     if (name.endsWith("cart.slice")) return { cartActions: {}, CartPage: {} };
     if (name.endsWith("cart.selector")) return { selectCartState: () => {} };
     if (name.endsWith("cart.conflicts")) return { findCartTimingConflicts };
+    if (name.endsWith("BundleCard")) return { default: empty };
+    if (name.endsWith("cart.pricing")) return { standaloneCartItems: items => items.filter(item => item.payment_state !== "COMPLETED" && item.bundle_selection == null) };
+    if (name.endsWith("cart.thunk")) return {};
     if (name.endsWith("CartItem")) return { default: empty };
     if (name.endsWith("DashboardUI")) return {
       DashboardPage: ({ children }) => React.createElement("main", null, children),

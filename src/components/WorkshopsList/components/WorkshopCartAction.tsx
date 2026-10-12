@@ -3,11 +3,12 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../../store";
 import { selectIsAuthenticated } from "../../../core/auth/auth.selector";
-import { selectIsItemPurchased, selectItemInCartById } from "../../../core/cart/cart.selector";
+import { selectCartState, selectIsItemPurchased, selectItemInCartById } from "../../../core/cart/cart.selector";
 import {
   addItemToCartThunk,
   getCartThunk,
   removeItemFromCartThunk,
+  removeBundleFromCartThunk,
 } from "../../../core/cart/cart.thunk";
 
 const WorkshopCartAction = ({
@@ -22,11 +23,18 @@ const WorkshopCartAction = ({
   const dispatch = useAppDispatch();
   const authenticated = useSelector(selectIsAuthenticated);
   const cartItem = useSelector(selectItemInCartById(id));
+  const { bundles, loading, error } = useSelector(selectCartState);
+  const bundleSelection = bundles.find(selection => selection.id === cartItem?.bundle_selection);
+  const bundled = cartItem?.bundle_selection != null;
   const purchased = useSelector(selectIsItemPurchased(id));
   const [pending, setPending] = useState(false);
 
   const updateCart = async () => {
-    if (purchased || pending) return;
+    if (purchased || pending || loading || error) return;
+    if (bundled && !bundleSelection) {
+      toast.info("برای حذف این برنامه، کل بسته را از سبد خرید حذف کنید.");
+      return;
+    }
     if (!authenticated) {
       toast.info("برای افزودن به سبد خرید باید وارد شوید");
       return;
@@ -34,7 +42,9 @@ const WorkshopCartAction = ({
     setPending(true);
     try {
       const result = cartItem
-        ? await dispatch(removeItemFromCartThunk(cartItem.id))
+        ? bundleSelection
+          ? await dispatch(removeBundleFromCartThunk(bundleSelection.bundle.id))
+          : await dispatch(removeItemFromCartThunk(cartItem.presentation.id))
         : await dispatch(addItemToCartThunk(id));
       if (result.meta.requestStatus === "fulfilled")
         await dispatch(getCartThunk());
@@ -47,7 +57,7 @@ const WorkshopCartAction = ({
     <button
       type="button"
       onClick={updateCart}
-      disabled={purchased || pending || (unavailable && !cartItem)}
+      disabled={purchased || pending || loading || error || (unavailable && !cartItem)}
       aria-busy={pending}
       data-featured={featured}
       data-state={purchased ? "purchased" : cartItem ? "in-cart" : unavailable ? "unavailable" : "available"}
@@ -58,7 +68,7 @@ const WorkshopCartAction = ({
         : pending
         ? "در حال به‌روزرسانی…"
         : cartItem
-          ? "حذف از سبد خرید"
+          ? bundled ? "حذف کل بسته از سبد خرید" : "حذف از سبد خرید"
           : unavailable
             ? "ثبت‌نام در دسترس نیست"
             : "اضافه به سبد خرید"}

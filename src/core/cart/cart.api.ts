@@ -1,6 +1,5 @@
 import { makeCall } from "../../utils/makeCall";
 import { CartItemDto } from "./cart.types";
-import { VerifyPaymentResponse } from "../payment/payment.dto.ts";
 
 export interface AddItemToCartResponse {
   detail: string;

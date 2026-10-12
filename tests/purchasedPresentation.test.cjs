@@ -72,7 +72,7 @@ for (const [name, file, props] of [
   for (const payment of ["COMPLETED", "PENDING", "FAILED", null]) {
     test(`${name}: ${payment || "new item"} has the correct purchase action`, async () => {
       dispatched = [];
-      state = { cart: { items: payment ? [{ id: 70, presentation, payment_state: payment }] : [] } };
+      state = { cart: { bundles: [], loading: false, error: false, items: payment ? [{ id: 70, presentation, payment_state: payment }] : [] } };
       const rendered = nodes(React.createElement(load(file).default, props));
       const button = rendered.find(node => node.type === "button" && node.props.onClick);
       assert.ok(button);

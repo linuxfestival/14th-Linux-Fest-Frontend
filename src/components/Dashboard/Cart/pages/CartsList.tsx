@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { HiArrowLeft, HiExclamationTriangle } from "react-icons/hi2";
+import BundleCard from "../../../WorkshopsList/components/BundleCard";
+import { standaloneCartItems } from "../../../../core/cart/cart.pricing";
+import { getCartThunk } from "../../../../core/cart/cart.thunk";
 import CartItem from "../components/CartItem";
 import { useAppDispatch } from "../../../../store";
 import { cartActions, CartPage } from "../../../../core/cart/cart.slice";
@@ -16,8 +19,8 @@ import { actionClass, dateText, priceText } from "../../dashboard.styles";
 const CartsList = () => {
   const dispatch = useAppDispatch();
   const [showConflicts, setShowConflicts] = useState(false);
-  const { items, totalAmount, loading } = useSelector(selectCartState);
-  const pending = items.filter((item) => item.payment_state !== "COMPLETED");
+  const { items, bundles, totalAmount, loading, error } = useSelector(selectCartState);
+  const pending = standaloneCartItems(items);
   const conflicts = findCartTimingConflicts(items);
   useEffect(() => {
     dispatch(cartActions.setPage(CartPage.Cart));
@@ -27,6 +30,9 @@ const CartsList = () => {
       title="سبد خرید"
       description="ارائه‌های انتخاب‌شده را بررسی کنید و سپس برای تکمیل خرید ادامه دهید."
     >
+      {error && <div role="alert" className="text-sm leading-7 text-ubuntu-red">دریافت سبد خرید ناموفق بود. برای بررسی مبلغ، دوباره تلاش کنید.
+        <button type="button" disabled={loading} onClick={() => dispatch(getCartThunk())} className="ms-3 min-h-11 rounded-lg px-3 underline">دریافت دوباره سبد خرید</button>
+      </div>}
       {conflicts.length > 0 && (
         <section role="alert" aria-labelledby="cart-timing-conflicts" className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-800 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -62,9 +68,10 @@ const CartsList = () => {
           </div>
         </section>
       )}
-      {pending.length ? (
+      {pending.length || bundles.length ? (
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="min-w-0 space-y-4">
+            {bundles.map(selection => <BundleCard key={selection.id} bundle={selection.bundle} cart />)}
             {pending.map(({ id, presentation }) => (
               <CartItem
                 key={id}
@@ -86,8 +93,8 @@ const CartsList = () => {
           <DashboardPanel className="xl:sticky xl:top-28">
             <h2 className="text-lg font-bold">خلاصه خرید</h2>
             <div className="mt-5 flex justify-between gap-3 text-sm text-dark-gray">
-              <span>ارائه‌های انتخاب‌شده</span>
-              <span>{priceText(pending.length)}</span>
+              <span>محصولات انتخاب‌شده</span>
+              <span>{priceText(pending.length + bundles.length)}</span>
             </div>
             <div className="mt-5 border-t border-primary/15 pt-5">
               <p className="text-sm text-dark-gray">مبلغ فعلی قابل پرداخت</p>
@@ -97,13 +104,13 @@ const CartsList = () => {
               </p>
             </div>
             <Link
-              aria-disabled={loading}
-              tabIndex={loading ? -1 : undefined}
+              aria-disabled={loading || error}
+              tabIndex={loading || error ? -1 : undefined}
               onClick={(event) => {
-                if (loading) event.preventDefault();
+                if (loading || error) event.preventDefault();
               }}
               to="/profile/cart/checkout"
-              className={`${actionClass} mt-6 w-full ${loading ? "opacity-60" : ""}`}
+              className={`${actionClass} mt-6 w-full ${loading || error ? "opacity-60" : ""}`}
             >
               تکمیل خرید
               <HiArrowLeft aria-hidden="true" className="size-4" />

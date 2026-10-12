@@ -78,6 +78,11 @@ export const PageMetaInformation: Record<string, PageInformationOptions> = {
       "ارائه آموزشی",
     ],
   },
+  ["/bundles"]: {
+    title: "بسته‌ها",
+    description: "بسته‌ها لینوکس‌فست را ببینید و ارائه‌ها و کارگاه‌ها را با یک قیمت مشخص، یکجا انتخاب کنید.",
+    keywords: ["بسته جشنواره", "کارگاه لینوکس", "لینوکس فست"],
+  },
   ["/event-format"]: {
     title: "قالب رویداد",
     description:

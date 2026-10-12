@@ -47,6 +47,12 @@ const BillingModal = ({
       <HiClipboardDocument aria-hidden="true" className="size-4" />
       کپی شناسه
     </button>
+    {!!payment.bundle_snapshot?.length && <section className="mt-6 border-t border-primary/15 pt-5">
+      <h3 className="text-sm font-bold">بسته‌های این پرداخت</h3>
+      <ul className="mt-3 space-y-2 text-sm leading-7">
+        {payment.bundle_snapshot.map(bundle => <li key={bundle.bundle_id} className="flex flex-wrap justify-between gap-3"><span dir="auto">{bundle.name}</span><span>{priceText(bundle.price)} تومان</span></li>)}
+      </ul>
+    </section>}
     <h3 className="mt-6 border-t border-primary/15 pt-5 text-sm font-bold">
       ارائه‌های این پرداخت
     </h3>

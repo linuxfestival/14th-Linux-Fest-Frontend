@@ -5,6 +5,7 @@ import Penguin from "../../assets/images/pinguin.webp";
 import { digitsToPersian } from "../../utils/digitsToPersian";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import BundlesBanner from "./components/BundlesBanner";
 import WorkshopCard from "./components/WorkshopCard";
 import WorkshopsFilter, { type Sort } from "./components/WorkshopsFilter";
 import { useAppDispatch } from "../../store";
@@ -125,6 +126,8 @@ const WorkshopsList = () => {
             </div>
             <img src={Penguin} alt="" aria-hidden="true" className="hidden w-44 shrink-0 -rotate-6 object-contain md:block lg:w-52" />
           </div>
+          <BundlesBanner />
+          <h2 className="mb-5 text-2xl font-black sm:text-3xl">ارائه‌ها و کارگاه‌ها</h2>
           <WorkshopsFilter
             search={search}
             sort={sort}

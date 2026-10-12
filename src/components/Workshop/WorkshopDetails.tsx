@@ -23,6 +23,7 @@ import { digitsToPersian } from "../../utils/digitsToPersian";
 interface Props {
   presentation: PresentationDto;
   inCart: boolean;
+  bundled?: boolean;
   purchased: boolean;
   authenticated: boolean;
   pending: boolean;
@@ -35,6 +36,7 @@ const richTextClass =
 const WorkshopDetails = ({
   presentation,
   inCart,
+  bundled = false,
   purchased,
   authenticated,
   pending,
@@ -239,7 +241,7 @@ const WorkshopDetails = ({
                 : pending
                 ? "در حال به‌روزرسانی…"
                 : inCart
-                ? "حذف از سبد خرید"
+                ? bundled ? "حذف کل بسته از سبد خرید" : "حذف از سبد خرید"
                 : unavailable
                 ? "ثبت‌نام در دسترس نیست"
                 : "اضافه به سبد خرید"}

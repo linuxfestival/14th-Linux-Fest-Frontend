@@ -24,6 +24,12 @@ export interface PaymentDto {
     user: number;
     coupon: string;
     participations: ParticipationDto[];
+    bundle_snapshot?: {
+        bundle_id: number;
+        name: string;
+        price: number;
+        presentation_ids: number[];
+    }[];
 }
 
 export interface FinalizePaymentRequest {

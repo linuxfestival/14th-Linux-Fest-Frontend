@@ -10,6 +10,7 @@ const Sponsor = React.lazy(() => import("./components/Sponsor/Sponsor"));
 const WorkshopsList = React.lazy(
   () => import("./components/WorkshopsList/WorkshopsList.tsx"),
 );
+const Bundles = React.lazy(() => import("./components/Bundles/Bundles"));
 // const ComingSoon = React.lazy(
 //   () => import("./components/ComingSoon/ComingSoon.tsx"),
 // );
@@ -192,6 +193,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Fallback />}>
             <WorkshopsList />
+          </Suspense>
+        ),
+      },
+      {
+        path: "bundles",
+        element: (
+          <Suspense fallback={<Fallback />}>
+            <Bundles />
           </Suspense>
         ),
       },

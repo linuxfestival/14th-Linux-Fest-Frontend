@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
 import { HiCalendarDays, HiTrash, HiUser } from "react-icons/hi2";
 import { useAppDispatch } from "../../../../store";
 import {
@@ -38,7 +37,6 @@ const CartItem = ({
     const result = await dispatch(removeItemFromCartThunk(id));
     if (removeItemFromCartThunk.fulfilled.match(result))
       await dispatch(getCartThunk());
-    else toast.error("حذف ارائه ناموفق بود. دوباره تلاش کنید.");
     setRemoving(false);
   };
   return (

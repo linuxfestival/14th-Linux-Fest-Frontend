@@ -33,3 +33,38 @@ holds sorting and availability controls; these remain visible on desktop.
 There is no reset/remove-filters button, including in filtered empty states.
 A live result count confirms search/filter changes. Registration and cart behavior
 are preserved.
+
+## Festival bundles
+
+`BundlesBanner` appears above the individual offering filters and links to the
+public `/bundles` page. The workshop page does not fetch the bundle catalog.
+Search, format, day, sorting, availability, and the result count continue to
+apply only to individual offerings.
+
+Bundles can contain presentations, workshops, or both. The shared user-facing
+name is «بسته‌ها» throughout the interface. Member formats
+retain «ارائه» for `TALK` and «کارگاه» for `WORKSHOP`, without implying that
+every bundle contains workshops. Header navigation, the landing hero and bundle
+section, and the Footer also link to `/bundles`.
+
+`Bundles/Bundles.tsx` provides the shared Header and Footer, a back link to
+`/workshops`, a page heading, and introductory copy. Its `BundlesList` fetches
+the separate bundles API. Loading and failure states remain visible, with a
+retry action on failure. An empty response shows an invitation and link to
+choose individual offerings.
+
+`BundleCard` keeps the existing Persian RTL, Vazirmatn, navy/orange palette, and
+rounded surfaces, with white member content beside a navy price panel on wide
+screens. Below the large breakpoint, price and actions stack below the members.
+Each entire member row links to its details and shows its format plus start/end
+schedule. The panel emphasizes the fixed total and, only when positive, the
+actual `original_price - price` savings beside the crossed-out separate-purchase
+price. It shows the backend's availability reason and disables adding
+unavailable bundles.
+
+Authenticated actions add or remove the whole bundle. The same card is reused
+as one cart row; member presentations remain linked for inspection, and removal
+always removes the whole bundle. After a successful mutation, the cart refreshes
+both presentations and bundle selections, and discovery reloads availability.
+See [bundle integration notes](../../core/bundles/README.md) for API and pricing
+assumptions.

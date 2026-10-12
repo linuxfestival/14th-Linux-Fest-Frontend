@@ -14,7 +14,8 @@
     "test:calendar": "node tests/presentationCalendar.test.cjs",
     "test:linux": "node tests/linux.test.mjs",
     "test:cart-conflicts": "node tests/cartTimingConflicts.test.cjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:bundles": "node tests/bundles.test.cjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.0",

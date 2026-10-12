@@ -36,7 +36,7 @@ const LegacyHeader = ({
   }, [pathname]);
 
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1024px)");
+    const desktop = window.matchMedia("(min-width: 1280px)");
     const close = () => setMenuOpen(false);
     desktop.addEventListener("change", close);
     return () => desktop.removeEventListener("change", close);
@@ -77,7 +77,7 @@ const LegacyHeader = ({
         },
       )}
     >
-      <div className="hidden lg:flex flex-row-reverse justify-start items-center gap-[10px] w-max xl:w-1/4 max-w-[250px]">
+      <div className="hidden xl:flex flex-row-reverse justify-start items-center gap-[10px] w-max max-w-[200px]">
         {isAuthenticated ? (
           <>
             <ShoppingCart className="mx-2" />
@@ -110,7 +110,7 @@ const LegacyHeader = ({
         )}
       </div>
       <nav
-        className="hidden items-center gap-4 text-lg font-medium lg:flex"
+        className="hidden items-center gap-1 text-sm font-medium xl:flex 2xl:gap-3"
         aria-label="ناوبری اصلی"
       >
         {siteNavigation.map((item) => (
@@ -120,7 +120,7 @@ const LegacyHeader = ({
             aria-current={isNavigationActive(item.to, pathname, hash) ? "page" : false}
             end={item.to === "/"}
             className={() =>
-              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isNavigationActive(item.to, pathname, hash) ? "border-secondary text-secondary" : "border-transparent"}`
+              `inline-flex min-h-11 items-center border-b-2 py-1 mx-2 transition-colors hover:border-secondary hover:text-secondary focus-visible:outline-2 focus-visible:outline-secondary ${isNavigationActive(item.to, pathname, hash) ? "border-secondary text-secondary" : item.to === "/bundles" ? "border-secondary/50 font-extrabold text-secondary" : "border-transparent"}`
             }
           >
             {item.label}
@@ -131,7 +131,7 @@ const LegacyHeader = ({
       <button
         ref={menuToggle}
         type="button"
-        className="inline-flex size-12 items-center justify-center rounded-lg text-text-white outline-offset-4 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-secondary lg:hidden"
+        className="inline-flex size-12 items-center justify-center rounded-lg text-text-white outline-offset-4 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-secondary xl:hidden"
         onClick={toggleMenu}
         aria-label="باز کردن منو"
         aria-expanded={menuOpen}
@@ -183,7 +183,7 @@ const LegacyHeader = ({
                   end={item.to === "/"}
                   onClick={() => setMenuOpen(false)}
                   className={() =>
-                    isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : undefined
+                    isNavigationActive(item.to, pathname, hash) ? "bg-white/5 text-secondary" : item.to === "/bundles" ? "text-secondary" : undefined
                   }
                 >
                   {item.label}

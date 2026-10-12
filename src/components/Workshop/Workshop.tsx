@@ -8,11 +8,12 @@ import Footer from "../Footer/Footer";
 import { useAppDispatch } from "../../store";
 import { selectCurrentPresentation } from "../../core/presentations/presentations.selector";
 import { getPresentationByIDThunk } from "../../core/presentations/presentations.thunk";
-import { selectIsItemPurchased, selectItemInCartById } from "../../core/cart/cart.selector";
+import { selectCartState, selectIsItemPurchased, selectItemInCartById } from "../../core/cart/cart.selector";
 import {
   addItemToCartThunk,
   getCartThunk,
   removeItemFromCartThunk,
+  removeBundleFromCartThunk,
 } from "../../core/cart/cart.thunk";
 import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import WorkshopDetails from "./WorkshopDetails";
@@ -25,6 +26,9 @@ const Workshop = () => {
   const dispatch = useAppDispatch();
   const presentation = useSelector(selectCurrentPresentation);
   const cartItem = useSelector(selectItemInCartById(Number(id)));
+  const { bundles, loading, error } = useSelector(selectCartState);
+  const bundleSelection = bundles.find(selection => selection.id === cartItem?.bundle_selection);
+  const bundled = cartItem?.bundle_selection != null;
   const purchased = useSelector(selectIsItemPurchased(Number(id)));
   const authenticated = useSelector(selectIsAuthenticated);
   const [pending, setPending] = useState(false);
@@ -54,7 +58,11 @@ const Workshop = () => {
   }, [dispatch, authenticated]);
 
   const updateCart = async () => {
-    if (purchased || pending) return;
+    if (purchased || pending || loading || error) return;
+    if (bundled && !bundleSelection) {
+      toast.info("برای حذف این برنامه، کل بسته را از سبد خرید حذف کنید.");
+      return;
+    }
     if (!authenticated) {
       toast.info("برای افزودن به سبد خرید باید وارد شوید");
       return;
@@ -63,7 +71,9 @@ const Workshop = () => {
     setPending(true);
     try {
       const result = cartItem
-        ? await dispatch(removeItemFromCartThunk(cartItem.id))
+        ? bundleSelection
+          ? await dispatch(removeBundleFromCartThunk(bundleSelection.bundle.id))
+          : await dispatch(removeItemFromCartThunk(cartItem.presentation.id))
         : await dispatch(addItemToCartThunk(current.id));
       if (result.meta.requestStatus === "fulfilled")
         await dispatch(getCartThunk());
@@ -161,7 +171,8 @@ const Workshop = () => {
             inCart={!!cartItem && !purchased}
             purchased={purchased}
             authenticated={authenticated}
-            pending={pending}
+            pending={pending || !!loading || error}
+            bundled={bundled}
             onUpdateCart={updateCart}
           />
         ) : (
