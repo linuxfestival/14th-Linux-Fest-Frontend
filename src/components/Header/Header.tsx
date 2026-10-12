@@ -159,6 +159,10 @@ const LegacyHeader = ({
                 <Button
                   size={ButtonSizes.MEDIUM}
                   variant={ButtonVariants.OUTLINE}
+                  className={clsx(
+                    landingOnLight &&
+                      "!text-primary hover:!text-primary focus-visible:outline-primary",
+                  )}
                 >
                   ورود
                 </Button>
