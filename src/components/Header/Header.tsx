@@ -39,7 +39,7 @@ const CommunityDayRegistrationNotice = ({
           to="/community-day"
           className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3 text-xs font-extrabold text-white transition-colors hover:bg-[#234e86] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:px-4 sm:text-sm"
         >
-          همین حالا
+          همین حالا ثبت نام کنید
         </Link>
         <button
           type="button"
@@ -340,7 +340,9 @@ const Header = (props: Props) => {
   const [registrationNoticeDismissed, setRegistrationNoticeDismissed] =
     useState(() => {
       try {
-        return window.localStorage.getItem(COMMUNITY_DAY_NOTICE_DISMISSED) === "true";
+        return (
+          window.localStorage.getItem(COMMUNITY_DAY_NOTICE_DISMISSED) === "true"
+        );
       } catch {
         return false;
       }

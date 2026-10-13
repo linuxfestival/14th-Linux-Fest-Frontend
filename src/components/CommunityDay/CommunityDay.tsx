@@ -3,11 +3,9 @@ import { useSelector } from "react-redux";
 import {
   HiArrowLeft,
   HiCalendarDays,
-  HiCamera,
   HiGift,
   HiMapPin,
   HiTicket,
-  HiUserGroup,
 } from "react-icons/hi2";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -219,7 +217,7 @@ const CommunityDay = () => {
                     alt={`تصویر موقت ${active.speaker}`}
                     className="community-talk-detail__image"
                   />
-                  <span>ارائه {digitsToPersian(activeTalk + 1)} از ۶</span>
+                  <span>ارائه {digitsToPersian(String(activeTalk + 1))} از ۶</span>
                 </div>
                 <div className="community-talk-detail__body">
                   <p className="font-bold text-[#f2a11b]">{active.speaker}</p>

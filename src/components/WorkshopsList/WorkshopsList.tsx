@@ -233,7 +233,7 @@ const WorkshopsList = () => {
       workshops
         .filter(
           (item) =>
-            item.id !== 24 &&
+            (item.id !== 24 || day !== "ALL") &&
             (format === "ALL" || item.service === format) &&
             (day === "ALL" || item.day === day) &&
             (!availableOnly ||
@@ -296,7 +296,7 @@ const WorkshopsList = () => {
               className="hidden w-44 shrink-0 -rotate-6 object-contain md:block lg:w-52"
             />
           </div>
-          {format === "ALL" && communityDay && (
+          {format === "ALL" && day === "ALL" && communityDay && (
             <CommunityDaySpotlight item={communityDay} />
           )}
           <h2 className="mb-5 text-2xl font-black sm:text-3xl">
@@ -358,7 +358,7 @@ const WorkshopsList = () => {
                 ? "دریافت انجام نشد"
                 : format === "BUNDLE"
                   ? `${digitsToPersian(visibleBundles.length.toString())} بسته`
-                  : `${digitsToPersian((visible.length + (format === "ALL" && communityDay ? 1 : 0)).toString())} ارائه`}
+                  : `${digitsToPersian((visible.length + (format === "ALL" && day === "ALL" && communityDay ? 1 : 0)).toString())} ارائه`}
           </p>
           {bundlesError && (
             <div

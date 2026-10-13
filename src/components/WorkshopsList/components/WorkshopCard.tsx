@@ -9,6 +9,8 @@ import {
   HiCommandLine,
   HiMicrophone,
   HiSquares2X2,
+  HiTicket,
+  HiUserGroup,
 } from "react-icons/hi2";
 import { PresentationService } from "../../../core/presentations/presentations.dto";
 import { digitsToPersian } from "../../../utils/digitsToPersian";
@@ -21,7 +23,10 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
   const full = item.remaining === 0;
   const isInstallFest =
     item.id === 23 && item.service === PresentationService.PACKAGE;
-  const featured = item.service === PresentationService.PACKAGE && !isInstallFest;
+  const isCommunityDay =
+    item.id === 24 && item.service === PresentationService.PACKAGE;
+  const featured =
+    item.service === PresentationService.PACKAGE && !isInstallFest;
   const workshop = item.service === PresentationService.WORKSHOP;
   const Icon =
     featured || isInstallFest
@@ -31,11 +36,13 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
         : HiMicrophone;
   const label = isInstallFest
     ? "Install Fest"
-    : featured
-      ? "پکیج"
-      : workshop
-        ? "کارگاه عملی"
-        : "ارائه";
+    : isCommunityDay
+      ? "روز جامعه"
+      : featured
+        ? "پکیج"
+        : workshop
+          ? "کارگاه عملی"
+          : "ارائه";
   const online = item.tags.includes("Online");
   const inPerson = item.tags.includes("In-Person");
   const tags = item.tags.filter(
@@ -43,7 +50,94 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
   );
   const description = item.description.trim();
   const secondary = featured ? "text-text-gray" : "text-dark-gray";
-  const detailsPath = isInstallFest ? "/install-fest" : `/workshop/${item.id}`;
+  const detailsPath = isInstallFest
+    ? "/install-fest"
+    : isCommunityDay
+      ? "/community-day"
+      : `/workshop/${item.id}`;
+
+  if (isCommunityDay) {
+    return (
+      <article className="group relative isolate overflow-hidden rounded-2xl bg-[#111a35] text-[#fff8eb] shadow-[0_18px_38px_rgba(17,26,53,.2)] transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_26px_48px_rgba(17,26,53,.3)] md:col-span-2 xl:col-span-3">
+        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full border-[26px] border-[#f2a11b]/25" />
+        <div className="pointer-events-none absolute -bottom-28 left-[38%] size-64 rounded-full bg-[#f2a11b]/10 blur-3xl" />
+        <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end lg:gap-12 lg:p-10">
+          <div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-extrabold text-[#f7bc4d]">
+              <span className="inline-flex items-center gap-2">
+                <HiUserGroup className="size-5" aria-hidden="true" />
+                روز جامعه
+              </span>
+              <span className="h-1 w-1 rounded-full bg-[#f7bc4d]/70" />
+              <bdi lang="en" className="tracking-wide">
+                Community Day
+              </bdi>
+            </div>
+            <h2 className="mt-5 max-w-2xl text-3xl font-black leading-tight tracking-[-.03em] sm:text-5xl">
+              یک روز برای آدم‌های جامعه‌ی لینوکس
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-8 text-[#d8e0f0] sm:text-base">
+              دورهمی‌ای برای اشتراک تجربه، ارائه‌های کوتاه و آشنایی با آدم‌هایی
+              که مثل تو به لینوکس و متن‌باز علاقه دارند.
+            </p>
+          </div>
+
+          <div className="border-t border-[#fff8eb]/20 pt-6 lg:border-t-0 lg:border-r lg:pr-8 lg:pt-0">
+            <dl className="space-y-3 text-sm font-bold text-[#d8e0f0] tabular-nums">
+              <div className="flex items-center gap-2">
+                <HiCalendarDays
+                  className="size-5 text-[#f7bc4d]"
+                  aria-hidden="true"
+                />
+                <dd>{item.dateLabel}</dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <HiClock className="size-5 text-[#f7bc4d]" aria-hidden="true" />
+                <dd>{item.time}</dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <HiMapPin
+                  className="size-5 text-[#f7bc4d]"
+                  aria-hidden="true"
+                />
+                <dd>دانشگاه صنعتی امیرکبیر</dd>
+              </div>
+            </dl>
+            <div className="mt-7 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-lg font-black tabular-nums text-[#fff8eb]">
+                  {item.price === 0
+                    ? "رایگان"
+                    : `${digitsToPersian((item.price / 1000).toString())} هزار تومان`}
+                </p>
+              </div>
+              <Link
+                to={detailsPath}
+                className="inline-flex min-h-11 items-center gap-2 text-sm font-extrabold text-[#f7bc4d] underline decoration-2 underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f7bc4d]"
+              >
+                جزئیات روز
+                <HiArrowLeft
+                  className="size-4 transition-transform motion-safe:group-hover:-translate-x-1"
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
+            <WorkshopCartAction
+              id={item.id}
+              unavailable={full || !item.registrationActive}
+              featured
+              labels={{
+                add: "خرید بلیت روز جامعه",
+                purchased: "ثبت‌نام شده",
+              }}
+              icon={<HiTicket className="size-5" aria-hidden="true" />}
+              className="!mt-5 !inline-flex !min-h-12 !items-center !justify-center !gap-2 !rounded-xl !bg-[#f2a11b] !text-primary hover:!bg-[#f7bc4d] focus-visible:!outline-[#f7bc4d]"
+            />
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   if (isInstallFest) {
     return (
@@ -275,11 +369,13 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
             >
               {isInstallFest
                 ? "درباره Install Fest"
-                : workshop
-                  ? "جزئیات کارگاه"
-                  : featured
-                    ? "جزئیات پکیج"
-                    : "جزئیات ارائه"}
+                : isCommunityDay
+                  ? "جزئیات روز جامعه"
+                  : workshop
+                    ? "جزئیات کارگاه"
+                    : featured
+                      ? "جزئیات پکیج"
+                      : "جزئیات ارائه"}
               <HiArrowLeft
                 aria-hidden="true"
                 className="size-4 transition-transform motion-safe:group-hover:-translate-x-1"
@@ -296,7 +392,12 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
                     add: "افزودن Install Fest به سبد خرید",
                     purchased: "ثبت‌نام شده",
                   }
-                : undefined
+                : isCommunityDay
+                  ? {
+                      add: "خرید بلیت روز جامعه",
+                      purchased: "ثبت‌نام شده",
+                    }
+                  : undefined
             }
           />
         </div>
