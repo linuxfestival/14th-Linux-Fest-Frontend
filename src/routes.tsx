@@ -40,6 +40,7 @@ const ProfileWorkshops = React.lazy(
 const Billings = React.lazy(
   () => import("./components/Dashboard/Billings/Billings.tsx"),
 );
+const Skyroom = React.lazy(() => import("./components/Dashboard/Skyroom/Skyroom"));
 const CartLayout = React.lazy(
   () => import("./components/Dashboard/Cart/CartLayout.tsx"),
 );
@@ -144,6 +145,10 @@ const router = createBrowserRouter([
                 <ProfileWorkshops />
               </Suspense>
             ),
+          },
+          {
+            path: "skyroom",
+            element: <Suspense fallback={<DashboardLoading />}><Skyroom /></Suspense>,
           },
           {
             path: "billing",

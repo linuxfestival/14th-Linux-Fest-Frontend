@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { type RootState, useAppDispatch } from "../../../store";
 import { getCartThunk } from "../../../core/cart/cart.thunk";
 import RegisteredWorkshop from "./Components/RegisteredWorkshop";
@@ -33,6 +34,7 @@ const ProfileWorkshops = () => {
     <DashboardPage
       title="کارگاه‌های من"
       description="ارائه‌هایی که ثبت‌نام و پرداختشان تکمیل شده، اینجا نمایش داده می‌شوند."
+      action={<Link to="/profile/skyroom" className={secondaryActionClass}>ورود به اسکای‌روم</Link>}
     >
       {loading || !ready ? (
         <DashboardLoading />
