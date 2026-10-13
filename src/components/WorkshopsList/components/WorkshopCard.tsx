@@ -56,6 +56,14 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
       ? "/community-day"
       : `/workshop/${item.id}`;
 
+  const kireKhar10roozenakhabidam = (x: number) => {
+    // if (x <= 20) return Math.max(x - 5, 0);
+    // if (x <= 50) return Math.max(x - 17, 15);
+
+    // return Math.max(x - 22, 33);
+    return x;
+  };
+
   if (isCommunityDay) {
     return (
       <article className="group relative isolate overflow-hidden rounded-2xl bg-[#111a35] text-[#fff8eb] shadow-[0_18px_38px_rgba(17,26,53,.2)] transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_26px_48px_rgba(17,26,53,.3)] md:col-span-2 xl:col-span-3">
@@ -197,7 +205,7 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
                   ? "ظرفیت تکمیل شده"
                   : !item.registrationActive
                     ? "ثبت‌نام بسته است"
-                    : `${digitsToPersian(item.remaining.toString())} جای خالی`}
+                    : `${digitsToPersian(kireKhar10roozenakhabidam(item.remaining).toString())} جای خالی`}
               </p>
               <Link
                 to="/install-fest"
@@ -360,7 +368,7 @@ const WorkshopCard = ({ item }: { item: WorkshopItem }) => {
                   ? "ظرفیت تکمیل شده"
                   : !item.registrationActive
                     ? "ثبت‌نام بسته است"
-                    : `${digitsToPersian(item.remaining.toString())} جای خالی`}
+                    : `${digitsToPersian(kireKhar10roozenakhabidam(item.remaining).toString())} جای خالی`}
               </p>
             </div>
             <Link
