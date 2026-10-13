@@ -6,8 +6,8 @@ const vm = require("node:vm");
 const ts = require("typescript");
 const axios = require("axios");
 
-function loadApi() {
-  const events = { errors: [], toasts: [] };
+function loadApi(accessToken) {
+  const events = { errors: [], toasts: [], debug: [] };
   const source = fs.readFileSync(path.join(__dirname, "../src/utils/makeCall.ts"), "utf8")
     .replaceAll("import.meta.env.VITE_BASE_URL", '""');
   const code = ts.transpileModule(source, {
@@ -18,10 +18,10 @@ function loadApi() {
     exports,
     window: { __RUNTIME_CONFIG__: { API_BASE_URL: "https://test.invalid" } },
     require(name) {
-      if (name === "./logger") return { logger: { debug() {}, error(value) { events.errors.push(value); } } };
+      if (name === "./logger") return { logger: { debug(value) { events.debug.push(value); }, error(value) { events.errors.push(value); } } };
       if (name === "react-toastify") return { toast: { info(value) { events.toasts.push(value); }, error(value) { events.toasts.push(value); } } };
       if (name === "./locales/locales") return { errors: { connectionError: "Connection failed" } };
-      if (name === "js-cookie") return { get() {}, set() {} };
+      if (name === "js-cookie") return { get(name) { return name === "access_token" ? accessToken : undefined; }, set() {} };
       return require(name);
     },
   });
@@ -116,4 +116,29 @@ test("non-retryable responses still reject immediately", async () => {
   await assert.rejects(makeCall("/invalid")(), /Server unavailable/);
   assert.equal(attempts, 1);
   assert.equal(events.errors.length, 1);
+});
+
+test("Skyroom requests authenticate and never log the credential response", async () => {
+  const { default: api, makeCall, events } = loadApi("test-access-token");
+  api.defaults.adapter = async config => {
+    assert.equal(config.headers.Authorization, "Bearer test-access-token");
+    return { status: 200, statusText: "OK", headers: {}, config,
+      data: { username: "skyuser", password: "09123456789", presentations: [] } };
+  };
+  const response = await makeCall("/api/users/skyroom/", "GET", true)();
+  assert.equal(response.data.username, "skyuser");
+  assert.equal(events.debug.length, 0);
+  assert.equal(events.errors.length, 0);
+});
+
+test("Skyroom failures do not log response data or authorization headers", async () => {
+  const { default: api, makeCall, events } = loadApi("test-access-token");
+  api.defaults.adapter = async config => {
+    const error = failingResponse(config);
+    error.response.status = 404;
+    throw error;
+  };
+  await assert.rejects(makeCall("/api/users/skyroom/", "GET", true)());
+  assert.equal(events.errors.length, 0);
+  assert.equal(events.debug.length, 0);
 });

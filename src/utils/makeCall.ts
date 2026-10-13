@@ -63,12 +63,16 @@ axiosRetry(api, {
 });
 
 const finalizedErrors = new WeakSet<object>();
+const containsSkyroomCredentials = (url?: string) =>
+  url?.includes("/api/users/skyroom/") ?? false;
 
 api.interceptors.response.use(
   (response) => {
-    logger.debug(
-      `response for ${response.config.url} ${JSON.stringify(response)}`,
-    );
+    if (!containsSkyroomCredentials(response.config.url)) {
+      logger.debug(
+        `response for ${response.config.url} ${JSON.stringify(response)}`,
+      );
+    }
     return response;
   },
   async (error) => {
@@ -123,7 +127,7 @@ api.interceptors.response.use(
       }
     }
 
-    logger.error(error.response);
+    if (!containsSkyroomCredentials(originalRequest?.url)) logger.error(error.response);
     return Promise.reject(error);
   },
 );

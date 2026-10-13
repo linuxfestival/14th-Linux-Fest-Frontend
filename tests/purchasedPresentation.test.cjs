@@ -28,7 +28,7 @@ function load(relative) {
       ...React, useState: value => [value, () => {}], useEffect: () => {},
     };
     if (name === "react-redux") return { useSelector: selector => selector(state) };
-    if (name === "react-router-dom") return { useParams: () => ({ id: "7" }), Link: empty };
+    if (name === "react-router-dom") return { useParams: () => ({ id: "7" }), useNavigate: () => () => {}, Link: empty };
     if (name === "react-helmet-async") return { Helmet: empty };
     if (name === "react-toastify") return { toast: { info: () => {} } };
     if (name.startsWith("react-icons/")) return new Proxy({}, { get: () => empty });

@@ -175,6 +175,10 @@ export const PageMetaInformation: Record<string, PageInformationOptions> = {
     title: "پرداخت ها",
     description: "پرداخت های خود را مشاهده کنید",
   },
+  ["/profile/skyroom"]: {
+    title: "اسکای‌روم",
+    description: "اطلاعات ورود و اتاق‌های ارائه‌های آنلاین ثبت‌نام‌شده شما",
+  },
   ["/profile/support"]: {
     title: "پشتیبانی",
     description: "با پشتیبانی جشنواره تماس بگیرید",
