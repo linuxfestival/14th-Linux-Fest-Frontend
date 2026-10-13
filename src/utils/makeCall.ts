@@ -66,6 +66,52 @@ const finalizedErrors = new WeakSet<object>();
 const containsSkyroomCredentials = (url?: string) =>
   url?.includes("/api/users/skyroom/") ?? false;
 
+// Endpoints that establish a session themselves. A 401 from one of these must
+// never trigger another refresh attempt or a "please log in" redirect.
+const AUTH_ENDPOINTS = ["api/token/access/", "api/token/refresh/"];
+
+const isAuthEndpoint = (url?: string) =>
+  Boolean(url && AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint)));
+
+// Single-flight refresh. While one refresh is in flight every concurrent 401
+// awaits the same promise instead of spending the (possibly rotating) refresh
+// token several times and logging the user out.
+let refreshPromise: Promise<string | null> | null = null;
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  const refresh = Cookies.get("refresh_token");
+  if (!refresh) return null;
+
+  const [{ default: store }, { refreshThunk }] = await Promise.all([
+    import("../store.ts"),
+    import("../core/auth/auth.thunk.ts"),
+  ]);
+
+  const result = await store.dispatch(refreshThunk({ refresh }));
+  if (refreshThunk.rejected.match(result)) return null;
+
+  const payload = result.payload as RefreshTokenResponse | undefined;
+  const access = payload?.access;
+  if (!access) return null;
+
+  Cookies.set("access_token", access, {
+    secure: true,
+    sameSite: "Strict",
+  }); // Store new token
+
+  // When the backend rotates refresh tokens, the old one gets blacklisted, so
+  // the newest refresh token must be persisted or the next refresh will fail
+  // (that is what fills up Django's blacklisted-tokens table).
+  if (payload?.refresh) {
+    Cookies.set("refresh_token", payload.refresh, {
+      secure: true,
+      sameSite: "Strict",
+    });
+  }
+
+  return access;
+};
+
 api.interceptors.response.use(
   (response) => {
     if (!containsSkyroomCredentials(response.config.url)) {
@@ -84,45 +130,45 @@ api.interceptors.response.use(
     }
 
     const originalRequest = error.config;
-    if (error.response?.status === 401) {
+    const url: string | undefined = originalRequest?.url;
+
+    if (error.response?.status === 401 && !isAuthEndpoint(url)) {
       // API factories are created while the store's modules initialize. Load
       // their authentication dependencies only when a request needs recovery
       // to avoid the makeCall -> store -> cart/auth API initialization cycle.
-      const [{ default: store }, { refreshThunk }, { logout }] =
-        await Promise.all([
-          import("../store.ts"),
-          import("../core/auth/auth.thunk.ts"),
-          import("../core/auth/auth.slice.ts"),
-        ]);
+      const [{ default: store }, { logout }] = await Promise.all([
+        import("../store.ts"),
+        import("../core/auth/auth.slice.ts"),
+      ]);
+
       try {
-        if (originalRequest.url?.includes("api/token/")) {
-          throw error;
-        }
+        refreshPromise =
+          refreshPromise ??
+          refreshAccessToken().finally(() => {
+            refreshPromise = null;
+          });
 
-        const result = await store.dispatch(
-          refreshThunk({
-            refresh: Cookies.get("refresh_token") ?? "asdf",
-          }),
-        );
+        const access = await refreshPromise;
 
-        const { access } = result.payload as RefreshTokenResponse;
-
-        if (access) {
-          Cookies.set("access_token", access, {
-            secure: true,
-            sameSite: "Strict",
-          }); // Store new token
+        if (access && originalRequest) {
           originalRequest.headers.Authorization = `Bearer ${access}`;
 
           // Retry the original request with the new token
           return api(originalRequest);
         }
+
+        // No refresh token available: the session is already gone.
+        throw error;
       } catch (refreshError) {
-        if (!originalRequest.url?.includes("api/token/access/"))
-          toast.error("نیاز دارید تا وارد شوید!");
+        const hadSession = Boolean(
+          Cookies.get("refresh_token") || Cookies.get("access_token"),
+        );
         store.dispatch(logout());
-        const { default: router } = await import("../routes.tsx");
-        router.navigate("/login");
+        if (hadSession) {
+          toast.error("نیاز دارید تا وارد شوید!");
+          const { default: router } = await import("../routes.tsx");
+          router.navigate("/login");
+        }
         return Promise.reject(refreshError);
       }
     }
