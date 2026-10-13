@@ -1,4 +1,9 @@
-import { HiCheckCircle, HiComputerDesktop, HiUserGroup } from "react-icons/hi2";
+import {
+  HiArrowDownTray,
+  HiCheckCircle,
+  HiComputerDesktop,
+  HiUserGroup,
+} from "react-icons/hi2";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../store";
@@ -237,6 +242,14 @@ const InstallFest = () => {
                 لپ‌تاپ و شارژرت رو با خودت بیار.
               </li>
             </ul>
+            <a
+              href="/Installfest_Handbook.pdf"
+              download
+              className={`mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3 font-bold text-primary transition-colors hover:bg-[#e58210] ${focus}`}
+            >
+              <HiArrowDownTray aria-hidden="true" className="size-5" />
+              دانلود هندبوک Install Fest
+            </a>
           </aside>
         </section>
 
