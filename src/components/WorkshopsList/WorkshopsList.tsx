@@ -29,6 +29,29 @@ import { selectIsAuthenticated } from "../../core/auth/auth.selector";
 import { getCartThunk } from "../../core/cart/cart.thunk";
 import type { WorkshopItem } from "./workshops.adapter";
 
+interface ScheduleSlot {
+  key: string;
+  day: string;
+  dateLabel: string;
+  time: string;
+  start: string;
+  items: WorkshopItem[];
+}
+
+type ScheduleBlock =
+  | {
+      kind: "single";
+      key: string;
+      day: string;
+      dateLabel: string;
+      items: WorkshopItem[];
+    }
+  | {
+      kind: "choices";
+      key: string;
+      slot: ScheduleSlot;
+    };
+
 const formats = [
   { label: "همه ارائه‌ها", value: "ALL" },
   { label: "کارگاه‌ها", value: PresentationService.WORKSHOP },
@@ -265,6 +288,55 @@ const WorkshopsList = () => {
     day !== "ALL" ||
     availableOnly ||
     sort !== "SORT_BY_DATE";
+  const schedule = useMemo(() => {
+    const slots = new Map<string, ScheduleSlot>();
+
+    visible.forEach((item) => {
+      const key = `${item.start}-${item.end}`;
+      const existing = slots.get(key);
+
+      if (existing) {
+        existing.items.push(item);
+        return;
+      }
+
+      slots.set(key, {
+        key,
+        day: item.day,
+        dateLabel: item.dateLabel,
+        time: item.time,
+        start: item.start,
+        items: [item],
+      });
+    });
+
+    return [...slots.values()].sort((a, b) => a.start.localeCompare(b.start));
+  }, [visible]);
+  const scheduleBlocks = useMemo(
+    () =>
+      schedule.reduce<ScheduleBlock[]>((blocks, slot) => {
+        if (slot.items.length > 1) {
+          blocks.push({ kind: "choices", key: slot.key, slot });
+          return blocks;
+        }
+
+        const previous = blocks.at(-1);
+        if (previous?.kind === "single" && previous.day === slot.day) {
+          previous.items.push(...slot.items);
+          return blocks;
+        }
+
+        blocks.push({
+          kind: "single",
+          key: slot.key,
+          day: slot.day,
+          dateLabel: slot.dateLabel,
+          items: [...slot.items],
+        });
+        return blocks;
+      }, []),
+    [schedule],
+  );
 
   return (
     <>
@@ -358,7 +430,9 @@ const WorkshopsList = () => {
                 ? "دریافت انجام نشد"
                 : format === "BUNDLE"
                   ? `${digitsToPersian(visibleBundles.length.toString())} بسته`
-                  : `${digitsToPersian((visible.length + (format === "ALL" && day === "ALL" && communityDay ? 1 : 0)).toString())} ارائه`}
+                  : sort === "SORT_BY_DATE"
+                    ? `${digitsToPersian(schedule.length.toString())} بازه زمانی · ${digitsToPersian(visible.length.toString())} ارائه`
+                    : `${digitsToPersian((visible.length + (format === "ALL" && day === "ALL" && communityDay ? 1 : 0)).toString())} ارائه`}
           </p>
           {bundlesError && (
             <div
@@ -434,11 +508,71 @@ const WorkshopsList = () => {
               ))}
             </div>
           ) : format !== "BUNDLE" && visible.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {visible.map((item) => (
-                <WorkshopCard key={item.id} item={item} />
-              ))}
-            </div>
+            sort === "SORT_BY_DATE" ? (
+              <div className="space-y-10">
+                {scheduleBlocks.map((block) => {
+                  if (block.kind === "single") {
+                    const headingId = `schedule-day-${block.key}`;
+
+                    return (
+                      <section key={block.key} aria-labelledby={headingId}>
+                        <h3
+                          id={headingId}
+                          className="border-b border-primary/15 pb-4 text-xl font-black leading-8 text-primary sm:text-2xl"
+                        >
+                          {block.dateLabel}
+                        </h3>
+                        <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                          {block.items.map((item) => (
+                            <WorkshopCard key={item.id} item={item} />
+                          ))}
+                        </div>
+                      </section>
+                    );
+                  }
+
+                  const { slot } = block;
+                  const headingId = `schedule-slot-${slot.key}`;
+
+                  return (
+                    <section key={block.key} aria-labelledby={headingId}>
+                      <div className="flex flex-col gap-3 border-b border-primary/15 pb-4 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <h3
+                            id={headingId}
+                            className="text-xl font-black leading-8 text-primary sm:text-2xl"
+                          >
+                            {slot.dateLabel}
+                          </h3>
+                          <p className="mt-1 inline-flex items-center gap-2 text-sm font-bold tabular-nums text-dark-gray">
+                            <HiClock
+                              className="size-4 text-orange-ink"
+                              aria-hidden="true"
+                            />
+                            {slot.time}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 text-sm leading-7 text-dark-gray">
+                        این ارائه‌ها هم‌زمان برگزار می‌شن، برای این بازه، یکی رو
+                        انتخاب کن که بیشتر دوست داری.
+                      </p>
+                      <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                        {slot.items.map((item) => (
+                          <WorkshopCard key={item.id} item={item} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {visible.map((item) => (
+                  <WorkshopCard key={item.id} item={item} />
+                ))}
+              </div>
+            )
           ) : !loading && !bundlesLoading && !loadError && !bundlesError ? (
             <div className="flex flex-col items-center py-16 text-center">
               <HiMagnifyingGlass

@@ -12,6 +12,7 @@ export interface WorkshopItem {
   description: string;
   service: PresentationService;
   start: string;
+  end: string;
   day: string;
   dateLabel: string;
   time: string;
@@ -49,6 +50,7 @@ export const toWorkshopItem = (item: PresentationDto): WorkshopItem => {
     description: stripHtml(item.fa_description || item.en_description),
     service: item.service_type,
     start: start.toISOString(),
+    end: end.toISOString(),
     day: new Intl.DateTimeFormat("en-CA", {
       timeZone,
       year: "numeric",
