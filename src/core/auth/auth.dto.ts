@@ -66,4 +66,7 @@ export interface RefreshTokenRequest {
 
 export interface RefreshTokenResponse {
     access: string;
+    // Present only when the backend rotates refresh tokens
+    // (SIMPLE_JWT ROTATE_REFRESH_TOKENS = True).
+    refresh?: string;
 }

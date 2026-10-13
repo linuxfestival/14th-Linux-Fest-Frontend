@@ -31,13 +31,9 @@ export const signupThunk = createAsyncThunk(
     }
 );
 export const refreshThunk = createAsyncThunk<RefreshTokenResponse, RefreshTokenRequest>(
-    "auth/signup",
+    "auth/refresh",
     async (request: RefreshTokenRequest, {rejectWithValue}) => {
         try {
-            // Ensure passwords match before making an API call
-
-
-            // Call the API to register the user
             const response: AxiosResponse<RefreshTokenResponse> = await refreshToken(request);
 
             return response.data;
